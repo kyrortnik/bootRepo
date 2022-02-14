@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Component
 @Entity
+@DynamicUpdate
 @Table(name = "certificates")
 public class GiftCertificate {
 
@@ -39,6 +41,10 @@ public class GiftCertificate {
     private List<Tag> tags = new ArrayList<>();
 
     protected GiftCertificate() {
+    }
+
+    public GiftCertificate(long id){
+        this.id = id;
     }
 
     public GiftCertificate(String name, String description, Long price, Long duration,
@@ -78,9 +84,9 @@ public class GiftCertificate {
         return id;
     }
 
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

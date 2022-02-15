@@ -11,8 +11,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
-@Repository
+//@Repository
 public class TagRepositoryJDBC implements TagRepository {
 
 
@@ -48,8 +49,9 @@ public class TagRepositoryJDBC implements TagRepository {
     }
 
     @Override
-    public Tag getTag(Long id) {
-        return namedParameterJdbcTemplate.getJdbcOperations().query(GET_TAG, rs -> rs.next() ? MAPPER_TAG.mapRow(rs, 1) : null, id);
+    public Optional<Tag> getTag(Long id) {
+//        return namedParameterJdbcTemplate.getJdbcOperations().query(GET_TAG, rs -> rs.next() ? MAPPER_TAG.mapRow(rs, 1) : null, id);
+        return Optional.empty();
     }
 
 
@@ -67,10 +69,11 @@ public class TagRepositoryJDBC implements TagRepository {
 
     @Override
     @Transactional
-    public Tag create(Tag tag) {
-        BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(tag);
-        long createdTagId = (Long) simpleJdbcInsert.executeAndReturnKey(source);
-        return getTag(createdTagId);
+    public Long create(Tag tag) {
+//        BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(tag);
+//        long createdTagId = (Long) simpleJdbcInsert.executeAndReturnKey(source);
+//        return getTag(createdTagId);
+        return 1L;
     }
 
     @Override

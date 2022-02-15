@@ -5,8 +5,10 @@ import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TagService implements CRUDService<Tag> {
@@ -20,19 +22,21 @@ public class TagService implements CRUDService<Tag> {
     }
 
     @Override
-    public Tag getEntity(Long id) {
+    public Optional<Tag> getById(Long id) {
         return tagRepository.getTag(id);
     }
 
     @Override
-    public List<Tag> getEntities(String order, int max) {
+    public List<Tag> getAll(String order, int max) {
 
         return tagRepository.getTags(order, max);
     }
 
+    @Transactional
     @Override
-    public Tag create(Tag element) {
-        return tagRepository.create(element);
+    public Optional<Tag> create(Tag element) {
+        Long createdTagId = tagRepository.create(element);
+        return getById(createdTagId);
     }
 
     @Override

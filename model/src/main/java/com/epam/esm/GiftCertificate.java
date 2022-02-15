@@ -36,12 +36,14 @@ public class GiftCertificate {
     @Column(name ="last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany
-    @JoinTable(name ="certificates_tags")
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "certificates_tags",
+            joinColumns = { @JoinColumn(name = "certificate_id") },
+            inverseJoinColumns = { @JoinColumn(name = "tag_id") }
+    )
     private List<Tag> tags = new ArrayList<>();
 
-    protected GiftCertificate() {
-    }
 
     public GiftCertificate(long id){
         this.id = id;
@@ -77,6 +79,10 @@ public class GiftCertificate {
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
         this.tags = tags;
+    }
+
+    public GiftCertificate() {
+
     }
 
 

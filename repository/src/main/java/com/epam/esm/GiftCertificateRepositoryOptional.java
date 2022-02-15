@@ -11,9 +11,9 @@ public interface GiftCertificateRepositoryOptional {
 
     List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern);
 
-    void delete(Long id);
+    boolean delete(Long id);
 
-    GiftCertificate update(GiftCertificate element, long id);
+    Optional<GiftCertificate> update(GiftCertificate element, long id);
 
     Long create(GiftCertificate element);
 

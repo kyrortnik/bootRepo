@@ -1,4 +1,3 @@
-/*
 package com.epam.esm.servlet;
 
 import com.epam.esm.config.RootConfig;
@@ -22,4 +21,4 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
-}*/
+}

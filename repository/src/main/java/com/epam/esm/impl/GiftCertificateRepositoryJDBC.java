@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Profile("prod")
-@Repository
+//@Profile("prod")
+//@Repository
 public class GiftCertificateRepositoryJDBC implements GiftCertificateRepository {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

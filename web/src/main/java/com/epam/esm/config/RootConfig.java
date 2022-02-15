@@ -1,20 +1,18 @@
 package com.epam.esm.config;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -23,31 +21,43 @@ import java.util.Properties;
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)
         })
-//@EnableTransactionManagement
+@EnableTransactionManagement
 public class RootConfig {
 
-    @Profile("prod")
+//    @Profile("prod")
+//    @Bean
+//    public DataSource dataSource() {
+//        BasicDataSource ds = new BasicDataSource();
+//        ds.setDriverClassName();
+//        ds.setUrl();
+//        ds.setUsername();
+//        ds.setPassword("admin");
+//        ds.setInitialSize(5);
+//        ds.setMaxActive(10);
+//        return ds;
+//    }
+
+//    @Profile("prod")
     @Bean
-    public BasicDataSource dataSource() {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName("org.postgresql.Driver");
-        ds.setUrl("jdbc:postgresql://localhost/epam-lab");
-        ds.setUsername("postgres");
-        ds.setPassword("admin");
-        ds.setInitialSize(5);
-        ds.setMaxActive(10);
-        return ds;
+    public DataSource dataSource() {
+        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
+        dataSourceBuilder.driverClassName("org.postgresql.Driver");
+        dataSourceBuilder.url("jdbc:postgresql://localhost/epam-lab");
+        dataSourceBuilder.username("postgres");
+        dataSourceBuilder.password("admin");
+        return dataSourceBuilder.build();
     }
 
-    @Profile("dev")
-    @Bean
-    public DataSource embeddedDataSource() {
-        return new EmbeddedDatabaseBuilder()
-        .setType(EmbeddedDatabaseType.H2)
-        .addScript("classpath:schema.sql")
-        .addScript("classpath:test-data.sql")
-        .build();
-    }
+
+//    @Profile("dev")
+//    @Bean
+//    public DataSource embeddedDataSource() {
+//        return new EmbeddedDatabaseBuilder()
+//        .setType(EmbeddedDatabaseType.H2)
+//        .addScript("classpath:schema.sql")
+//        .addScript("classpath:test-data.sql")
+//        .build();
+//    }
 
 //Entity manager factory
     @Bean
@@ -67,11 +77,11 @@ public class RootConfig {
 
     final Properties hibernateProperties(){
         final Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-        /*spring.jpa.show-sql=true
-        spring.jpa.hibernate.ddl-auto=update
-        spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect*/
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+//        spring.jpa.show-sql=true
+//        spring.jpa.hibernate.ddl-auto=update
+
         return properties;
     }
     @Bean

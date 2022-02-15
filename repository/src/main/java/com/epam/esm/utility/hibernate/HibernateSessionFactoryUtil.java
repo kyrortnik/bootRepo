@@ -31,10 +31,5 @@ public class HibernateSessionFactoryUtil {
 //        return sessionFactory;
 //    }
 
-    public static SessionFactory getSessionFactory(){
-        return sessionFactory = new MetadataSources(
-                new StandardServiceRegistryBuilder()
-                        .configure("hibernate.cfg.xml").build()
-        ).buildMetadata().buildSessionFactory();
-    }
+
 }

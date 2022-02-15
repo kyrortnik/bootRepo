@@ -1,3 +1,4 @@
+/*
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
@@ -116,4 +117,4 @@ class GiftCertificateRepositoryH2IntegrationTest {
     }
 
 
-}
+}*/

@@ -1,16 +1,17 @@
 package com.epam.esm;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TagRepository {
 
-    Tag getTag(Long id);
+    Optional<Tag> getTag(Long id);
 
     List<Tag> getTags(String order, int max);
 
     boolean delete(Long id);
 
-    Tag create(Tag element);
+    Long create(Tag element);
 
     List<Tag> getTagsForCertificate(Long id);
 }

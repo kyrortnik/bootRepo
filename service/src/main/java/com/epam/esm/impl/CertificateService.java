@@ -1,15 +1,14 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.CRUDService;
-import com.epam.esm.GiftCertificate;
-import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.Tag;
+import com.epam.esm.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -17,30 +16,32 @@ import static java.util.Objects.isNull;
 public class CertificateService implements CRUDService<GiftCertificate> {
 
 //    @Autowired
-    private final GiftCertificateRepository giftCertificateRepository;
+//    private final GiftCertificateRepository giftCertificateRepository;
 
-   // @Autowired
+    private final GiftCertificateRepositoryOptional giftCertificateRepository;
+
+
     private final TagService tagService;
 
     @Autowired
-    public CertificateService(GiftCertificateRepository giftCertificateRepository, TagService tagService) {
+    public CertificateService(GiftCertificateRepositoryOptional giftCertificateRepository, TagService tagService) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagService = tagService;
     }
 
+
+    @Transactional
     @Override
-    public GiftCertificate getEntity(Long id) {
-        GiftCertificate giftCertificate = giftCertificateRepository.getCertificate(id);
+    public Optional<GiftCertificate> getById(Long id) {
+        Optional<GiftCertificate> giftCertificate = giftCertificateRepository.getCertificate(id);
         List<Tag> tags = tagService.getTagsForCertificate(id);
-        if (giftCertificate != null) {
-            giftCertificate.setTags(tags);
-        }
+        giftCertificate.ifPresent(certificate -> certificate.setTags(tags));
         return giftCertificate;
     }
 
 
     @Override
-    public List<GiftCertificate> getEntities(String order, int max) {
+    public List<GiftCertificate> getAll(String order, int max) {
         return giftCertificateRepository.getCertificates(order, max);
     }
 
@@ -65,15 +66,18 @@ public class CertificateService implements CRUDService<GiftCertificate> {
     @Override
     public boolean update(GiftCertificate giftCertificate, Long id) {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        return giftCertificateRepository.update(giftCertificate, id);
+        Optional<GiftCertificate> updatedGiftCertificated = giftCertificateRepository.update(giftCertificate, id);
+        return updatedGiftCertificated.isPresent();
 
     }
 
+    @Transactional
     @Override
-    public GiftCertificate create(GiftCertificate giftCertificate) {
+    public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
         giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        return giftCertificateRepository.create(giftCertificate);
+        Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
+        return getById(createdGiftCertificateId);
     }
 
     private String fromParamToMatchingPattern(String pattern) {

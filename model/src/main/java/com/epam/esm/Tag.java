@@ -1,5 +1,8 @@
 package com.epam.esm;
 
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -12,14 +15,13 @@ import java.util.List;
 public class Tag {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    @ManyToMany
-//    @JoinTable
-    private List<GiftCertificate> certificates = new ArrayList<>();
+//    @ManyToMany(mappedBy = "tags")
+//    private List<GiftCertificate> certificates = new ArrayList<>();
 
     protected Tag() {
     }
@@ -32,14 +34,14 @@ public class Tag {
         this.id = id;
         this.name = name;
     }
-
-    public List<GiftCertificate> getCertificates() {
-        return certificates;
-    }
-
-    public void setCertificates(List<GiftCertificate> certificates) {
-        this.certificates = certificates;
-    }
+//
+//    public List<GiftCertificate> getCertificates() {
+//        return certificates;
+//    }
+//
+//    public void setCertificates(List<GiftCertificate> certificates) {
+//        this.certificates = certificates;
+//    }
 
     public Long getId() {
         return id;
@@ -65,15 +67,13 @@ public class Tag {
         Tag tag = (Tag) o;
 
         if (id != null ? !id.equals(tag.id) : tag.id != null) return false;
-        if (name != null ? !name.equals(tag.name) : tag.name != null) return false;
-        return certificates != null ? certificates.equals(tag.certificates) : tag.certificates == null;
+        return name != null ? name.equals(tag.name) : tag.name == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (certificates != null ? certificates.hashCode() : 0);
         return result;
     }
 
@@ -82,7 +82,6 @@ public class Tag {
         return "Tag{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", certificates=" + certificates +
                 '}';
     }
 }

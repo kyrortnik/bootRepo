@@ -26,6 +26,9 @@ dependencies {
     implementation 'org.springframework:spring-context:5.3.14'
     implementation project (':model')
     implementation project (':repository')
+// https://mvnrepository.com/artifact/org.springframework/spring-tx
+    implementation 'org.springframework:spring-tx:5.3.15'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // + needed spring boot for service

@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Profile("dev")
-@Repository
+//@Profile("dev")
+//@Repository
 public class GiftCertificateRepositoryH2 implements GiftCertificateRepository {
 
 

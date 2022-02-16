@@ -31,7 +31,10 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     @Override
     public Optional<GiftCertificate> getCertificate(Long id) {
         Session session = Objects.requireNonNull(transactionManager.getSessionFactory()).getCurrentSession();
-        return Optional.ofNullable(session.get(GiftCertificate.class, id));
+        return  Optional.ofNullable(session
+                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.id = :id",GiftCertificate.class)
+                .setParameter("id",id).list().get(0));
+//         Optional.ofNullable(session.get(GiftCertificate.class, id));
 
     }
 

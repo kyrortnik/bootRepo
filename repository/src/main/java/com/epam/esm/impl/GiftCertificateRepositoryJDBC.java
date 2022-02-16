@@ -1,16 +1,13 @@
+/*
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.NotSupportedException;
@@ -213,3 +210,4 @@ public class GiftCertificateRepositoryJDBC implements GiftCertificateRepository 
     }
 
 }
+*/

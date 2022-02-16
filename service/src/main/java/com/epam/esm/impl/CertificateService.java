@@ -20,13 +20,13 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 //    @Autowired
 //    private final GiftCertificateRepository giftCertificateRepository;
 
-    private final GiftCertificateRepositoryOptional giftCertificateRepository;
+    private final GiftCertificateRepository giftCertificateRepository;
 
 
     private final TagService tagService;
 
     @Autowired
-    public CertificateService(GiftCertificateRepositoryOptional giftCertificateRepository, TagService tagService) {
+    public CertificateService(GiftCertificateRepository giftCertificateRepository, TagService tagService) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagService = tagService;
     }

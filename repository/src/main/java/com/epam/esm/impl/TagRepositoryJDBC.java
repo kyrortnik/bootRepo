@@ -1,3 +1,4 @@
+/*
 package com.epam.esm.impl;
 
 import com.epam.esm.Tag;
@@ -82,3 +83,4 @@ public class TagRepositoryJDBC implements TagRepository {
         return namedParameterJdbcTemplate.getJdbcOperations().query(GET_TAGS_FOR_CERTIFICATE, MAPPER_TAG, id);
     }
 }
+*/

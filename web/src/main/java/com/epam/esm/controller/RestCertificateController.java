@@ -45,39 +45,39 @@ public class RestCertificateController {
         return giftCertificate.orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
     }
 
-//    /**
-//     * Returns List<GiftCertificate> based on provided parameters
-//     *
-//     * @param order   list sorting order, ASC by default
-//     * @param max     maximum number of rows, by default 20
-//     * @param tag     tag name to use in search
-//     * @param pattern tag name or description with this pattern
-//     * @return List<GiftCertificate> with applied search parameters, if no certificates are found -  NoEntitiesFoundException is handled
-//     * @throws NoEntitiesFoundException
-//     */
-//    @GetMapping("/")
-//    public List<GiftCertificate> getCertificates(
-//            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-//            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-//            @RequestParam(value = "tag", required = false) String tag,
-//            @RequestParam(value = "pattern", required = false) String pattern) {
-//        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
-//        if (giftCertificates.isEmpty()) {
-//            throw new NoEntitiesFoundException();
-//        }
-//        return giftCertificates;
-//    }
-
+    /**
+     * Returns List<GiftCertificate> based on provided parameters
+     *
+     * @param order   list sorting order, ASC by default
+     * @param max     maximum number of rows, by default 20
+     * @param tag     tag name to use in search
+     * @param pattern tag name or description with this pattern
+     * @return List<GiftCertificate> with applied search parameters, if no certificates are found -  NoEntitiesFoundException is handled
+     * @throws NoEntitiesFoundException
+     */
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max) {
-        List<GiftCertificate> giftCertificates = service.getAll(order, max);
+            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
+            @RequestParam(value = "tag", required = false) String tag,
+            @RequestParam(value = "pattern", required = false) String pattern) {
+        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
         if (giftCertificates.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
         return giftCertificates;
     }
+
+//    @GetMapping("/")
+//    public List<GiftCertificate> getCertificates(
+//            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
+//            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max) {
+//        List<GiftCertificate> giftCertificates = service.getAll(order, max);
+//        if (giftCertificates.isEmpty()) {
+//            throw new NoEntitiesFoundException();
+//        }
+//        return giftCertificates;
+//    }
 
 
 

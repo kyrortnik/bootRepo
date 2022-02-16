@@ -49,14 +49,14 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 
 
     public List<GiftCertificate> getEntitiesWithParams(String order, int max, String tag, String pattern) {
-       String processedPattern = fromParamToMatchingPattern(pattern);
+//       String processedPattern = fromParamToMatchingPattern(pattern);
 
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.getCertificatesWithParams(order, max, tag, processedPattern);
-        for (GiftCertificate certificate : giftCertificates) {
-            Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(certificate.getId()));
-            certificate.setTags(tags);
-        }
-        return giftCertificates;
+        String wrappedPattern = fromParamToMatchingPattern(pattern);
+        //        for (GiftCertificate certificate : giftCertificates) {
+//            Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(certificate.getId()));
+//            certificate.setTags(tags);
+//        }
+        return giftCertificateRepository.getCertificatesWithParams(order, max, tag, wrappedPattern);
     }
 
 

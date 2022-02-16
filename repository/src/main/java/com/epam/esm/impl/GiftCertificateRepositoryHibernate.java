@@ -45,15 +45,21 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     }
 
-    //TODO -- search with parameters nullable
     @Override
     public List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern) {
-//        Session session  = transactionManager.getSessionFactory().getCurrentSession();
         Session session = sessionFactory.getCurrentSession();
-//        session.createNativeQuery()
-//        return session.createQuery("SELECT cert FROM GiftCertificate cert " +
-//                "LEFT JOIN  ORDER BY :order LIMIT :max" + );
-        return null;
+        String query =
+                "SELECT c FROM GiftCertificate c LEFT JOIN c.tags t LEFT JOIN FETCH c.tags WHERE (t.name = :tag OR :tag is null) " +
+                        "AND (description LIKE :pattern OR c.name LIKE :pattern OR :pattern is null) " +
+                        "ORDER BY c.name " + order;
+
+
+        return session.createQuery(query, GiftCertificate.class)
+                .setParameter("tag", tag)
+                .setParameter("pattern", pattern)
+                .setMaxResults(max)
+                .getResultList();
+
     }
 
 

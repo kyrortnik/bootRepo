@@ -79,19 +79,16 @@ public class RootConfig {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-//        spring.jpa.show-sql=true
-//        spring.jpa.hibernate.ddl-auto=update
-
         return properties;
     }
-    @Bean
-    public NamedParameterJdbcTemplate namedParameterjdbcTemplate(DataSource dataSource) {
-        return new NamedParameterJdbcTemplate(dataSource);
-    }
-
-    @Bean
-    @Scope("prototype")
-    public SimpleJdbcInsert simpleJdbcInsert(DataSource dataSource){
-        return new SimpleJdbcInsert(dataSource);
-    }
+//    @Bean
+//    public NamedParameterJdbcTemplate namedParameterjdbcTemplate(DataSource dataSource) {
+//        return new NamedParameterJdbcTemplate(dataSource);
+//    }
+//
+//    @Bean
+//    @Scope("prototype")
+//    public SimpleJdbcInsert simpleJdbcInsert(DataSource dataSource){
+//        return new SimpleJdbcInsert(dataSource);
+//    }
 }

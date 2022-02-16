@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.NotSupportedException;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
@@ -125,19 +126,19 @@ public class GiftCertificateRepositoryJDBC implements GiftCertificateRepository 
     @Override
     public boolean update(GiftCertificate giftCertificate, long certificateId) {
 
-        boolean result;
-        Map<String, Object> map = getParamsMap(giftCertificate,certificateId);
-        result = namedParameterJdbcTemplate.update(UPDATE_CERTIFICATE, map) > 0;
-        List<Tag> tags = giftCertificate.getTags();
-
-        if (!tags.isEmpty()) {
-            List<String> tagNames = new ArrayList<>();
-            tags.forEach((t) -> tagNames.add(t.getName()));
-            createNewTags(tagNames);
-            namedParameterJdbcTemplate.getJdbcOperations().update(DELETE_OBSOLETE_RELATIONS, certificateId);
-            List<Integer> list = getTagIdsForNames(tagNames);
-            createCertificateTagRelation((int) certificateId, list);
-        }
+        boolean result = false;
+//        Map<String, Object> map = getParamsMap(giftCertificate,certificateId);
+//        result = namedParameterJdbcTemplate.update(UPDATE_CERTIFICATE, map) > 0;
+//        List<Tag> tags = giftCertificate.getTags();
+//
+//        if (!tags.isEmpty()) {
+//            List<String> tagNames = new ArrayList<>();
+//            tags.forEach((t) -> tagNames.add(t.getName()));
+//            createNewTags(tagNames);
+//            namedParameterJdbcTemplate.getJdbcOperations().update(DELETE_OBSOLETE_RELATIONS, certificateId);
+//            List<Integer> list = getTagIdsForNames(tagNames);
+//            createCertificateTagRelation((int) certificateId, list);
+//        }
         return result;
     }
 
@@ -146,18 +147,24 @@ public class GiftCertificateRepositoryJDBC implements GiftCertificateRepository 
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) {
 
-        BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(giftCertificate);
-        long createdGiftCertificateId = (Integer) simpleJdbcInsert.executeAndReturnKey(source);
-        List<Tag> tags = giftCertificate.getTags();
-
-        if (!tags.isEmpty()) {
-            List<String> tagNames = new ArrayList<>();
-            tags.forEach((t) -> tagNames.add(t.getName()));
-            createNewTags(tagNames);
-            List<Integer> list = getTagIdsForNames(tagNames);
-            createCertificateTagRelation((int) createdGiftCertificateId, list);
+//        BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(giftCertificate);
+//        long createdGiftCertificateId = (Integer) simpleJdbcInsert.executeAndReturnKey(source);
+//        List<Tag> tags = giftCertificate.getTags();
+//
+//        if (!tags.isEmpty()) {
+//            List<String> tagNames = new ArrayList<>();
+//            tags.forEach((t) -> tagNames.add(t.getName()));
+//            createNewTags(tagNames);
+//            List<Integer> list = getTagIdsForNames(tagNames);
+//            createCertificateTagRelation((int) createdGiftCertificateId, list);
+//        }
+//        return getCertificate(createdGiftCertificateId);
+        try
+        {
+            throw new NotSupportedException();
+        }catch (NotSupportedException e){
         }
-        return getCertificate(createdGiftCertificateId);
+        return null;
     }
 
 

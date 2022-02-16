@@ -1,13 +1,17 @@
 package com.epam.esm;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @Entity
@@ -20,8 +24,9 @@ public class Tag {
 
     private String name;
 
-//    @ManyToMany(mappedBy = "tags")
-//    private List<GiftCertificate> certificates = new ArrayList<>();
+    @ManyToMany(mappedBy = "tags")
+    @JsonIgnore
+    private Set<GiftCertificate> certificates = new HashSet<>();
 
     protected Tag() {
     }
@@ -34,14 +39,24 @@ public class Tag {
         this.id = id;
         this.name = name;
     }
-//
-//    public List<GiftCertificate> getCertificates() {
-//        return certificates;
-//    }
-//
-//    public void setCertificates(List<GiftCertificate> certificates) {
-//        this.certificates = certificates;
-//    }
+
+    public void addCertificate(GiftCertificate giftCertificate) {
+        this.certificates.add(giftCertificate);
+        giftCertificate.getTags().add(this);
+    }
+
+    public void removeCertificate(GiftCertificate giftCertificate) {
+        this.certificates.remove(giftCertificate);
+        giftCertificate.getTags().remove(this);
+    }
+
+    public Set<GiftCertificate> getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(Set<GiftCertificate> certificates) {
+        this.certificates = certificates;
+    }
 
     public Long getId() {
         return id;

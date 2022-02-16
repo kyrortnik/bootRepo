@@ -65,8 +65,9 @@ public class TagRepositoryHibernate implements TagRepository {
 
     @Override
     public List<Tag> getTagsForCertificate(Long id) {
+        Session session = Objects.requireNonNull(transactionManager.getSessionFactory()).getCurrentSession();
+       return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id",Tag.class)
+                .setParameter("id",id).list();
 
-//        return namedParameterJdbcTemplate.getJdbcOperations().query(GET_TAGS_FOR_CERTIFICATE, MAPPER_TAG, id);
-        return null;
     }
 }

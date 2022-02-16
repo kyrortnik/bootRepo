@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -34,8 +36,8 @@ public class CertificateService implements CRUDService<GiftCertificate> {
     @Override
     public Optional<GiftCertificate> getById(Long id) {
         Optional<GiftCertificate> giftCertificate = giftCertificateRepository.getCertificate(id);
-        List<Tag> tags = tagService.getTagsForCertificate(id);
-        giftCertificate.ifPresent(certificate -> certificate.setTags(tags));
+//        Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(id));
+//        giftCertificate.ifPresent(certificate -> certificate.setTags(tags));
         return giftCertificate;
     }
 
@@ -51,7 +53,7 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 
         List<GiftCertificate> giftCertificates = giftCertificateRepository.getCertificatesWithParams(order, max, tag, processedPattern);
         for (GiftCertificate certificate : giftCertificates) {
-            List<Tag> tags = tagService.getTagsForCertificate(certificate.getId());
+            Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(certificate.getId()));
             certificate.setTags(tags);
         }
         return giftCertificates;

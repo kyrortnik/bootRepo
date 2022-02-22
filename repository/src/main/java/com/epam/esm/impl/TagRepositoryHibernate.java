@@ -1,7 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.Tag;
-import com.epam.esm.TagRepository;
+import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,8 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional
 @Repository
@@ -62,5 +61,23 @@ public class TagRepositoryHibernate implements TagRepository {
        return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id",Tag.class)
                 .setParameter("id",id).list();
 
+    }
+
+
+    /*Get the most widely used tag of a user with the highest cost of all orders*/
+    @Override
+    public Optional<Tag> getMostUsedTag() {
+        Session firstSession = sessionFactory.getCurrentSession();
+        User user = firstSession.createQuery(
+                "SELECT u FROM User u LEFT JOIN u.orders o ORDER BY o.totalOrderAmount DESC", User.class)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        Set<Order> orders = user.getOrders();
+//        Set<GiftCertificate> giftCertificates = new HashSet<>();
+//        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
+//
+//        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
+        return Optional.empty();
     }
 }

@@ -33,13 +33,7 @@ public class GiftCertificateController {
         this.service = service;
     }
 
-    /**
-     * Returns GiftCertificate with provided id
-     *
-     * @param id GiftCertificate id
-     * @return GiftCertificate if found, if null GiftCertificateNotFoundException is handled
-     * @throws EntityNotFoundException
-     */
+
     @GetMapping("/{id}")
     public GiftCertificate getCertificate(@PathVariable Long id) {
         GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
@@ -51,16 +45,7 @@ public class GiftCertificateController {
         return giftCertificate;
     }
 
-    /**
-     * Returns List<GiftCertificate> based on provided parameters
-     *
-     * @param order   list sorting order, ASC by default
-     * @param max     maximum number of rows, by default 20
-     * @param tag     tag name to use in search
-     * @param pattern tag name or description with this pattern
-     * @return List<GiftCertificate> with applied search parameters, if no certificates are found -  NoEntitiesFoundException is handled
-     * @throws NoEntitiesFoundException
-     */
+
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
@@ -86,13 +71,6 @@ public class GiftCertificateController {
         return giftCertificates;
     }
 
-    /**
-     * Creates a GiftCertificate
-     *
-     * @param giftCertificate to be created
-     * @return created GiftCertificate
-     * //     * @throws DuplicateKeyException
-     */
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -103,12 +81,7 @@ public class GiftCertificateController {
         return createdGiftCertificate.orElseThrow(RuntimeException::new);
     }
 
-    /**
-     * Deletes a GiftCertificate with provided id
-     *
-     * @param id to find GiftCertificate
-     * @return ResponseEntity  with OK status if GiftCertificate was deleted, if GiftCertificate was not found - OK ResponseEntity with message
-     */
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteGiftCertificate(@PathVariable Long id) {
         ResponseEntity<String> response;
@@ -120,13 +93,6 @@ public class GiftCertificateController {
         return response;
     }
 
-    /**
-     * Updates existing GiftCertificate
-     *
-     * @param giftCertificate new state of GiftCertificate
-     * @param id              to find GiftCertificate for update
-     * @return ResponseEntity  with OK status if GiftCertificate was update, if GiftCertificate was not updated - OK ResponseEntity Error and message
-     */
     @PutMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody GiftCertificate giftCertificate, @PathVariable Long id) {

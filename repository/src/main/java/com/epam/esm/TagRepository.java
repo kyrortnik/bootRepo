@@ -14,4 +14,6 @@ public interface TagRepository {
     Long create(Tag element);
 
     List<Tag> getTagsForCertificate(Long id);
+
+    Optional<Tag> getMostUsedTag();
 }

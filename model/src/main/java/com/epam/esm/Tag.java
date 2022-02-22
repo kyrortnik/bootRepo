@@ -2,6 +2,7 @@ package com.epam.esm;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Component
 @Entity
 @Table(name ="tags")
-public class Tag {
+public class Tag  extends RepresentationModel<Tag> {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -57,9 +58,9 @@ public class Tag {
         return id;
     }
 
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

@@ -28,6 +28,7 @@ dependencies {
     implementation project (':repository')
 // https://mvnrepository.com/artifact/org.springframework/spring-tx
     implementation 'org.springframework:spring-tx:5.3.15'
+    implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

@@ -2,6 +2,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Entity
 @DynamicUpdate
 @Table(name = "certificates")
-public class GiftCertificate {
+public class GiftCertificate  extends RepresentationModel<GiftCertificate> {
 
 
     @Id
@@ -84,6 +85,7 @@ public class GiftCertificate {
     public GiftCertificate() {
 
     }
+
 
 
     public Long getId() {

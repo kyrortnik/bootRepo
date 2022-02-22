@@ -5,7 +5,9 @@ import java.util.Optional;
 
 public interface GiftCertificateRepository {
 
-    Optional<GiftCertificate> getCertificate(Long id);
+    Optional<GiftCertificate> getCertificateById(Long id);
+
+    Optional<GiftCertificate> getCertificateByName(String name);
 
     List<GiftCertificate> getCertificates(String order, int max);
 
@@ -16,5 +18,6 @@ public interface GiftCertificateRepository {
     Optional<GiftCertificate> update(GiftCertificate element, long id);
 
     Long create(GiftCertificate element);
+
 
 }

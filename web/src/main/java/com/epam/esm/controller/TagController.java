@@ -20,13 +20,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "api/v1/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestTagController {
+public class TagController {
 
     private final TagService service;
 
 
     @Autowired
-    public RestTagController(TagService service) {
+    public TagController(TagService service) {
         this.service = service;
     }
 

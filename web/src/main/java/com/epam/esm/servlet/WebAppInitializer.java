@@ -18,6 +18,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 
     @Override
     @NonNull
+    //TODO -- why NunNull is needed
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }

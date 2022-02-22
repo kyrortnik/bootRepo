@@ -20,7 +20,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestCertificateController {
+public class GiftCertificateController {
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
@@ -29,7 +29,7 @@ public class RestCertificateController {
     private final CertificateService service;
 
     @Autowired
-    public RestCertificateController(CertificateService service) {
+    public GiftCertificateController(CertificateService service) {
         this.service = service;
     }
 
@@ -44,7 +44,7 @@ public class RestCertificateController {
     public GiftCertificate getCertificate(@PathVariable Long id) {
         GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
-        giftCertificate.add(linkTo(methodOn(RestCertificateController.class)
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificate(id))
                 .withSelfRel());
 
@@ -73,11 +73,11 @@ public class RestCertificateController {
         }
 
         giftCertificates.forEach(giftCertificate -> {
-                    giftCertificate.add(linkTo(methodOn(RestCertificateController.class)
+                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                             .getCertificate(giftCertificate.getId()))
                             .withSelfRel());
 
-                    giftCertificate.add(linkTo(methodOn(RestTagController.class)
+                    giftCertificate.add(linkTo(methodOn(TagController.class)
                             .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST)))
                             .withRel("tags"));
 

@@ -18,7 +18,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestOrderController {
+public class OrderController {
 
     private final OrderService orderService;
 
@@ -26,7 +26,7 @@ public class RestOrderController {
     private static final String DEFAULT_ORDER = "ASC";
 
     @Autowired
-    public RestOrderController(OrderService orderService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -35,11 +35,11 @@ public class RestOrderController {
 
         Order order = orderService.getById(orderId).orElseThrow(NoSuchElementException::new);
 
-        order.add(linkTo(methodOn(RestOrderController.class)
+        order.add(linkTo(methodOn(OrderController.class)
                 .getOrder(order.getId()))
                 .withSelfRel());
 
-        order.add(linkTo(methodOn(RestOrderController.class)
+        order.add(linkTo(methodOn(OrderController.class)
                 .getOrderCertificates(order.getId()))
                 .withRel("certificates"));
 
@@ -58,11 +58,11 @@ public class RestOrderController {
         }
 
         orders.forEach(foundOrder -> {
-                    foundOrder.add(linkTo(methodOn(RestOrderController.class)
+                    foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrder(foundOrder.getId()))
                             .withSelfRel());
 
-                    foundOrder.add(linkTo(methodOn(RestOrderController.class)
+                    foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrderCertificates(foundOrder.getId()))
                             .withRel("certificates"));
                 }
@@ -95,15 +95,15 @@ public class RestOrderController {
             throw new NoEntitiesFoundException("No certificates exists for this order");
         }
         orderCertificates.forEach(giftCertificate -> {
-                    giftCertificate.add(linkTo(methodOn(RestCertificateController.class)
+                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                             .getCertificate(giftCertificate.getId()))
                             .withSelfRel());
 
-                    giftCertificate.add(linkTo(methodOn(RestCertificateController.class)
+                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                             .deleteGiftCertificate(giftCertificate.getId()))
                             .withRel("delete"));
 
-                    giftCertificate.add(linkTo(methodOn(RestCertificateController.class)
+                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                             .getGiftCertificateTags(giftCertificate.getId()))
                             .withRel("tags"));
                 }

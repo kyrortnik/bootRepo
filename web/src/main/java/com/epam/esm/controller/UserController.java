@@ -19,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestUserController {
+public class UserController {
 
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
@@ -27,7 +27,7 @@ public class RestUserController {
     private final UserService service;
 
     @Autowired
-    public RestUserController(UserService service) {
+    public UserController(UserService service) {
         this.service = service;
     }
 
@@ -37,11 +37,11 @@ public class RestUserController {
 
         User user = service.getById(userId).orElseThrow(NoSuchElementException::new);
 
-        user.add(linkTo(methodOn(RestUserController.class)
+        user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
                 .withSelfRel());
 
-        user.add(linkTo(methodOn(RestUserController.class)
+        user.add(linkTo(methodOn(UserController.class)
                 .getUserOrders(user.getId()))
                 .withRel("orders"));
 
@@ -56,11 +56,11 @@ public class RestUserController {
             throw new NoEntitiesFoundException();
         }
         users.forEach(user -> {
-                    user.add(linkTo(methodOn(RestUserController.class)
+                    user.add(linkTo(methodOn(UserController.class)
                             .getUser(user.getId()))
                             .withSelfRel());
 
-                    user.add(linkTo(methodOn(RestUserController.class)
+                    user.add(linkTo(methodOn(UserController.class)
                             .getUserOrders(user.getId()))
                             .withRel("orders"));
                 }
@@ -78,15 +78,15 @@ public class RestUserController {
             throw new NoEntitiesFoundException();
         }
         userOrders.forEach(order -> {
-                    order.add(linkTo(methodOn(RestOrderController.class)
+                    order.add(linkTo(methodOn(OrderController.class)
                             .getOrder(order.getId()))
                             .withSelfRel());
 
-                    order.add(linkTo(methodOn(RestOrderController.class)
+                    order.add(linkTo(methodOn(OrderController.class)
                             .deleteOrder(order.getId()))
                             .withRel("delete"));
 
-                    order.add(linkTo(methodOn(RestOrderController.class)
+                    order.add(linkTo(methodOn(OrderController.class)
                             .getOrderCertificates(order.getId()))
                             .withRel("products"));
                 }

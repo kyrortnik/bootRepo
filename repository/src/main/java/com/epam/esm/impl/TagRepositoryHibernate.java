@@ -74,10 +74,21 @@ public class TagRepositoryHibernate implements TagRepository {
                 .getSingleResult();
 
         Set<Order> orders = user.getOrders();
+//        List<GiftCertificate> giftCertificates = new ArrayList<>();
+//        List<Tag> userTags = new ArrayList<>();
+//        for (Order order : orders) {
+//            Set<GiftCertificate> orderGiftCertificates = order.getGiftCertificates();
+//            for (GiftCertificate giftCertificate : orderGiftCertificates) {
+//                List<Tag> tags = Collectors.toList(giftCertificate.getTags());
+//            }
+
+        return Optional.empty();
+
+        }
 //        Set<GiftCertificate> giftCertificates = new HashSet<>();
 //        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
 //
 //        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
-        return Optional.empty();
+
     }
-}
+

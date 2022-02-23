@@ -65,10 +65,10 @@ public class TagController {
         return response;
     }
 
-    @GetMapping("/mostUsedTagOfRichestUser")
-    public Tag mostUsedTagForUser(){
-
-        return tagService.getMostUsedTag().orElseThrow(() -> new NoSuchElementException("No orders for this user"));
-    }
+//    @GetMapping("/mostUsedTagOfRichestUser")
+//    public Tag mostUsedTagForUser(){
+//
+//        return tagService.getMostUsedTag().orElseThrow(() -> new NoSuchElementException("No orders for this user"));
+//    }
 
 }

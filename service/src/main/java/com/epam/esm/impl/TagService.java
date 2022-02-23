@@ -16,6 +16,10 @@ public class TagService implements CRUDService<Tag> {
 
     private final TagRepository tagRepository;
 
+//    private final UserService userService;
+
+
+
     @Autowired
     public TagService(TagRepository tagRepository) {
         this.tagRepository = tagRepository;
@@ -54,8 +58,9 @@ public class TagService implements CRUDService<Tag> {
 //        return tagRepository.getTagsForCertificate(id);
 //    }
 
-    public Optional<Tag> getMostUsedTag(){
-        return tagRepository.getMostUsedTag();
-    }
+//    public Optional<Tag> getMostUsedTag(){
+//        User user = userService.getUserWithBiggest
+//        return tagRepository.getMostUsedTag();
+//    }
 
 }

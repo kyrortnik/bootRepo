@@ -14,8 +14,7 @@ import java.util.Set;
 @Entity
 @DynamicUpdate
 @Table(name = "certificates")
-public class GiftCertificate  extends RepresentationModel<GiftCertificate> {
-
+public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,23 +29,27 @@ public class GiftCertificate  extends RepresentationModel<GiftCertificate> {
     private Long duration;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    @Column(name ="create_date")
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    @Column(name ="last_update_date")
+    @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(cascade = { CascadeType.ALL })
+    @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(
             name = "certificates_tags",
-            joinColumns = { @JoinColumn(name = "certificate_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tag_id") }
+            joinColumns = {@JoinColumn(name = "certificate_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private Set<Tag> tags = new HashSet<>();
 
 
-    public GiftCertificate(long id){
+    @OneToMany(mappedBy = "giftCertificate")
+    private Set<Order> orders;
+
+
+    public GiftCertificate(long id) {
         this.id = id;
     }
 
@@ -85,7 +88,6 @@ public class GiftCertificate  extends RepresentationModel<GiftCertificate> {
     public GiftCertificate() {
 
     }
-
 
 
     public Long getId() {
@@ -181,6 +183,14 @@ public class GiftCertificate  extends RepresentationModel<GiftCertificate> {
         result = 31 * result + (lastUpdateDate != null ? lastUpdateDate.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         return result;
+    }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
     }
 
     @Override

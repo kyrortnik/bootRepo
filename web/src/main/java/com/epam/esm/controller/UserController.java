@@ -87,7 +87,7 @@ public class UserController {
                             .withRel("delete"));
 
                     order.add(linkTo(methodOn(OrderController.class)
-                            .getOrderCertificates(order.getId()))
+                            .getOrderGiftCertificate(order.getId()))
                             .withRel("products"));
                 }
         );

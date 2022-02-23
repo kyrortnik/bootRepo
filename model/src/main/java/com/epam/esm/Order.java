@@ -1,30 +1,44 @@
 package com.epam.esm;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
+@Component
+@Entity
+@DynamicUpdate
+@Table(name = "orders")
 public class Order  extends RepresentationModel<Order> {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private long userId;
-
+    @Column(name ="order_date")
     private LocalDateTime orderDate;
 
-    private double totalOrderAmount;
+    @Column(name ="order_cost")
+    private double orderCost;
 
-    private Set<GiftCertificate> giftCertificates = new HashSet<>();
+    //TODO -- CascadeType, nullable
+    @ManyToOne
+    @JoinColumn(name = "gift_certificate_id", nullable = false)
+    private GiftCertificate giftCertificate;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Order() {
     }
 
-    public Order(LocalDateTime orderDate, double totalOrderAmount, Set<GiftCertificate> giftCertificates) {
+    public Order(LocalDateTime orderDate, double orderCost, GiftCertificate giftCertificates) {
         this.orderDate = orderDate;
-        this.totalOrderAmount = totalOrderAmount;
-        this.giftCertificates = giftCertificates;
+        this.orderCost = orderCost;
+        this.giftCertificate = giftCertificates;
     }
 
     public long getId() {
@@ -43,32 +57,32 @@ public class Order  extends RepresentationModel<Order> {
         this.orderDate = orderDate;
     }
 
-    public double getTotalOrderAmount() {
-        return totalOrderAmount;
+    public double getOrderCost() {
+        return orderCost;
     }
 
-    public void setTotalOrderAmount(double totalOrderAmount) {
-        this.totalOrderAmount = totalOrderAmount;
+    public void setOrderCost(double orderCost) {
+        this.orderCost = orderCost;
     }
 
-    public Set<GiftCertificate> getGiftCertificates() {
-        return giftCertificates;
+    public GiftCertificate getGiftCertificate() {
+        return giftCertificate;
     }
 
-    public void setGiftCertificates(Set<GiftCertificate> giftCertificates) {
-        this.giftCertificates = giftCertificates;
+    public void setGiftCertificate(GiftCertificate giftCertificate) {
+        this.giftCertificate = giftCertificate;
     }
 
-    public long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public void updateTotalOrderAmount(double certificateCost){
-        totalOrderAmount += certificateCost;
-    }
+//    public void updateTotalOrderAmount(double certificateCost){
+//        orderCost += certificateCost;
+//    }
 
 }

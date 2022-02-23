@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -20,6 +19,7 @@ public class Tag  extends RepresentationModel<Tag> {
 
     private String name;
 
+    //TODO JsonIgnore
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
     private Set<GiftCertificate> certificates = new HashSet<>();

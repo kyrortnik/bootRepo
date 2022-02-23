@@ -23,30 +23,31 @@ public class OrderService {
         this.certificateService = certificateService;
     }
 
-    public Optional<Order> getById(Long id) {
+    public Optional<Order> getOrderById(Long id) {
         return orderRepository.getOrder(id);
     }
+
 
     public Set<Order> getOrders(String order, int max) {
         return orderRepository.getOrders(order, max);
     }
 
+    public boolean orderAlreadyExists(Order order) {
+        return orderRepository.orderAlreadyExists(order);
+    }
+
     @Transactional
     public Optional<Order> create(Order order) {
 
+        String giftCertificateName = order.getGiftCertificate().getName();
+        GiftCertificate giftCertificateFromOrder = certificateService.getByName(giftCertificateName)
+                        .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
+
+        order.setGiftCertificate(giftCertificateFromOrder);
+        order.setOrderCost(giftCertificateFromOrder.getPrice());
         order.setOrderDate(LocalDateTime.now());
-        Set<GiftCertificate> giftCertificates = order.getGiftCertificates();
 
-        giftCertificates.forEach(giftCertificate -> {
-            Optional<GiftCertificate> giftCertificatesFromOrder = certificateService.getByName(giftCertificate.getName());
-            if (!giftCertificatesFromOrder.isPresent()) {
-                throw new NoSuchElementException("Such Gift Certificate is not present");
-            }
-            order.updateTotalOrderAmount(giftCertificatesFromOrder.get().getPrice());
-        });
-
-        long createdOrderId = orderRepository.createOrder(order);
-        return orderRepository.getOrder(createdOrderId);
+        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
     }
 
     public boolean delete(Long id) {

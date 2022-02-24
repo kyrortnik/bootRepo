@@ -2,6 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
+import com.epam.esm.exception.ControllerExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,5 +109,18 @@ public class OrderController {
                 .withRel("tags"));
 
         return giftCertificate;
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
+//        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
+        return new ControllerExceptionEntity(getErrorCode(400), e.getMessage());
+    }
+
+    private static int getErrorCode(int errorCode) {
+        long counter = 0;
+        counter++;
+        return Integer.parseInt(errorCode + String.valueOf(counter));
     }
 }

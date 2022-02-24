@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
 
     @OneToMany(mappedBy = "giftCertificate")
+    @JsonIgnore
     private Set<Order> orders;
 
 

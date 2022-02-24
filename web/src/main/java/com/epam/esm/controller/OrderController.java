@@ -18,6 +18,7 @@ import java.util.Set;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@RestController
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderController {
 
@@ -72,11 +73,12 @@ public class OrderController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
         Optional<Order> createdGiftCertificate = orderService.create(order);
-        return createdGiftCertificate.orElseThrow((() -> new  DuplicateKeyException("Such order already exists")));
+        return createdGiftCertificate.orElseThrow((() -> new DuplicateKeyException("Such order already exists")));
     }
 
 

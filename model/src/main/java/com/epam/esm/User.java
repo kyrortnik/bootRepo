@@ -1,5 +1,6 @@
 package com.epam.esm;
 
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class User extends RepresentationModel<User> {
     private String secondName;
 
     @OneToMany(mappedBy = "user")
+//    @JsonIgnore
     Set<Order> orders = new HashSet<>();
 
     public User() {

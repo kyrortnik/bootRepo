@@ -6,10 +6,7 @@ import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -17,7 +14,7 @@ import java.util.Set;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-
+@RestController
 @RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 

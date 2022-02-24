@@ -67,9 +67,9 @@ public class OrderRepositoryHibernate implements OrderRepository {
     @Override
     public boolean orderAlreadyExists(Order order) {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT o FROM Order o WHERE o.userId = :userId AND o.certificateId = :certificateId")
-                .setParameter("userId", order.getUser().getId())
-                .setParameter("certificateId", order.getGiftCertificate().getId())
+        return session.createQuery("SELECT o FROM Order o WHERE o.user = :user AND o.giftCertificate = :certificate")
+                .setParameter("user", order.getUser())
+                .setParameter("certificate", order.getGiftCertificate())
                 .getResultList().size() > 0;
     }
 }

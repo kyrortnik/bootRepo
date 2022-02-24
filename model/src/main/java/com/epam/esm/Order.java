@@ -1,5 +1,6 @@
 package com.epam.esm;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Component
 @Entity
-@DynamicUpdate
+//@DynamicUpdate
 @Table(name = "orders")
 public class Order  extends RepresentationModel<Order> {
 
@@ -17,6 +18,7 @@ public class Order  extends RepresentationModel<Order> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name ="order_date")
     private LocalDateTime orderDate;
 
@@ -81,8 +83,43 @@ public class Order  extends RepresentationModel<Order> {
         this.user = user;
     }
 
-//    public void updateTotalOrderAmount(double certificateCost){
-//        orderCost += certificateCost;
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
+        Order order = (Order) o;
+
+        if (id != order.id) return false;
+        if (Double.compare(order.orderCost, orderCost) != 0) return false;
+        if (orderDate != null ? !orderDate.equals(order.orderDate) : order.orderDate != null) return false;
+        if (giftCertificate != null ? !giftCertificate.equals(order.giftCertificate) : order.giftCertificate != null)
+            return false;
+        return user != null ? user.equals(order.user) : order.user == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        long temp;
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        result = 31 * result + (orderDate != null ? orderDate.hashCode() : 0);
+        temp = Double.doubleToLongBits(orderCost);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (giftCertificate != null ? giftCertificate.hashCode() : 0);
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", orderDate=" + orderDate +
+                ", orderCost=" + orderCost +
+                ", giftCertificate=" + giftCertificate +
+                ", user=" + user +
+                '}';
+    }
 }

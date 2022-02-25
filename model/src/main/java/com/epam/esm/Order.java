@@ -1,8 +1,10 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -29,12 +31,14 @@ public class Order extends RepresentationModel<Order> {
     private double orderCost;
 
     //TODO -- CascadeType, nullable
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gift_certificate_id", nullable = false)
-    private GiftCertificate giftCertificate;
+    @JsonIgnore
+    /*@ToString.Exclude*/ private GiftCertificate giftCertificate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    @JsonIgnore
+    /*@ToString.Exclude*/ private User user;
 
 }

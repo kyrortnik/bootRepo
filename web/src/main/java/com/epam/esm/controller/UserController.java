@@ -67,7 +67,7 @@ public class UserController {
 
 
     @GetMapping("/{userId}/orders")
-    public Set<Order> getUserOrders(@RequestParam(value = "userId") long userId) {
+    public Set<Order> getUserOrders(/*@RequestParam(value = "userId")*/ @PathVariable long userId) {
         User user = service.getById(userId).orElseThrow(() -> new NoSuchElementException("No such user exists"));
 
         Set<Order> userOrders = user.getOrders();
@@ -85,7 +85,7 @@ public class UserController {
 
                     order.add(linkTo(methodOn(OrderController.class)
                             .getOrderGiftCertificate(order.getId()))
-                            .withRel("products"));
+                            .withRel("giftCertificates"));
                 }
         );
         return userOrders;

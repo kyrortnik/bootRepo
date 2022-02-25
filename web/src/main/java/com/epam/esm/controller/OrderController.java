@@ -91,7 +91,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/giftCertificates")
-    public GiftCertificate getOrderGiftCertificate(@RequestParam(value = "orderId") long orderId) {
+    public GiftCertificate getOrderGiftCertificate(/*@RequestParam(value = "orderId")*/ @PathVariable long orderId) {
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();

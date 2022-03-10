@@ -10,14 +10,13 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Component
 @Entity
-@DynamicUpdate
-@EqualsAndHashCode(callSuper = false,exclude = "orders")
+//@DynamicUpdate
+@EqualsAndHashCode(callSuper = false/*,exclude = "orders"*/)
 @Table(name = "users")
 public class User extends RepresentationModel<User> {
 

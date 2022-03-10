@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 @Data
 @Component
 @Entity
-//@DynamicUpdate
 @Table(name = "orders")
 public class Order extends RepresentationModel<Order> {
 

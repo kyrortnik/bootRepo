@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -48,10 +47,12 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
+    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "giftCertificate",fetch = FetchType.LAZY)
-    @ToString.Exclude private Set<Order> orders;
+    @OneToMany(mappedBy = "giftCertificate"/*,fetch = FetchType.LAZY*/)
+    @JsonIgnore
+    /*@ToString.Exclude*/ private Set<Order> orders;
 
 }

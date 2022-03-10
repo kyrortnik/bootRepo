@@ -52,6 +52,7 @@ public class GiftCertificateController {
             @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
             @RequestParam(value = "tag", required = false) String tag,
             @RequestParam(value = "pattern", required = false) String pattern) {
+
         List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
         if (giftCertificates.isEmpty()) {
             throw new NoEntitiesFoundException();
@@ -70,12 +71,13 @@ public class GiftCertificateController {
         );
         return giftCertificates;
     }
- //TODO -- Runtime Exception
+
+    //TODO -- Runtime Exception
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    GiftCertificate create(@RequestBody GiftCertificate giftCertificate) {
+    GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
         Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
 
         return createdGiftCertificate.orElseThrow(RuntimeException::new);

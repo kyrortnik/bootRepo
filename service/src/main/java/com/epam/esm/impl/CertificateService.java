@@ -7,10 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -20,13 +18,13 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 //    @Autowired
 //    private final GiftCertificateRepository giftCertificateRepository;
 
-    private final GiftCertificateRepositoryOptional giftCertificateRepository;
+    private final GiftCertificateRepository giftCertificateRepository;
 
 
     private final TagService tagService;
 
     @Autowired
-    public CertificateService(GiftCertificateRepositoryOptional giftCertificateRepository, TagService tagService) {
+    public CertificateService(GiftCertificateRepository giftCertificateRepository, TagService tagService) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagService = tagService;
     }
@@ -35,28 +33,32 @@ public class CertificateService implements CRUDService<GiftCertificate> {
     @Transactional
     @Override
     public Optional<GiftCertificate> getById(Long id) {
-        Optional<GiftCertificate> giftCertificate = giftCertificateRepository.getCertificate(id);
-//        Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(id));
+        //        Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(id));
 //        giftCertificate.ifPresent(certificate -> certificate.setTags(tags));
+        return giftCertificateRepository.getCertificateById(id);
+    }
+
+    public Optional<GiftCertificate> getByName(String name) {
+        Optional<GiftCertificate> giftCertificate = giftCertificateRepository.getCertificateByName(name);
         return giftCertificate;
     }
 
 
     @Override
-    public List<GiftCertificate> getAll(String order, int max) {
+    public List<GiftCertificate> getAll(String order, int max,int offset) {
         return giftCertificateRepository.getCertificates(order, max);
     }
 
 
     public List<GiftCertificate> getEntitiesWithParams(String order, int max, String tag, String pattern) {
-       String processedPattern = fromParamToMatchingPattern(pattern);
+//       String processedPattern = fromParamToMatchingPattern(pattern);
 
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.getCertificatesWithParams(order, max, tag, processedPattern);
-        for (GiftCertificate certificate : giftCertificates) {
-            Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(certificate.getId()));
-            certificate.setTags(tags);
-        }
-        return giftCertificates;
+        String wrappedPattern = fromParamToMatchingPattern(pattern);
+        //        for (GiftCertificate certificate : giftCertificates) {
+//            Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(certificate.getId()));
+//            certificate.setTags(tags);
+//        }
+        return giftCertificateRepository.getCertificatesWithParams(order, max, tag, wrappedPattern);
     }
 
 

@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
+import com.epam.esm.Tag;
 import com.epam.esm.exception.ControllerExceptionEntity;
 import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.exception.NoEntitiesFoundException;
@@ -12,100 +13,81 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RestCertificateController {
+public class GiftCertificateController {
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
+    private static final String DEFAULT_OFFSET = "0";
     private static long errorCodeCounter = 0;
 
     private final CertificateService service;
 
     @Autowired
-    public RestCertificateController(CertificateService service) {
+    public GiftCertificateController(CertificateService service) {
         this.service = service;
     }
 
-    /**
-     * Returns GiftCertificate with provided id
-     *
-     * @param id GiftCertificate id
-     * @return GiftCertificate if found, if null GiftCertificateNotFoundException is handled
-     * @throws EntityNotFoundException
-     */
+
     @GetMapping("/{id}")
     public GiftCertificate getCertificate(@PathVariable Long id) {
-        Optional<GiftCertificate> giftCertificate = service.getById(id);
+        GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
-        return giftCertificate.orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getCertificate(id))
+                .withSelfRel());
+
+        return giftCertificate;
     }
 
-//    /**
-//     * Returns List<GiftCertificate> based on provided parameters
-//     *
-//     * @param order   list sorting order, ASC by default
-//     * @param max     maximum number of rows, by default 20
-//     * @param tag     tag name to use in search
-//     * @param pattern tag name or description with this pattern
-//     * @return List<GiftCertificate> with applied search parameters, if no certificates are found -  NoEntitiesFoundException is handled
-//     * @throws NoEntitiesFoundException
-//     */
-//    @GetMapping("/")
-//    public List<GiftCertificate> getCertificates(
-//            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-//            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-//            @RequestParam(value = "tag", required = false) String tag,
-//            @RequestParam(value = "pattern", required = false) String pattern) {
-//        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
-//        if (giftCertificates.isEmpty()) {
-//            throw new NoEntitiesFoundException();
-//        }
-//        return giftCertificates;
-//    }
 
+    //TODO -- add pagination
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max) {
-        List<GiftCertificate> giftCertificates = service.getAll(order, max);
+            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
+            @RequestParam(value = "tag", required = false) String tag,
+            @RequestParam(value = "pattern", required = false) String pattern) {
+
+        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
         if (giftCertificates.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
+
+        giftCertificates.forEach(giftCertificate -> {
+                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                            .getCertificate(giftCertificate.getId()))
+                            .withSelfRel());
+
+                    giftCertificate.add(linkTo(methodOn(TagController.class)
+                            .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST), Integer.parseInt(DEFAULT_OFFSET)))
+                            .withRel("tags"));
+
+                }
+        );
         return giftCertificates;
     }
 
-
-
-    /**
-     * Creates a GiftCertificate
-     *
-     * @param giftCertificate to be created
-     * @return created GiftCertificate
-//     * @throws DuplicateKeyException
-     */
+    //TODO -- Runtime Exception
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    GiftCertificate create(@RequestBody GiftCertificate giftCertificate) {
+    GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
         Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
 
-        return createdGiftCertificate.orElseThrow(()-> new DuplicateKeyException("certificate with such name already exists"));
+        return createdGiftCertificate.orElseThrow(RuntimeException::new);
     }
 
-    /**
-     * Deletes a GiftCertificate with provided id
-     *
-     * @param id to find GiftCertificate
-     * @return ResponseEntity  with OK status if GiftCertificate was deleted, if GiftCertificate was not found - OK ResponseEntity with message
-     */
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> deleteGiftCertificate(@PathVariable Long id) {
         ResponseEntity<String> response;
         if (service.delete(id)) {
             response = new ResponseEntity<>(HttpStatus.OK);
@@ -115,13 +97,6 @@ public class RestCertificateController {
         return response;
     }
 
-    /**
-     * Updates existing GiftCertificate
-     *
-     * @param giftCertificate new state of GiftCertificate
-     * @param id              to find GiftCertificate for update
-     * @return ResponseEntity  with OK status if GiftCertificate was update, if GiftCertificate was not updated - OK ResponseEntity Error and message
-     */
     @PutMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody GiftCertificate giftCertificate, @PathVariable Long id) {
@@ -136,10 +111,16 @@ public class RestCertificateController {
     }
 
 
+    @GetMapping("/{giftCertificateId}/tags")
+    public Set<Tag> getGiftCertificateTags(@RequestParam(value = "giftCertificateId") long userId) {
+
+        return new HashSet<>();
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity noSuchElement(NoSuchElementException e){
-        return new ControllerExceptionEntity(getErrorCode(404),e.getMessage());
+    public ControllerExceptionEntity noSuchElement(NoSuchElementException e) {
+        return new ControllerExceptionEntity(getErrorCode(404), e.getMessage());
     }
 
 

@@ -1,14 +1,13 @@
 package com.epam.esm;
 
-
-import org.springframework.data.repository.CrudRepository;
-
 import java.util.List;
+import java.util.Optional;
 
+public interface GiftCertificateRepository {
 
-public interface GiftCertificateRepository  {
+    Optional<GiftCertificate> getCertificateById(Long id);
 
-    GiftCertificate getCertificate(Long id);
+    Optional<GiftCertificate> getCertificateByName(String name);
 
     List<GiftCertificate> getCertificates(String order, int max);
 
@@ -16,8 +15,9 @@ public interface GiftCertificateRepository  {
 
     boolean delete(Long id);
 
-    boolean update(GiftCertificate element, long id);
+    Optional<GiftCertificate> update(GiftCertificate element, long id);
 
-    GiftCertificate create(GiftCertificate element);
+    Long create(GiftCertificate element);
+
 
 }

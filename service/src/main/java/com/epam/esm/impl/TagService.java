@@ -16,6 +16,10 @@ public class TagService implements CRUDService<Tag> {
 
     private final TagRepository tagRepository;
 
+//    private final UserService userService;
+
+
+
     @Autowired
     public TagService(TagRepository tagRepository) {
         this.tagRepository = tagRepository;
@@ -27,16 +31,20 @@ public class TagService implements CRUDService<Tag> {
     }
 
     @Override
-    public List<Tag> getAll(String order, int max) {
+    public List<Tag> getAll(String order, int max, int offset) {
 
-        return tagRepository.getTags(order, max);
+        return tagRepository.getTags(order, max, offset);
     }
 
     @Transactional
     @Override
-    public Optional<Tag> create(Tag element) {
-        Long createdTagId = tagRepository.create(element);
-        return getById(createdTagId);
+    public Optional<Tag> create(Tag tag) {
+        Optional<Tag> createdTag = Optional.empty();
+        Optional<Long> createdTagId = Optional.ofNullable(tagRepository.create(tag));
+        if (createdTagId.isPresent()) {
+            createdTag = getById(createdTagId.get());
+        }
+        return createdTag;
     }
 
     @Override
@@ -50,8 +58,13 @@ public class TagService implements CRUDService<Tag> {
     }
 
 
-    public List<Tag> getTagsForCertificate(Long id) {
-        return tagRepository.getTagsForCertificate(id);
-    }
+//    public List<Tag> getTagsForCertificate(Long id) {
+//        return tagRepository.getTagsForCertificate(id);
+//    }
+
+//    public Optional<Tag> getMostUsedTag(){
+//        User user = userService.getUserWithBiggest
+//        return tagRepository.getMostUsedTag();
+//    }
 
 }

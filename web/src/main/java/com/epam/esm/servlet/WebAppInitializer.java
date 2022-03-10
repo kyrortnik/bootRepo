@@ -2,7 +2,6 @@ package com.epam.esm.servlet;
 
 import com.epam.esm.config.RootConfig;
 import com.epam.esm.config.WebConfig;
-import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -17,7 +16,6 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     }
 
     @Override
-    @NonNull
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }

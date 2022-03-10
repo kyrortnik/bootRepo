@@ -5,7 +5,7 @@ import java.util.Set;
 
 public interface UserRepository {
 
-    Optional<User> getUser(Long id);
+    Optional<User> getUserById(Long id);
 
     Set<User> getUsers(String order, int max);
 }

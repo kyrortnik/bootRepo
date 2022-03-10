@@ -1,7 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.Tag;
-import com.epam.esm.TagRepository;
+import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,8 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional
 @Repository
@@ -32,11 +31,14 @@ public class TagRepositoryHibernate implements TagRepository {
 
 
     @Override
-    public List<Tag> getTags(String order, int max) {
+    public List<Tag> getTags(String order, int max,int offset) {
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT tag FROM Tag tag ORDER BY name " + order;
 
-        return session.createQuery(queryString, Tag.class).setMaxResults(max).getResultList();
+        return session.createQuery(queryString, Tag.class)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
     }
 
 
@@ -63,4 +65,33 @@ public class TagRepositoryHibernate implements TagRepository {
                 .setParameter("id",id).list();
 
     }
-}
+
+
+    /*Get the most widely used tag of a user with the highest cost of all orders*/
+    @Override
+    public Optional<Tag> getMostUsedTag() {
+        Session firstSession = sessionFactory.getCurrentSession();
+        User user = firstSession.createQuery(
+                "SELECT u FROM User u LEFT JOIN u.orders o ORDER BY o.totalOrderAmount DESC", User.class)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        Set<Order> orders = user.getOrders();
+//        List<GiftCertificate> giftCertificates = new ArrayList<>();
+//        List<Tag> userTags = new ArrayList<>();
+//        for (Order order : orders) {
+//            Set<GiftCertificate> orderGiftCertificates = order.getGiftCertificates();
+//            for (GiftCertificate giftCertificate : orderGiftCertificates) {
+//                List<Tag> tags = Collectors.toList(giftCertificate.getTags());
+//            }
+
+        return Optional.empty();
+
+        }
+//        Set<GiftCertificate> giftCertificates = new HashSet<>();
+//        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
+//
+//        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
+
+    }
+

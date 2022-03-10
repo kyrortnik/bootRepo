@@ -12,4 +12,6 @@ public interface OrderRepository {
     Long createOrder(Order order);
 
     boolean delete(Long id);
+
+    boolean orderAlreadyExists(Order order);
 }

@@ -2,15 +2,20 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
+import com.epam.esm.Tag;
+import org.hibernate.Metamodel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.EntityType;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,17 +67,43 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     @Override
     public List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern) {
         Session session = sessionFactory.getCurrentSession();
-        String query =
-                "SELECT c FROM GiftCertificate c LEFT JOIN c.tags t LEFT JOIN FETCH c.tags WHERE (t.name = :tag OR :tag is null) " +
-                        "AND (description LIKE :pattern OR c.name LIKE :pattern OR :pattern is null) " +
-                        "ORDER BY c.name " + order;
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<GiftCertificate> cr = cb.createQuery(GiftCertificate.class);
+        Root<GiftCertificate> root = cr.from(GiftCertificate.class);
+//        Metamodel m = sessionFactory.getMetamodel();
+//        EntityType<GiftCertificate> GiftCertificate_ = m.entity(GiftCertificate.class);
+//        Join<GiftCertificate, Tag> certificateTag = root.join("tags");
+
+        if (pattern != null) {
+            Predicate nameHasPattern = cb.like(root.get("name"), pattern);
+            Predicate descriptionHasPattern = cb.like(root.get("description"),pattern);
+            cr.select(root).where(cb.or(nameHasPattern,descriptionHasPattern));
+        } else{
+            cr.select(root);
+        }
+
+        //TODO -- find way to get array of tag values from URI
+//        cr.select(root).where(cb.equal(root.get("tags.name"), tag));
 
 
-        return session.createQuery(query, GiftCertificate.class)
-                .setParameter("tag", tag)
-                .setParameter("pattern", pattern)
-                .setMaxResults(max)
-                .getResultList();
+        Query<GiftCertificate> query = session.createQuery(cr);
+        query.setMaxResults(max);
+        //TODO -- replace on offset
+        query.setFirstResult(0);
+        return query.getResultList();
+
+
+//        String query =
+//                "SELECT c FROM GiftCertificate c LEFT JOIN c.tags t LEFT JOIN FETCH c.tags WHERE (t.name = :tag OR :tag is null) " +
+//                        "AND (description LIKE :pattern OR c.name LIKE :pattern OR :pattern is null) " +
+//                        "ORDER BY c.name " + order;
+
+
+//        return session.createQuery(query, GiftCertificate.class)
+//                .setParameter("tag", tag)
+//                .setParameter("pattern", pattern)
+//                .setMaxResults(max)
+//                .getResultList();
 
     }
 

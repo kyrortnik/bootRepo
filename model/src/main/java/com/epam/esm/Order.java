@@ -1,74 +1,42 @@
 package com.epam.esm;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-public class Order  extends RepresentationModel<Order> {
+@EqualsAndHashCode(callSuper = false, exclude = {"user", "giftCertificate"})
+@Data
+@Component
+@Entity
+@Table(name = "orders")
+public class Order extends RepresentationModel<Order> {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private long userId;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @Column(name = "order_date")
     private LocalDateTime orderDate;
 
-    private double totalOrderAmount;
+    @Column(name = "order_cost")
+    private double orderCost;
 
-    private Set<GiftCertificate> giftCertificates = new HashSet<>();
+    //TODO -- CascadeType, nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gift_certificate_id", nullable = false)
+    @JsonIgnore
+    /*@ToString.Exclude*/ private GiftCertificate giftCertificate;
 
-    public Order() {
-    }
-
-    public Order(LocalDateTime orderDate, double totalOrderAmount, Set<GiftCertificate> giftCertificates) {
-        this.orderDate = orderDate;
-        this.totalOrderAmount = totalOrderAmount;
-        this.giftCertificates = giftCertificates;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDateTime orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    public double getTotalOrderAmount() {
-        return totalOrderAmount;
-    }
-
-    public void setTotalOrderAmount(double totalOrderAmount) {
-        this.totalOrderAmount = totalOrderAmount;
-    }
-
-    public Set<GiftCertificate> getGiftCertificates() {
-        return giftCertificates;
-    }
-
-    public void setGiftCertificates(Set<GiftCertificate> giftCertificates) {
-        this.giftCertificates = giftCertificates;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public void updateTotalOrderAmount(double certificateCost){
-        totalOrderAmount += certificateCost;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    /*@ToString.Exclude*/ private User user;
 
 }

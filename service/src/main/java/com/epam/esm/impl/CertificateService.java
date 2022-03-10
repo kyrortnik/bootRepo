@@ -33,10 +33,9 @@ public class CertificateService implements CRUDService<GiftCertificate> {
     @Transactional
     @Override
     public Optional<GiftCertificate> getById(Long id) {
-        Optional<GiftCertificate> giftCertificate = giftCertificateRepository.getCertificateById(id);
-//        Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(id));
+        //        Set<Tag> tags = new HashSet<>(tagService.getTagsForCertificate(id));
 //        giftCertificate.ifPresent(certificate -> certificate.setTags(tags));
-        return giftCertificate;
+        return giftCertificateRepository.getCertificateById(id);
     }
 
     public Optional<GiftCertificate> getByName(String name) {
@@ -46,7 +45,7 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 
 
     @Override
-    public List<GiftCertificate> getAll(String order, int max) {
+    public List<GiftCertificate> getAll(String order, int max,int offset) {
         return giftCertificateRepository.getCertificates(order, max);
     }
 

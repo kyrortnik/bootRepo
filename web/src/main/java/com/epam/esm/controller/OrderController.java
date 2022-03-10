@@ -2,9 +2,11 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
+import com.epam.esm.exception.ControllerExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.Set;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@RestController
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderController {
 
@@ -33,14 +36,14 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public Order getOrder(@PathVariable Long orderId) {
 
-        Order order = orderService.getById(orderId).orElseThrow(NoSuchElementException::new);
+        Order order = orderService.getOrderById(orderId).orElseThrow(NoSuchElementException::new);
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrder(order.getId()))
                 .withSelfRel());
 
         order.add(linkTo(methodOn(OrderController.class)
-                .getOrderCertificates(order.getId()))
+                .getOrderGiftCertificate(order.getId()))
                 .withRel("certificates"));
 
         return order;
@@ -63,7 +66,7 @@ public class OrderController {
                             .withSelfRel());
 
                     foundOrder.add(linkTo(methodOn(OrderController.class)
-                            .getOrderCertificates(foundOrder.getId()))
+                            .getOrderGiftCertificate(foundOrder.getId()))
                             .withRel("certificates"));
                 }
         );
@@ -71,11 +74,12 @@ public class OrderController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
         Optional<Order> createdGiftCertificate = orderService.create(order);
-        return createdGiftCertificate.orElseThrow((() -> new NoSuchElementException("No such order exists")));
+        return createdGiftCertificate.orElseThrow((() -> new DuplicateKeyException("Such order already exists")));
     }
 
 
@@ -86,28 +90,37 @@ public class OrderController {
                 : new ResponseEntity<>("No order with such id was found", HttpStatus.OK);
     }
 
-    @GetMapping("/{orderId}/certificates")
-    public Set<GiftCertificate> getOrderCertificates(@RequestParam(value = "orderId") long userId) {
-        Order order = orderService.getById(userId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
+    @GetMapping("/{orderId}/giftCertificates")
+    public GiftCertificate getOrderGiftCertificate(/*@RequestParam(value = "orderId")*/ @PathVariable long orderId) {
+        Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
-        Set<GiftCertificate> orderCertificates = order.getGiftCertificates();
-        if (orderCertificates.isEmpty()) {
-            throw new NoEntitiesFoundException("No certificates exists for this order");
-        }
-        orderCertificates.forEach(giftCertificate -> {
-                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                            .getCertificate(giftCertificate.getId()))
-                            .withSelfRel());
+        GiftCertificate giftCertificate = order.getGiftCertificate();
 
-                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                            .deleteGiftCertificate(giftCertificate.getId()))
-                            .withRel("delete"));
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getCertificate(giftCertificate.getId()))
+                .withSelfRel());
 
-                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                            .getGiftCertificateTags(giftCertificate.getId()))
-                            .withRel("tags"));
-                }
-        );
-        return orderCertificates;
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .deleteGiftCertificate(giftCertificate.getId()))
+                .withRel("delete"));
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getGiftCertificateTags(giftCertificate.getId()))
+                .withRel("tags"));
+
+        return giftCertificate;
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
+//        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
+        return new ControllerExceptionEntity(getErrorCode(400), e.getMessage());
+    }
+
+    private static int getErrorCode(int errorCode) {
+        long counter = 0;
+        counter++;
+        return Integer.parseInt(errorCode + String.valueOf(counter));
     }
 }

@@ -7,7 +7,7 @@ public interface TagRepository {
 
     Optional<Tag> getTag(Long id);
 
-    List<Tag> getTags(String order, int max);
+    List<Tag> getTags(String order, int max, int offset);
 
     boolean delete(Long id);
 

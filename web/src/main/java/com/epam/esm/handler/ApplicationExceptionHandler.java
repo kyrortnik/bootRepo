@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
@@ -32,13 +33,19 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(NoEntitiesFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody ControllerExceptionEntity tagsNotFound(NoEntitiesFoundException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), "No tags are found");
+        return new ControllerExceptionEntity(getErrorCode(404), e.getMessage());
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
         return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ControllerExceptionEntity constraintViolationException(SQLException e) {
+        return new ControllerExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + e.getErrorCode()), e.getMessage());
     }
 
     private static int getErrorCode(int errorCode) {

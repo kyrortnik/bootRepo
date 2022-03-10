@@ -7,7 +7,7 @@ public interface CRUDService<E> {
 
     Optional<E> getById(Long id);
 
-    List<E> getAll(String order, int max);
+    List<E> getAll(String order, int max, int offset);
 
     boolean delete(Long id);
 

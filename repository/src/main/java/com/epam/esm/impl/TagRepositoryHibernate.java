@@ -31,11 +31,14 @@ public class TagRepositoryHibernate implements TagRepository {
 
 
     @Override
-    public List<Tag> getTags(String order, int max) {
+    public List<Tag> getTags(String order, int max,int offset) {
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT tag FROM Tag tag ORDER BY name " + order;
 
-        return session.createQuery(queryString, Tag.class).setMaxResults(max).getResultList();
+        return session.createQuery(queryString, Tag.class)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
     }
 
 

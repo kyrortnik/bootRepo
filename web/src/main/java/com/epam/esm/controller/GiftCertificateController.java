@@ -24,6 +24,7 @@ public class GiftCertificateController {
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
+    private static final String DEFAULT_OFFSET = "0";
     private static long errorCodeCounter = 0;
 
     private final CertificateService service;
@@ -46,6 +47,7 @@ public class GiftCertificateController {
     }
 
 
+    //TODO -- add pagination
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
@@ -64,7 +66,7 @@ public class GiftCertificateController {
                             .withSelfRel());
 
                     giftCertificate.add(linkTo(methodOn(TagController.class)
-                            .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST)))
+                            .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST), Integer.parseInt(DEFAULT_OFFSET)))
                             .withRel("tags"));
 
                 }

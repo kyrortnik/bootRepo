@@ -45,7 +45,7 @@ public class CertificateService implements CRUDService<GiftCertificate> {
 
 
     @Override
-    public List<GiftCertificate> getAll(String order, int max) {
+    public List<GiftCertificate> getAll(String order, int max,int offset) {
         return giftCertificateRepository.getCertificates(order, max);
     }
 

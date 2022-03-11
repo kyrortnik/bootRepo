@@ -2,7 +2,6 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
-import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ public class OrderController {
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
+    private static final String DEFAULT_OFFSET = "0";
 
     @Autowired
     public OrderController(OrderService orderService) {
@@ -46,6 +46,10 @@ public class OrderController {
                 .getOrderGiftCertificate(order.getId()))
                 .withRel("certificates"));
 
+        order.add(linkTo(methodOn(UserController.class)
+                .getUser(order.getUser().getId()))
+                .withRel("user"));
+
         return order;
     }
 
@@ -53,9 +57,8 @@ public class OrderController {
     public Set<Order> getOrders(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
             @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "pattern", required = false) String pattern) {
-        Set<Order> orders = orderService.getOrders(order, max);
+            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+        Set<Order> orders = orderService.getOrders(order, max, offset);
         if (orders.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
@@ -67,7 +70,11 @@ public class OrderController {
 
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrderGiftCertificate(foundOrder.getId()))
-                            .withRel("certificates"));
+                            .withRel("certificate"));
+
+            foundOrder.add(linkTo(methodOn(UserController.class)
+                            .getUser(foundOrder.getUser().getId()))
+                            .withRel("user"));
                 }
         );
         return orders;
@@ -90,8 +97,8 @@ public class OrderController {
                 : new ResponseEntity<>("No order with such id was found", HttpStatus.OK);
     }
 
-    @GetMapping("/{orderId}/giftCertificates")
-    public GiftCertificate getOrderGiftCertificate( @PathVariable long orderId) {
+    @GetMapping("/{orderId}/giftCertificate")
+    public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
@@ -111,16 +118,4 @@ public class OrderController {
         return giftCertificate;
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionEntity duplicateKeyException(DuplicateKeyException e) {
-//        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
-        return new ExceptionEntity(getErrorCode(400), e.getMessage());
-    }
-
-    private static int getErrorCode(int errorCode) {
-        long counter = 0;
-        counter++;
-        return Integer.parseInt(errorCode + String.valueOf(counter));
-    }
 }

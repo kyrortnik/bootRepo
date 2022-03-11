@@ -33,8 +33,8 @@ public class OrderService {
     }
 
 
-    public Set<Order> getOrders(String order, int max) {
-        return orderRepository.getOrders(order, max);
+    public Set<Order> getOrders(String order, int max,int offset) {
+        return orderRepository.getOrders(order, max, offset);
     }
 
 

@@ -23,18 +23,18 @@ public class UserController {
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
     private static final String DEFAULT_OFFSET = "0";
-    private final UserService service;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable Long userId) {
 
-        User user = service.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -51,7 +51,7 @@ public class UserController {
     public List<User> getUsers(@RequestParam(value = "order", defaultValue = MAX_CERTIFICATES_IN_REQUEST) String order,
                                @RequestParam(value = "max", defaultValue = DEFAULT_ORDER) int max,
                                @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
-        List<User> users = service.getUsers(order, max, offset);
+        List<User> users = userService.getUsers(order, max, offset);
         if (users.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
@@ -71,7 +71,7 @@ public class UserController {
 
     @GetMapping("/{userId}/orders")
     public Set<Order> getUserOrders(@PathVariable long userId) {
-        User user = service.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
         Set<Order> userOrders = user.getOrders();
         if (userOrders.isEmpty()) {

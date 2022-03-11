@@ -2,20 +2,14 @@ package com.epam.esm.impl;
 
 import com.epam.esm.Order;
 import com.epam.esm.OrderRepository;
-import com.epam.esm.Tag;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import java.sql.ResultSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,23 +26,36 @@ public class OrderRepositoryHibernate implements OrderRepository {
         sessionFactory = transactionManager.getSessionFactory();
     }
 
+//    @Override
+//    public Optional<Order> getOrder(Long id) {
+//        Session session = sessionFactory.getCurrentSession();
+//        return Optional.ofNullable(session.get(Order.class, id));
+//    }
+
     @Override
     public Optional<Order> getOrder(Long id) {
         Session session = sessionFactory.getCurrentSession();
-        return Optional.ofNullable(session.get(Order.class, id));
+        List<Order> resultSet = session
+                .createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.giftCertificate WHERE o.id = :id", Order.class)
+                .setParameter("id", id)
+                .getResultList();
+
+        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
     }
 
     @Override
-    public Set<Order> getOrders(String order, int max) {
+    public Set<Order> getOrders(String order, int max, int offset) {
 
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT order FROM Order order ORDER BY name " + order;
 
-        List<Order> orders = session.createQuery(queryString, Order.class).setMaxResults(max).getResultList();
+        List<Order> orders = session.createQuery(queryString, Order.class)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
         return new HashSet<>(orders);
     }
 
-    //TODO -- replace RuntimeException
     @Override
     public Long createOrder(Order order) {
         Session session = sessionFactory.getCurrentSession();

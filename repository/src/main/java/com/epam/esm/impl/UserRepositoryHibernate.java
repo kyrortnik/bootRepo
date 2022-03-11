@@ -1,6 +1,5 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.Tag;
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
 import org.hibernate.Session;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Transactional
 @Repository
@@ -39,8 +37,8 @@ public class UserRepositoryHibernate implements UserRepository {
 
     @Override
     public List<User> getUsers(String order, int max, int offset) {
-       Session session = sessionFactory.getCurrentSession();
-       String queryString = "SELECT user FROM User ORDER BY name " + order;
+        Session session = sessionFactory.getCurrentSession();
+        String queryString = "SELECT user FROM User ORDER BY name " + order;
 
         return session.createQuery(queryString, User.class)
                 .setMaxResults(max)

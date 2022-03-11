@@ -1,12 +1,12 @@
 package com.epam.esm;
 
+//import com.epam.esm.listeners.AuditListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Cascade;
+import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +15,12 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+//@EntityListeners(AuditListener.class)
+@Audited
+@Entity
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Component
-@Entity
-@DynamicUpdate
 @Table(name = "certificates")
 public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
@@ -44,7 +45,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     private LocalDateTime lastUpdateDate;
 
     @ManyToMany
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+//    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
@@ -52,6 +53,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     )
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
 

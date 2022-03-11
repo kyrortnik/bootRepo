@@ -31,7 +31,7 @@ public class TagRepositoryHibernate implements TagRepository {
 
 
     @Override
-    public List<Tag> getTags(String order, int max,int offset) {
+    public List<Tag> getTags(String order, int max, int offset) {
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT tag FROM Tag tag ORDER BY name " + order;
 
@@ -61,8 +61,8 @@ public class TagRepositoryHibernate implements TagRepository {
     @Override
     public List<Tag> getTagsForCertificate(Long id) {
         Session session = sessionFactory.getCurrentSession();
-       return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id",Tag.class)
-                .setParameter("id",id).list();
+        return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id", Tag.class)
+                .setParameter("id", id).list();
 
     }
 
@@ -87,20 +87,12 @@ public class TagRepositoryHibernate implements TagRepository {
 
         return Optional.empty();
 
-        }
+    }
 //        Set<GiftCertificate> giftCertificates = new HashSet<>();
 //        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
 //
 //        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
 
-
-    @Override
-    public void createTagGiftCertificateRelation(long tagId, long giftCertificateId) {
-        Session session = sessionFactory.getCurrentSession();
-        session.createNativeQuery("INSERT INTO certificates_tags VALUES (:giftCertificateId, :tagId)")
-                .setParameter("giftCertificateId",giftCertificateId)
-                .setParameter("tagId",tagId);
-    }
 
     @Override
     public void update(Tag tag) {

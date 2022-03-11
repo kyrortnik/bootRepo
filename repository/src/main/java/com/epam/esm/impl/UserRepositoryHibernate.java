@@ -1,7 +1,8 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.*;
-import org.hibernate.Hibernate;
+import com.epam.esm.Tag;
+import com.epam.esm.User;
+import com.epam.esm.UserRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +31,20 @@ public class UserRepositoryHibernate implements UserRepository {
         Session session = sessionFactory.getCurrentSession();
         List<User> resultSet = session
                 .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders WHERE u.id = :id", User.class)
-//                .createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
                 .setParameter("id", id).getResultList();
 
         return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
 
-
-
     }
 
     @Override
-    public Set<User> getUsers(String order, int max) {
-        return null;
+    public List<User> getUsers(String order, int max, int offset) {
+       Session session = sessionFactory.getCurrentSession();
+       String queryString = "SELECT user FROM User ORDER BY name " + order;
+
+        return session.createQuery(queryString, User.class)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
     }
 }

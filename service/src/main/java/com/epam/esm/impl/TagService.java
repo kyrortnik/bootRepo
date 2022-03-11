@@ -62,9 +62,7 @@ public class TagService implements CRUDService<Tag> {
          tagRepository.update(tag);
     }
 
-    public void createTagGiftCertificateRelation(long giftCertificateId, long tagId) {
-        tagRepository.createTagGiftCertificateRelation(giftCertificateId,tagId);
-    }
+
 
 
 //    public List<Tag> getTagsForCertificate(Long id) {

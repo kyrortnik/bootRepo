@@ -19,5 +19,4 @@ public interface TagRepository {
 
     Optional<Tag> getMostUsedTag();
 
-    void createTagGiftCertificateRelation(long tagId, long giftCertificateId);
 }

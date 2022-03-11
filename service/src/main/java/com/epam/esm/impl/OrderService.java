@@ -18,13 +18,13 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    private final CertificateService certificateService;
+    private final GiftCertificateService giftCertificateService;
     private final UserService userService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, CertificateService certificateService, UserService userService) {
+    public OrderService(OrderRepository orderRepository, GiftCertificateService giftCertificateService, UserService userService) {
         this.orderRepository = orderRepository;
-        this.certificateService = certificateService;
+        this.giftCertificateService = giftCertificateService;
         this.userService = userService;
     }
 
@@ -48,7 +48,7 @@ public class OrderService {
 
         String giftCertificateName = order.getGiftCertificate().getName();
         Long userId = order.getUser().getId();
-        GiftCertificate giftCertificateFromOrder = certificateService.getByName(giftCertificateName)
+        GiftCertificate giftCertificateFromOrder = giftCertificateService.getByName(giftCertificateName)
                 .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
 
         User user = userService.getById(userId)

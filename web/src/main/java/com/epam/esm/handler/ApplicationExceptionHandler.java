@@ -1,6 +1,6 @@
 package com.epam.esm.handler;
 
-import com.epam.esm.exception.ControllerExceptionEntity;
+import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import org.springframework.dao.DuplicateKeyException;
@@ -16,42 +16,42 @@ import java.util.NoSuchElementException;
 @ControllerAdvice
 public class ApplicationExceptionHandler {
 
+    private static int errorCodeCounter = 0;
+
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ControllerExceptionEntity noSuchElement(NoSuchElementException e){
-        return new ControllerExceptionEntity(getErrorCode(404),e.getMessage());
+    public @ResponseBody
+    ExceptionEntity noSuchElement(NoSuchElementException e) {
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ControllerExceptionEntity tagNotFound(EntityNotFoundException e) {
+    public @ResponseBody
+    ExceptionEntity tagNotFound(EntityNotFoundException e) {
         long tagId = e.getEntityId();
-        return new ControllerExceptionEntity(getErrorCode(404), "Tag [" + tagId + "] not found");
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(NoEntitiesFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ControllerExceptionEntity tagsNotFound(NoEntitiesFoundException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), e.getMessage());
+    public @ResponseBody
+    ExceptionEntity tagsNotFound(NoEntitiesFoundException e) {
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
-        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
+    public @ResponseBody
+    ExceptionEntity duplicateKeyException(DuplicateKeyException e) {
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(SQLException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody ControllerExceptionEntity constraintViolationException(SQLException e) {
-        return new ControllerExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + e.getErrorCode()), e.getMessage());
+    public @ResponseBody
+    ExceptionEntity constraintViolationException(SQLException e) {
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
-
-    private static int getErrorCode(int errorCode) {
-        long counter = 0;
-        counter++;
-        return Integer.parseInt(errorCode + String.valueOf(counter));
-    }
-
 }

@@ -1,11 +1,11 @@
 package com.epam.esm.exception;
 
-public class ControllerExceptionEntity {
+public class ExceptionEntity {
 
     private final String message;
     private final int code;
 
-    public ControllerExceptionEntity(int code, String message) {
+    public ExceptionEntity(int code, String message) {
         this.code = code;
         this.message = message;
     }

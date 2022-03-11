@@ -11,9 +11,13 @@ public interface TagRepository {
 
     boolean delete(Long id);
 
-    Long create(Tag element);
+    Long createTag(Tag element);
+
+    void update(Tag tag);
 
     List<Tag> getTagsForCertificate(Long id);
 
     Optional<Tag> getMostUsedTag();
+
+    void createTagGiftCertificateRelation(long tagId, long giftCertificateId);
 }

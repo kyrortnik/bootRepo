@@ -52,7 +52,7 @@ public class TagRepositoryHibernate implements TagRepository {
 
     @Override
 //    @Transactional
-    public Long create(Tag tag) {
+    public Long createTag(Tag tag) {
         Session session = sessionFactory.getCurrentSession();
         return (Long) session.save(tag);
 
@@ -93,5 +93,18 @@ public class TagRepositoryHibernate implements TagRepository {
 //
 //        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
 
+
+    @Override
+    public void createTagGiftCertificateRelation(long tagId, long giftCertificateId) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createNativeQuery("INSERT INTO certificates_tags VALUES (:giftCertificateId, :tagId)")
+                .setParameter("giftCertificateId",giftCertificateId)
+                .setParameter("tagId",tagId);
     }
 
+    @Override
+    public void update(Tag tag) {
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(tag);
+    }
+}

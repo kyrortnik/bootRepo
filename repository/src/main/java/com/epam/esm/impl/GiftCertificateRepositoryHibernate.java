@@ -2,22 +2,18 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.Tag;
-import org.hibernate.Metamodel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.EntityType;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
@@ -49,73 +45,46 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     public Optional<GiftCertificate> getCertificateByName(String name) {
         Session session = sessionFactory.getCurrentSession();
         List<GiftCertificate> resultSet = session
-                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ",GiftCertificate.class)
-                .setParameter("name",name).getResultList();
+                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
+                .setParameter("name", name).getResultList();
 
         return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
     }
 
     @Override
-    public List<GiftCertificate> getCertificates(String order, int max) {
+    public List<GiftCertificate> getCertificates(String order, int max, int offset) {
 
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags ORDER BY c.name " + order;
-        return session.createQuery(queryString, GiftCertificate.class).setMaxResults(max).getResultList();
+        return session.createQuery(queryString, GiftCertificate.class)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
 
     }
 
     @Override
-    public List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern) {
+    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset) {
+
         Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<GiftCertificate> cr = cb.createQuery(GiftCertificate.class);
-        Root<GiftCertificate> root = cr.from(GiftCertificate.class);
-//        Metamodel m = sessionFactory.getMetamodel();
-//        EntityType<GiftCertificate> GiftCertificate_ = m.entity(GiftCertificate.class);
-//        Join<GiftCertificate, Tag> certificateTag = root.join("tags");
+        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name IN :tags ORDER BY c.name " + order;
 
-        if (pattern != null) {
-            Predicate nameHasPattern = cb.like(root.get("name"), pattern);
-            Predicate descriptionHasPattern = cb.like(root.get("description"),pattern);
-            cr.select(root).where(cb.or(nameHasPattern,descriptionHasPattern));
-        } else{
-            cr.select(root);
-        }
-
-        //TODO -- find way to get array of tag values from URI
-//        cr.select(root).where(cb.equal(root.get("tags.name"), tag));
-
-
-        Query<GiftCertificate> query = session.createQuery(cr);
-        query.setMaxResults(max);
-        //TODO -- replace on offset
-        query.setFirstResult(0);
-        return query.getResultList();
-
-
-//        String query =
-//                "SELECT c FROM GiftCertificate c LEFT JOIN c.tags t LEFT JOIN FETCH c.tags WHERE (t.name = :tag OR :tag is null) " +
-//                        "AND (description LIKE :pattern OR c.name LIKE :pattern OR :pattern is null) " +
-//                        "ORDER BY c.name " + order;
-
-
-//        return session.createQuery(query, GiftCertificate.class)
-//                .setParameter("tag", tag)
-//                .setParameter("pattern", pattern)
-//                .setMaxResults(max)
-//                .getResultList();
-
+        return session.createQuery(queryString, GiftCertificate.class)
+                .setParameter("tags", tags)
+                .setMaxResults(max)
+                .setFirstResult(offset)
+                .getResultList();
     }
-
 
     @Override
     public boolean delete(Long id) {
 
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("DELETE from GiftCertificate where id = :id")
+        return session.createQuery("DELETE FROM GiftCertificate WHERE id = :id")
                 .setParameter("id", id)
                 .executeUpdate() > 0;
     }
+
 
     @Override
     public Optional<GiftCertificate> update(GiftCertificate changedGiftCertificate, long id) {
@@ -136,7 +105,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
             return (Long) session.save(giftCertificate);
         } catch (ConstraintViolationException e) {
 
-            throw new DuplicateKeyException("certificate with  name [" + giftCertificate.getName() + "] already exists");
+            throw new DuplicateKeyException("Certificate with  name [" + giftCertificate.getName() + "] already exists");
 
         }
     }

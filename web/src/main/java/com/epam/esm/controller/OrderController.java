@@ -2,7 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
-import com.epam.esm.exception.ControllerExceptionEntity;
+import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/giftCertificates")
-    public GiftCertificate getOrderGiftCertificate(/*@RequestParam(value = "orderId")*/ @PathVariable long orderId) {
+    public GiftCertificate getOrderGiftCertificate( @PathVariable long orderId) {
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
@@ -113,9 +113,9 @@ public class OrderController {
 
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
+    public ExceptionEntity duplicateKeyException(DuplicateKeyException e) {
 //        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
-        return new ControllerExceptionEntity(getErrorCode(400), e.getMessage());
+        return new ExceptionEntity(getErrorCode(400), e.getMessage());
     }
 
     private static int getErrorCode(int errorCode) {

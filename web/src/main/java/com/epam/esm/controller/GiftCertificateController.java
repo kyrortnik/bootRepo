@@ -2,12 +2,10 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
-import com.epam.esm.exception.ControllerExceptionEntity;
-import com.epam.esm.exception.EntityNotFoundException;
+import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
-import com.epam.esm.impl.CertificateService;
+import com.epam.esm.impl.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +23,11 @@ public class GiftCertificateController {
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
     private static final String DEFAULT_OFFSET = "0";
-    private static long errorCodeCounter = 0;
 
-    private final CertificateService service;
+    private final GiftCertificateService service;
 
     @Autowired
-    public GiftCertificateController(CertificateService service) {
+    public GiftCertificateController(GiftCertificateService service) {
         this.service = service;
     }
 
@@ -43,38 +40,57 @@ public class GiftCertificateController {
                 .getCertificate(id))
                 .withSelfRel());
 
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(giftCertificate, id))
+                .withRel("update"));
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .deleteGiftCertificate(id))
+                .withRel("delete"));
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getGiftCertificateTags(id))
+                .withRel("tags"));
+
         return giftCertificate;
     }
 
-
-    //TODO -- add pagination
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
             @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "pattern", required = false) String pattern) {
+            @RequestParam(value = "tag", required = false) Set<String> tags,
+            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+        List<GiftCertificate> giftCertificates = Objects.isNull(tags)
+                ? service.getAll(order, max, offset)
+                : service.getCertificatesByTags(order, max, tags, offset);
 
-        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
         if (giftCertificates.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
-
         giftCertificates.forEach(giftCertificate -> {
-                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                            .getCertificate(giftCertificate.getId()))
-                            .withSelfRel());
 
-                    giftCertificate.add(linkTo(methodOn(TagController.class)
-                            .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST), Integer.parseInt(DEFAULT_OFFSET)))
-                            .withRel("tags"));
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .getCertificate(giftCertificate.getId()))
+                    .withSelfRel());
 
-                }
-        );
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .update(giftCertificate, giftCertificate.getId()))
+                    .withRel("update"));
+
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .deleteGiftCertificate(giftCertificate.getId()))
+                    .withRel("delete"));
+
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .getGiftCertificateTags(giftCertificate.getId()))
+                    .withRel("tags"));
+
+        });
         return giftCertificates;
     }
 
-    //TODO -- Runtime Exception
+    //TODO -- Runtime Exception + giftCertificate creation with exisiting tag
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -104,49 +120,21 @@ public class GiftCertificateController {
         if (service.update(giftCertificate, id)) {
             responseEntity = new ResponseEntity<>(HttpStatus.OK);
         } else {
-            ControllerExceptionEntity error = new ControllerExceptionEntity(getErrorCode(400), "Error while updating");
+            ExceptionEntity error = new ExceptionEntity(0, "Error while updating");
             responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
         }
         return responseEntity;
     }
 
-
     @GetMapping("/{giftCertificateId}/tags")
-    public Set<Tag> getGiftCertificateTags(@RequestParam(value = "giftCertificateId") long userId) {
+    public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
+        GiftCertificate giftCertificate = service.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate Exists"));
+        Set<Tag> giftCertificateTags = giftCertificate.getTags();
 
-        return new HashSet<>();
+        giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
+                .getTag(tag.getId()))
+                .withSelfRel())
+        );
+        return giftCertificateTags;
     }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity noSuchElement(NoSuchElementException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), e.getMessage());
-    }
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity certificateNotFound(EntityNotFoundException e) {
-        long certificateId = e.getEntityId();
-        return new ControllerExceptionEntity(getErrorCode(404), "Gift Certificate [" + certificateId + "] not found");
-    }
-
-    @ExceptionHandler(DuplicateKeyException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ControllerExceptionEntity duplicateKeyValues(DuplicateKeyException e) {
-        return new ControllerExceptionEntity(getErrorCode(500), e.getMostSpecificCause().getMessage());
-    }
-
-    @ExceptionHandler(NoEntitiesFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity certificatesNotFound(NoEntitiesFoundException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), "No certificates are found");
-    }
-
-
-    private static int getErrorCode(int errorCode) {
-        errorCodeCounter++;
-        return Integer.parseInt(errorCode + String.valueOf(errorCodeCounter));
-    }
-
 }

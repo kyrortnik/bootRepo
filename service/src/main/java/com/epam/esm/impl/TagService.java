@@ -40,7 +40,7 @@ public class TagService implements CRUDService<Tag> {
     @Override
     public Optional<Tag> create(Tag tag) {
         Optional<Tag> createdTag = Optional.empty();
-        Optional<Long> createdTagId = Optional.ofNullable(tagRepository.create(tag));
+        Optional<Long> createdTagId = Optional.ofNullable(tagRepository.createTag(tag));
         if (createdTagId.isPresent()) {
             createdTag = getById(createdTagId.get());
         }
@@ -55,6 +55,15 @@ public class TagService implements CRUDService<Tag> {
     @Override
     public boolean update(Tag element, Long id) {
         throw new UnsupportedOperationException();
+    }
+
+
+    public void updateTag(Tag tag) {
+         tagRepository.update(tag);
+    }
+
+    public void createTagGiftCertificateRelation(long giftCertificateId, long tagId) {
+        tagRepository.createTagGiftCertificateRelation(giftCertificateId,tagId);
     }
 
 

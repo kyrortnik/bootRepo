@@ -52,7 +52,13 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     }
 
 
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset) {
+    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
+
+        Set<Tag> tags = new HashSet<>();
+        for (String tagName : tagNames){
+            Optional<Tag> tag = tagService.getTagByName(tagName);
+            tag.ifPresent(tags::add);
+        }
         return giftCertificateRepository.getCertificatesByTags(order, max, tags, offset);
     }
 

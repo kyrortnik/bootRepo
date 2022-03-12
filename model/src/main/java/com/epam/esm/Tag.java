@@ -3,6 +3,7 @@ package com.epam.esm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,8 @@ public class Tag  extends RepresentationModel<Tag> {
 
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<GiftCertificate> certificates = new HashSet<>();
 
 

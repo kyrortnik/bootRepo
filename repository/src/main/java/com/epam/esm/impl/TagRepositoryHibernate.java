@@ -1,6 +1,7 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.*;
+import com.epam.esm.Tag;
+import com.epam.esm.TagRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,8 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Repository
@@ -51,7 +52,6 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
     @Override
-//    @Transactional
     public Long createTag(Tag tag) {
         Session session = sessionFactory.getCurrentSession();
         return (Long) session.save(tag);
@@ -66,37 +66,48 @@ public class TagRepositoryHibernate implements TagRepository {
 
     }
 
-
-    /*Get the most widely used tag of a user with the highest cost of all orders*/
     @Override
-    public Optional<Tag> getMostUsedTag() {
-        Session firstSession = sessionFactory.getCurrentSession();
-        User user = firstSession.createQuery(
-                "SELECT u FROM User u LEFT JOIN u.orders o ORDER BY o.totalOrderAmount DESC", User.class)
+    public Optional<Tag> getMostUsedTagForRichestUser() {
+        Session session = sessionFactory.getCurrentSession();
+        long richestUserId = (Integer) session.createNativeQuery(
+                "SELECT u.id FROM users AS u\n" +
+                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
+                        "GROUP BY u.id\n" +
+                        "ORDER BY SUM(o.order_cost) DESC")
                 .setMaxResults(1)
                 .getSingleResult();
 
-        Set<Order> orders = user.getOrders();
-//        List<GiftCertificate> giftCertificates = new ArrayList<>();
-//        List<Tag> userTags = new ArrayList<>();
-//        for (Order order : orders) {
-//            Set<GiftCertificate> orderGiftCertificates = order.getGiftCertificates();
-//            for (GiftCertificate giftCertificate : orderGiftCertificates) {
-//                List<Tag> tags = Collectors.toList(giftCertificate.getTags());
-//            }
+        String mostUsedTagName = (String) session.createNativeQuery(
+                "SELECT t.name FROM tags AS t\n" +
+                        "LEFT JOIN certificates_tags AS ct ON t.id = ct.tag_id\n" +
+                        "LEFT JOIN certificates AS c ON ct.certificate_id =  c.id\n" +
+                        "LEFT JOIN orders AS o ON c.id = o.gift_certificate_id\n" +
+                        "LEFT JOIN users AS u ON o.user_id = u.id WHERE u.id = :id\n" +
+                        "GROUP BY t.name\n" +
+                        "ORDER BY COUNT(t.name) DESC")
+                .setMaxResults(1)
+                .setParameter("id", richestUserId)
+                .getSingleResult();
 
-        return Optional.empty();
-
+        return getTagByName(mostUsedTagName);
     }
-//        Set<GiftCertificate> giftCertificates = new HashSet<>();
-//        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
-//
-//        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
-
 
     @Override
     public void update(Tag tag) {
         Session session = sessionFactory.getCurrentSession();
         session.saveOrUpdate(tag);
+    }
+
+    @Override
+    public Optional<Tag> getTagByName(String tagName) {
+        Session session = sessionFactory.getCurrentSession();
+
+        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
+                .setParameter("tagName", tagName)
+                .getResultList();
+
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+
+
     }
 }

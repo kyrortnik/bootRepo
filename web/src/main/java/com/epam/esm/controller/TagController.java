@@ -78,5 +78,11 @@ public class TagController {
         return response;
     }
 
+    @GetMapping("/mostUsedTagForRichestUser")
+    public Tag getMostUsedTagForRichestUser(){
+        return tagService.getMostUsedTagForRichestUser()
+                .orElseThrow(() -> new NoEntitiesFoundException("No certificates with tags exist in orders"));
+    }
+
 
 }

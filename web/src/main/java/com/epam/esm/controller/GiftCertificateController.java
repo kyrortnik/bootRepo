@@ -128,7 +128,7 @@ public class GiftCertificateController {
 
     @GetMapping("/{giftCertificateId}/tags")
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
-        GiftCertificate giftCertificate = service.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate Exists"));
+        GiftCertificate giftCertificate = service.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
         Set<Tag> giftCertificateTags = giftCertificate.getTags();
 
         giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)

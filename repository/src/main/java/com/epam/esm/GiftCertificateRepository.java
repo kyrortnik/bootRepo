@@ -14,7 +14,9 @@ public interface GiftCertificateRepository {
 
 //    List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern);
 
-    List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset);
+//    List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset);
+
+    List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset);
 
     boolean delete(Long id);
 

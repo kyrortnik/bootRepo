@@ -62,6 +62,14 @@ public class TagService implements CRUDService<Tag> {
          tagRepository.update(tag);
     }
 
+    public Optional<Tag> getTagByName(String tagName){
+         return tagRepository.getTagByName(tagName);
+    }
+
+    public Optional<Tag> getMostUsedTagForRichestUser(){
+        return tagRepository.getMostUsedTagForRichestUser();
+    }
+
 
 
 

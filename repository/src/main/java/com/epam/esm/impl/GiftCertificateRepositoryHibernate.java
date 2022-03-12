@@ -2,6 +2,7 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
+import com.epam.esm.Tag;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -63,18 +64,39 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     }
 
+//    @Override
+//    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset) {
+//
+//        Session session = sessionFactory.getCurrentSession();
+//        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name IN :tags ORDER BY c.name " + order;
+////        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name = :tags ORDER BY c.name " + order;
+//
+//
+//
+//
+//        return session.createQuery(queryString, GiftCertificate.class)
+//                .setParameterList("tags", tags)
+//                .setMaxResults(max)
+//                .setFirstResult(offset)
+//                .getResultList();
+//    }
+
+
+
     @Override
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset) {
+    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset) {
 
         Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name IN :tags ORDER BY c.name " + order;
+        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE c.tags = :tags ORDER BY c.name " + order;
+//        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name = :tags ORDER BY c.name " + order;
 
         return session.createQuery(queryString, GiftCertificate.class)
-                .setParameter("tags", tags)
+                .setParameterList("tags", tags)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
     }
+
 
     @Override
     public boolean delete(Long id) {

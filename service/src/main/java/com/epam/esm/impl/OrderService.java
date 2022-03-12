@@ -52,7 +52,7 @@ public class OrderService {
                 .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
 
         User user = userService.getById(userId)
-                .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exidt"));
+                .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exist"));
 
         order.setUser(user);
         order.setGiftCertificate(giftCertificateFromOrder);

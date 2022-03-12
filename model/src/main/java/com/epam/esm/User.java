@@ -24,7 +24,7 @@ import java.util.Set;
 public class User extends RepresentationModel<User> {
 
     @Id
-    @JsonIgnore
+//    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 

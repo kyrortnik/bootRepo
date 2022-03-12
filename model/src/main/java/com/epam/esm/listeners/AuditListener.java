@@ -1,4 +1,3 @@
-/*
 package com.epam.esm.listeners;
 
 import javax.persistence.PrePersist;
@@ -14,4 +13,3 @@ public class AuditListener {
     }
 
 }
-*/

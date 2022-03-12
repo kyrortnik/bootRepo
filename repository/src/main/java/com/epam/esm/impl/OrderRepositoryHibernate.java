@@ -36,7 +36,7 @@ public class OrderRepositoryHibernate implements OrderRepository {
     public Optional<Order> getOrder(Long id) {
         Session session = sessionFactory.getCurrentSession();
         List<Order> resultSet = session
-                .createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.giftCertificate WHERE o.id = :id", Order.class)
+                .createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.giftCertificate LEFT JOIN FETCH o.user WHERE o.id = :id", Order.class)
                 .setParameter("id", id)
                 .getResultList();
 

@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class Order extends RepresentationModel<Order> {
 
     @Id
-    @JsonIgnore
+//    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -36,14 +36,14 @@ public class Order extends RepresentationModel<Order> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gift_certificate_id"/*, nullable = false*/)
-    @JsonIgnore
+//    @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private GiftCertificate giftCertificate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+//    @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private User user;

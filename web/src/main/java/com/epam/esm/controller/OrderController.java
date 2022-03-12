@@ -44,7 +44,7 @@ public class OrderController {
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrderGiftCertificate(order.getId()))
-                .withRel("certificates"));
+                .withRel("certificate"));
 
         order.add(linkTo(methodOn(UserController.class)
                 .getUser(order.getUser().getId()))

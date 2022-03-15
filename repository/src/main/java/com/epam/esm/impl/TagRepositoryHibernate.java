@@ -16,7 +16,6 @@ import java.util.Optional;
 @Repository
 public class TagRepositoryHibernate implements TagRepository {
 
-
     private final SessionFactory sessionFactory;
 
     @Autowired
@@ -66,31 +65,6 @@ public class TagRepositoryHibernate implements TagRepository {
 
     }
 
-    @Override
-    public Optional<Tag> getMostUsedTagForRichestUser() {
-        Session session = sessionFactory.getCurrentSession();
-        long richestUserId = (Integer) session.createNativeQuery(
-                "SELECT u.id FROM users AS u\n" +
-                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
-                        "GROUP BY u.id\n" +
-                        "ORDER BY SUM(o.order_cost) DESC")
-                .setMaxResults(1)
-                .getSingleResult();
-
-        String mostUsedTagName = (String) session.createNativeQuery(
-                "SELECT t.name FROM tags AS t\n" +
-                        "LEFT JOIN certificates_tags AS ct ON t.id = ct.tag_id\n" +
-                        "LEFT JOIN certificates AS c ON ct.certificate_id =  c.id\n" +
-                        "LEFT JOIN orders AS o ON c.id = o.gift_certificate_id\n" +
-                        "LEFT JOIN users AS u ON o.user_id = u.id WHERE u.id = :id\n" +
-                        "GROUP BY t.name\n" +
-                        "ORDER BY COUNT(t.name) DESC")
-                .setMaxResults(1)
-                .setParameter("id", richestUserId)
-                .getSingleResult();
-
-        return getTagByName(mostUsedTagName);
-    }
 
     @Override
     public void update(Tag tag) {
@@ -108,6 +82,37 @@ public class TagRepositoryHibernate implements TagRepository {
 
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
 
-
     }
+
+    @Override
+    public Optional<Tag> getMostUsedTagForRichestUser() {
+        Session session = sessionFactory.getCurrentSession();
+        long richestUserId = getRichestUserId(session);
+
+        String mostUsedTagName = (String) session.createNativeQuery(
+                "SELECT t.name FROM tags AS t\n" +
+                        "LEFT JOIN certificates_tags AS ct ON t.id = ct.tag_id\n" +
+                        "LEFT JOIN certificates AS c ON ct.certificate_id =  c.id\n" +
+                        "LEFT JOIN orders AS o ON c.id = o.gift_certificate_id\n" +
+                        "LEFT JOIN users AS u ON o.user_id = u.id WHERE u.id = :id\n" +
+                        "GROUP BY t.name\n" +
+                        "ORDER BY COUNT(t.name) DESC")
+                .setMaxResults(1)
+                .setParameter("id", richestUserId)
+                .getSingleResult();
+
+        return getTagByName(mostUsedTagName);
+    }
+
+
+    private long getRichestUserId(Session session) {
+        return (long) (Integer) session.createNativeQuery(
+                "SELECT u.id FROM users AS u\n" +
+                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
+                        "GROUP BY u.id\n" +
+                        "ORDER BY SUM(o.order_cost) DESC")
+                .setMaxResults(1)
+                .getSingleResult();
+    }
+
 }

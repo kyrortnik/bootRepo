@@ -3,6 +3,8 @@ package com.epam.esm.impl;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
+import org.hibernate.Criteria;
+import org.hibernate.Metamodel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -12,9 +14,15 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.EntityType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -64,37 +72,21 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     }
 
-//    @Override
-//    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tags, int offset) {
-//
-//        Session session = sessionFactory.getCurrentSession();
-//        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name IN :tags ORDER BY c.name " + order;
-////        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name = :tags ORDER BY c.name " + order;
-//
-//
-//
-//
-//        return session.createQuery(queryString, GiftCertificate.class)
-//                .setParameterList("tags", tags)
-//                .setMaxResults(max)
-//                .setFirstResult(offset)
-//                .getResultList();
-//    }
-
-
 
     @Override
     public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset) {
-
+        List<String> tagNames = tags.stream().map(Tag ::getName).collect(Collectors.toList());
         Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE c.tags = :tags ORDER BY c.name " + order;
-//        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags t WHERE t.name = :tags ORDER BY c.name " + order;
+        String queryString = "SELECT DISTINCT c FROM Tag t LEFT JOIN t.certificates c WHERE t.name IN :tags ORDER BY c.name " + order;
 
-        return session.createQuery(queryString, GiftCertificate.class)
-                .setParameterList("tags", tags)
+        List<GiftCertificate> giftCertificates =
+                session.createQuery(queryString, GiftCertificate.class)
+                .setParameterList("tags", tagNames)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
+        giftCertificates.removeIf(certificate -> !certificate.getTags().containsAll(tags));
+        return giftCertificates;
     }
 
 
@@ -114,17 +106,21 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
         Session session = sessionFactory.getCurrentSession();
         GiftCertificate existingGiftCertificate = session.load(GiftCertificate.class, id);
         mergeTwoCertificates(existingGiftCertificate, changedGiftCertificate);
-
         return Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
 
     }
 
-    //TODO -- new tags not created while creating certificate
     @Override
     public Long create(GiftCertificate giftCertificate) {
         try {
             Session session = sessionFactory.getCurrentSession();
+//            for (Tag tag : giftCertificate.getTags()){
+//                session.saveOrUpdate(tag);
+//            }
+//            session.saveOrUpdate(giftCertificate);
+//            return (Long) session.getIdentifier(giftCertificate);
             return (Long) session.save(giftCertificate);
+
         } catch (ConstraintViolationException e) {
 
             throw new DuplicateKeyException("Certificate with  name [" + giftCertificate.getName() + "] already exists");

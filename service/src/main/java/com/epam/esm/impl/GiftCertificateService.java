@@ -52,8 +52,17 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     }
 
 
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
+//    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
+//
+//        Set<Tag> tags = new HashSet<>();
+//        for (String tagName : tagNames){
+//            Optional<Tag> tag = tagService.getTagByName(tagName);
+//            tag.ifPresent(tags::add);
+//        }
+//        return giftCertificateRepository.getCertificatesByTags(order, max, tags, offset);
+//    }
 
+    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
         Set<Tag> tags = new HashSet<>();
         for (String tagName : tagNames){
             Optional<Tag> tag = tagService.getTagByName(tagName);
@@ -82,14 +91,17 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
         giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
-        Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
-        Set<Tag> giftCertificateTags = giftCertificate.getTags();
+//        Set<Tag> giftCertificateTags = giftCertificate.getTags();
+//
+//        for (Tag tag: giftCertificateTags){
+//            tagService.getTagByName(tag.getName());
+//            giftCertificate.getTags().add(tag);
+//            tag.getCertificates().add(giftCertificate);
+//            tagService.updateTag(tag);
+//        }
 
-        for (Tag tag: giftCertificateTags){
-            giftCertificate.getTags().add(tag);
-            tag.getCertificates().add(giftCertificate);
-            tagService.updateTag(tag);
-        }
+        Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
+
 
         return getById(createdGiftCertificateId);
     }

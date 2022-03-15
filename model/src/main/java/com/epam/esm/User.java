@@ -3,7 +3,6 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import java.util.Set;
 
 
 //@EntityListeners(AuditListener.class)
-@Audited
 @Entity
 @Data
 @NoArgsConstructor

@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.envers.Audited;
+import org.hibernate.annotations.Cascade;
+
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 //@EntityListeners(AuditListener.class)
-@Audited
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -44,8 +44,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany
-//    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
@@ -53,7 +52,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     )
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @JsonIgnore
+//    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
 

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 //@EntityListeners(AuditListener.class)
-@Audited
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Data

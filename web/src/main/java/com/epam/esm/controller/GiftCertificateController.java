@@ -6,6 +6,7 @@ import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -90,7 +91,7 @@ public class GiftCertificateController {
         return giftCertificates;
     }
 
-    //TODO -- Runtime Exception + giftCertificate creation with exisiting tag
+    //TODO -- For now only new tags can be created with new certificate
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -98,7 +99,8 @@ public class GiftCertificateController {
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
         Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
 
-        return createdGiftCertificate.orElseThrow(RuntimeException::new);
+        return createdGiftCertificate.orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
+
     }
 
 

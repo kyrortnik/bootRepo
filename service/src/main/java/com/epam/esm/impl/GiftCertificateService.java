@@ -99,6 +99,13 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 //            tag.getCertificates().add(giftCertificate);
 //            tagService.updateTag(tag);
 //        }
+//        Set<Tag> tags = giftCertificate.getTags();
+//        for (Tag tag : tags){
+//            Optional<Tag> existingTag = tagService.getTagByName(tag.getName());
+//            if (existingTag.isPresent()){
+//                tags.remove(tag);
+//            }
+//        }
 
         Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
 

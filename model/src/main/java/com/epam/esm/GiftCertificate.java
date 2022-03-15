@@ -60,4 +60,16 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 
+
+
+    public void addTag(Tag tag) {
+        tags.add(tag);
+        tag.addCertificate(this);
+    }
+
+    public void removeTag(Tag tag) {
+        tags.remove(tag);
+        tag.removeCertificate(this);
+    }
+
 }

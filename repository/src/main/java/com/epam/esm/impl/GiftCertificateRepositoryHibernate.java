@@ -3,6 +3,7 @@ package com.epam.esm.impl;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
+import com.epam.esm.TagRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -12,6 +13,7 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.NamingException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,9 +27,12 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     private final SessionFactory sessionFactory;
 
+    private final TagRepository tagRepository;
+
     @Autowired
-    public GiftCertificateRepositoryHibernate(HibernateTransactionManager transactionManager) {
+    public GiftCertificateRepositoryHibernate(HibernateTransactionManager transactionManager, TagRepository tagRepository) {
         sessionFactory = transactionManager.getSessionFactory();
+        this.tagRepository = tagRepository;
 
     }
 
@@ -107,14 +112,18 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     @Override
     public Long create(GiftCertificate giftCertificate) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-//            for (Tag tag : giftCertificate.getTags()){
-//                session.saveOrUpdate(tag);
-//            }
-//            session.saveOrUpdate(giftCertificate);
-//            return (Long) session.getIdentifier(giftCertificate);
-            return (Long) session.save(giftCertificate);
+        try(Session session = sessionFactory.openSession()) {
+            Set<Tag> tags = giftCertificate.getTags();
+            for (Tag tag : tags) {
+                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
+                if (existingTag.isPresent()) {
+                    giftCertificate.removeTag(tag);
+                    giftCertificate.addTag(session.getEntityManagerFactory().createEntityManager().getReference(Tag.class, existingTag.get().getId()));
+                }
+            }
+            Long giftCertificateId = (Long)session.save(giftCertificate);
+            session.close();
+            return giftCertificateId;
 
         } catch (ConstraintViolationException e) {
 

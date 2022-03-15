@@ -3,8 +3,6 @@ package com.epam.esm.impl;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
-import org.hibernate.Criteria;
-import org.hibernate.Metamodel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -14,11 +12,6 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,6 +45,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     @Override
     public Optional<GiftCertificate> getCertificateByName(String name) {
+
         Session session = sessionFactory.getCurrentSession();
         List<GiftCertificate> resultSet = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
@@ -75,16 +69,17 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     @Override
     public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset) {
-        List<String> tagNames = tags.stream().map(Tag ::getName).collect(Collectors.toList());
+
+        List<String> tagNames = tags.stream().map(Tag::getName).collect(Collectors.toList());
         Session session = sessionFactory.getCurrentSession();
         String queryString = "SELECT DISTINCT c FROM Tag t LEFT JOIN t.certificates c WHERE t.name IN :tags ORDER BY c.name " + order;
 
         List<GiftCertificate> giftCertificates =
                 session.createQuery(queryString, GiftCertificate.class)
-                .setParameterList("tags", tagNames)
-                .setMaxResults(max)
-                .setFirstResult(offset)
-                .getResultList();
+                        .setParameterList("tags", tagNames)
+                        .setMaxResults(max)
+                        .setFirstResult(offset)
+                        .getResultList();
         giftCertificates.removeIf(certificate -> !certificate.getTags().containsAll(tags));
         return giftCertificates;
     }

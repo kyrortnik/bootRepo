@@ -28,8 +28,8 @@ public class UserRepositoryHibernate implements UserRepository {
 
         Session session = sessionFactory.getCurrentSession();
         List<User> resultSet = session
-                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders WHERE u.id = :id", User.class)
-                .setParameter("id", id).getResultList();
+                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o WHERE u.id = :userId", User.class)
+                .setParameter("userId", id).getResultList();
 
         return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
 

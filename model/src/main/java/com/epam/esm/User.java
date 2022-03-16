@@ -34,7 +34,7 @@ public class User extends RepresentationModel<User> {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    @JsonIgnore
+//    @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     Set<Order> orders = new HashSet<>();

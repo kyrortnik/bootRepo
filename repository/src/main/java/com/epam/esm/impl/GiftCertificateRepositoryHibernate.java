@@ -13,7 +13,7 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.NamingException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -112,17 +112,24 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     @Override
     public Long create(GiftCertificate giftCertificate) {
-        try(Session session = sessionFactory.openSession()) {
-            Set<Tag> tags = giftCertificate.getTags();
-            for (Tag tag : tags) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            Set<Tag> tags = new HashSet<>(giftCertificate.getTags());
+            for (Tag tag : giftCertificate.getTags()) {
                 Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
                 if (existingTag.isPresent()) {
-                    giftCertificate.removeTag(tag);
-                    giftCertificate.addTag(session.getEntityManagerFactory().createEntityManager().getReference(Tag.class, existingTag.get().getId()));
+                    tags.remove(tag);
+                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+
+                    tags.add(proxyTag);
+
+                    proxyTag.addCertificate(giftCertificate);
+                    session.merge(proxyTag);
                 }
             }
-            Long giftCertificateId = (Long)session.save(giftCertificate);
-            session.close();
+            giftCertificate.setTags(tags);
+            Long giftCertificateId = (Long) session.save(giftCertificate);
+            session.getTransaction().commit();
             return giftCertificateId;
 
         } catch (ConstraintViolationException e) {
@@ -134,7 +141,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     private void mergeTwoCertificates(GiftCertificate existingGiftCertificate, GiftCertificate changedGiftCertificate) {
 
-        existingGiftCertificate.setDescription(!changedGiftCertificate.getDescription().isEmpty() ? changedGiftCertificate.getDescription() : existingGiftCertificate.getDescription());
+        existingGiftCertificate.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : existingGiftCertificate.getDescription());
         existingGiftCertificate.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : existingGiftCertificate.getPrice());
         existingGiftCertificate.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : existingGiftCertificate.getDuration());
         existingGiftCertificate.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : existingGiftCertificate.getCreateDate());

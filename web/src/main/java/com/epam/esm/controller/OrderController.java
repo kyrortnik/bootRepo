@@ -97,6 +97,7 @@ public class OrderController {
                 : new ResponseEntity<>("No order with such id was found", HttpStatus.OK);
     }
 
+
     @GetMapping("/{orderId}/giftCertificate")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));

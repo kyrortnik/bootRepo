@@ -85,30 +85,25 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
     }
 
-    @Transactional
+//    @Transactional
+//    @Override
+//    public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
+//        giftCertificate.setCreateDate(LocalDateTime.now());
+//        giftCertificate.setLastUpdateDate(LocalDateTime.now());
+//
+//        Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
+//
+//        return getById(createdGiftCertificateId);
+//    }
+
+
+//    @Transactional
     @Override
     public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
         giftCertificate.setCreateDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
-//        Set<Tag> giftCertificateTags = giftCertificate.getTags();
-//
-//        for (Tag tag: giftCertificateTags){
-//            tagService.getTagByName(tag.getName());
-//            giftCertificate.getTags().add(tag);
-//            tag.getCertificates().add(giftCertificate);
-//            tagService.updateTag(tag);
-//        }
-//        Set<Tag> tags = giftCertificate.getTags();
-//        for (Tag tag : tags){
-//            Optional<Tag> existingTag = tagService.getTagByName(tag.getName());
-//            if (existingTag.isPresent()){
-//                tags.remove(tag);
-//            }
-//        }
-
         Long createdGiftCertificateId = giftCertificateRepository.create(giftCertificate);
-
 
         return getById(createdGiftCertificateId);
     }

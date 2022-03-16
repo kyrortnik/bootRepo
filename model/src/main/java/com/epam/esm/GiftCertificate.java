@@ -18,7 +18,6 @@ import java.util.Set;
 
 //@EntityListeners(AuditListener.class)
 @Entity
-@EqualsAndHashCode(callSuper = false)
 @Data
 @Component
 @Table(name = "certificates")
@@ -44,15 +43,12 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL/*,fetch = FetchType.LAZY*/)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-//    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
 
@@ -62,14 +58,14 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
 
 
-    public void addTag(Tag tag) {
-        tags.add(tag);
-        tag.addCertificate(this);
-    }
-
-    public void removeTag(Tag tag) {
-        tags.remove(tag);
-        tag.removeCertificate(this);
-    }
+//    public void addTag(Tag tag) {
+//        tags.add(tag);
+//        tag.addCertificate(this);
+//    }
+//
+//    public void removeTag(Tag tag) {
+//        tags.remove(tag);
+//        tag.removeCertificate(this);
+//    }
 
 }

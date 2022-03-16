@@ -24,5 +24,7 @@ public interface GiftCertificateRepository {
 
     Long create(GiftCertificate element);
 
+//    Optional<GiftCertificate> create(GiftCertificate element);
+
 
 }

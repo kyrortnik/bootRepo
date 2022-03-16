@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -22,6 +23,7 @@ import java.util.Properties;
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)
         })
 @EnableTransactionManagement
+@EnableJpaAuditing
 public class RootConfig {
 
 //    @Profile("prod")
@@ -37,7 +39,7 @@ public class RootConfig {
 //        return ds;
 //    }
 
-//    @Profile("prod")
+    //    @Profile("prod")
     @Bean
     public DataSource dataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
@@ -59,26 +61,30 @@ public class RootConfig {
 //        .build();
 //    }
 
-//Entity manager factory
+    //Entity manager factory
     @Bean
-    public LocalSessionFactoryBean sessionFactory(){
+    public LocalSessionFactoryBean sessionFactory() {
         final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("com.epam.esm");
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
-// Transactions manager
+
+    // Transactions manager
     @Bean
     @Autowired
     public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
         return new HibernateTransactionManager(sessionFactory);
     }
 
-    final Properties hibernateProperties(){
+    final Properties hibernateProperties() {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.setProperty(
+                "org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
+
         return properties;
     }
 //    @Bean

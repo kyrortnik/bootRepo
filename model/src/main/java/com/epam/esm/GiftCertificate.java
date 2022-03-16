@@ -1,12 +1,13 @@
 package com.epam.esm;
 
+//import com.epam.esm.listeners.AuditListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Cascade;
+
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +16,10 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = false)
+//@EntityListeners(AuditListener.class)
+@Entity
 @Data
 @Component
-@Entity
-@DynamicUpdate
 @Table(name = "certificates")
 public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
@@ -43,20 +43,29 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @ManyToMany(cascade = CascadeType.ALL/*,fetch = FetchType.LAZY*/)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<Tag> tags = new HashSet<>();
 
 
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
+
+
+
+//    public void addTag(Tag tag) {
+//        tags.add(tag);
+//        tag.addCertificate(this);
+//    }
+//
+//    public void removeTag(Tag tag) {
+//        tags.remove(tag);
+//        tag.removeCertificate(this);
+//    }
 
 }

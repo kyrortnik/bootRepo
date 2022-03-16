@@ -1,8 +1,8 @@
 package com.epam.esm;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -10,17 +10,19 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+
+//@EntityListeners(AuditListener.class)
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Component
-@Entity
-//@DynamicUpdate
-@EqualsAndHashCode(callSuper = false/*,exclude = "orders"*/)
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "users")
 public class User extends RepresentationModel<User> {
 
     @Id
+//    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -32,8 +34,10 @@ public class User extends RepresentationModel<User> {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    @JsonIgnore
-    /*@ToString.Exclude*/ Set<Order> orders = new HashSet<>();
+//    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    Set<Order> orders = new HashSet<>();
 
 
 }

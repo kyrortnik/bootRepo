@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -21,18 +22,19 @@ public class UserController {
 
     private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
     private static final String DEFAULT_ORDER = "ASC";
-    private final UserService service;
+    private static final String DEFAULT_OFFSET = "0";
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable Long userId) {
 
-        User user = service.getById(userId).orElseThrow(NoSuchElementException::new);
+        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -46,9 +48,10 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public Set<User> getUsers(@RequestParam(value = "order", defaultValue = MAX_CERTIFICATES_IN_REQUEST) String order,
-                              @RequestParam(value = "max", defaultValue = DEFAULT_ORDER) int max) {
-        Set<User> users = service.getUsers(order, max);
+    public List<User> getUsers(@RequestParam(value = "order", defaultValue = MAX_CERTIFICATES_IN_REQUEST) String order,
+                               @RequestParam(value = "max", defaultValue = DEFAULT_ORDER) int max,
+                               @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+        List<User> users = userService.getUsers(order, max, offset);
         if (users.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
@@ -67,12 +70,12 @@ public class UserController {
 
 
     @GetMapping("/{userId}/orders")
-    public Set<Order> getUserOrders(/*@RequestParam(value = "userId")*/ @PathVariable long userId) {
-        User user = service.getById(userId).orElseThrow(() -> new NoSuchElementException("No such user exists"));
+    public Set<Order> getUserOrders(@PathVariable long userId) {
+        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
         Set<Order> userOrders = user.getOrders();
         if (userOrders.isEmpty()) {
-            throw new NoEntitiesFoundException();
+            throw new NoEntitiesFoundException("No order exists for this user");
         }
         userOrders.forEach(order -> {
                     order.add(linkTo(methodOn(OrderController.class)
@@ -85,7 +88,7 @@ public class UserController {
 
                     order.add(linkTo(methodOn(OrderController.class)
                             .getOrderGiftCertificate(order.getId()))
-                            .withRel("giftCertificates"));
+                            .withRel("giftCertificate"));
                 }
         );
         return userOrders;

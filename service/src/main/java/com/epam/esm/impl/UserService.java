@@ -6,18 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
-
-
     @Autowired
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -26,7 +24,7 @@ public class UserService {
         return userRepository.getUserById(id);
     }
 
-    public Set<User> getUsers(String order, int max) {
-        return userRepository.getUsers(order, max);
+    public List<User> getUsers(String order, int max, int offset) {
+        return userRepository.getUsers(order, max, offset);
     }
 }

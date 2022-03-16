@@ -7,7 +7,7 @@ public interface OrderRepository {
 
     Optional<Order> getOrder(Long id);
 
-    Set<Order> getOrders(String order, int max);
+    Set<Order> getOrders(String order, int max, int offset);
 
     Long createOrder(Order order);
 

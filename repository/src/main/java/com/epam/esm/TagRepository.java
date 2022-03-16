@@ -17,7 +17,8 @@ public interface TagRepository {
 
     List<Tag> getTagsForCertificate(Long id);
 
-    Optional<Tag> getMostUsedTag();
+    Optional<Tag> getMostUsedTagForRichestUser();
 
-    void createTagGiftCertificateRelation(long tagId, long giftCertificateId);
+    Optional<Tag> getTagByName(String tagName);
+
 }

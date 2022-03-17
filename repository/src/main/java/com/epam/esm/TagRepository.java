@@ -11,7 +11,7 @@ public interface TagRepository {
 
     boolean delete(Long id);
 
-    Long createTag(Tag element);
+    Long createTag(Tag tag);
 
     void update(Tag tag);
 

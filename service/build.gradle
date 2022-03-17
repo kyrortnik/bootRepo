@@ -34,3 +34,7 @@ dependencies {
 
     // + needed spring boot for service
 }
+
+test {
+    useJUnitPlatform()
+}

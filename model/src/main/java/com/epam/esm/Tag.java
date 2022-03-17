@@ -1,9 +1,7 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +14,15 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Component
-@Table(name ="tags")
-public class Tag  extends RepresentationModel<Tag> {
+@Table(name = "tags")
+public class Tag extends RepresentationModel<Tag> {
+
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String name;
 
     @ManyToMany(mappedBy = "tags")
@@ -30,6 +30,16 @@ public class Tag  extends RepresentationModel<Tag> {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<GiftCertificate> certificates = new HashSet<>();
+
+
+    public Tag(Long id, @NonNull String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Tag(@NonNull String name) {
+        this.name = name;
+    }
 
 
     public void addCertificate(GiftCertificate giftCertificate) {
@@ -41,7 +51,6 @@ public class Tag  extends RepresentationModel<Tag> {
         this.certificates.remove(giftCertificate);
         giftCertificate.getTags().remove(this);
     }
-
 
 
 }

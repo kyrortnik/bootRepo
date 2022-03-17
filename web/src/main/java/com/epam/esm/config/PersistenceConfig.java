@@ -4,11 +4,11 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -23,8 +23,7 @@ import java.util.Properties;
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)
         })
 @EnableTransactionManagement
-@EnableJpaAuditing
-public class RootConfig {
+public class PersistenceConfig {
 
 //    @Profile("prod")
 //    @Bean
@@ -64,7 +63,7 @@ public class RootConfig {
     //Entity manager factory
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
-        final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("com.epam.esm");
         sessionFactory.setHibernateProperties(hibernateProperties());
@@ -82,19 +81,7 @@ public class RootConfig {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        properties.setProperty(
-                "org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
-
+        properties.setProperty("org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
         return properties;
     }
-//    @Bean
-//    public NamedParameterJdbcTemplate namedParameterjdbcTemplate(DataSource dataSource) {
-//        return new NamedParameterJdbcTemplate(dataSource);
-//    }
-//
-//    @Bean
-//    @Scope("prototype")
-//    public SimpleJdbcInsert simpleJdbcInsert(DataSource dataSource){
-//        return new SimpleJdbcInsert(dataSource);
-//    }
 }

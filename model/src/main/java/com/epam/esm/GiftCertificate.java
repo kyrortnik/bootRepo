@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 //import com.epam.esm.listeners.AuditListener;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -15,6 +16,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 //@EntityListeners(AuditListener.class)
 @Entity
@@ -57,7 +60,6 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     private Set<Order> orders = new HashSet<>();
 
 
-
 //    public void addTag(Tag tag) {
 //        tags.add(tag);
 //        tag.addCertificate(this);
@@ -66,6 +68,15 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 //    public void removeTag(Tag tag) {
 //        tags.remove(tag);
 //        tag.removeCertificate(this);
+//    }
+
+//    public GiftCertificate(GiftCertificate existingGiftCertificate, GiftCertificate changedGiftCertificate) {
+//        existingGiftCertificate.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : existingGiftCertificate.getDescription());
+//        existingGiftCertificate.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : existingGiftCertificate.getPrice());
+//        existingGiftCertificate.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : existingGiftCertificate.getDuration());
+//        existingGiftCertificate.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : existingGiftCertificate.getCreateDate());
+//        existingGiftCertificate.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
+//        existingGiftCertificate.setTags(!changedGiftCertificate.getTags().isEmpty() ? changedGiftCertificate.getTags() : existingGiftCertificate.getTags());
 //    }
 
 }

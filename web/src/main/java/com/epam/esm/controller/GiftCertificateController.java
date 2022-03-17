@@ -91,14 +91,13 @@ public class GiftCertificateController {
         return giftCertificates;
     }
 
-    //TODO -- For now only new tags can be created with new certificate
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
-        Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
 
+        Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
         return createdGiftCertificate.orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
     }

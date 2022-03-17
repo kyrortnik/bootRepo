@@ -1,13 +1,13 @@
 package com.epam.esm.servlet;
 
-import com.epam.esm.config.RootConfig;
+import com.epam.esm.config.PersistenceConfig;
 import com.epam.esm.config.WebConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     @Override
-    protected Class<?>[] getRootConfigClasses() { return new Class<?>[]{RootConfig.class};
+    protected Class<?>[] getRootConfigClasses() { return new Class<?>[]{PersistenceConfig.class};
     }
 
     @Override

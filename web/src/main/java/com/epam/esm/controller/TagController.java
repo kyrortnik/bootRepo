@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @RestController
 @RequestMapping(value = "api/v1/tags", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,8 +49,8 @@ public class TagController {
     public List<Tag> getTags(
             @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
             @RequestParam(value = "max", defaultValue = DEFAULT_MAX_VALUE) int max,
-            @RequestParam (value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
-        List<Tag> tags = tagService.getAll(order, max,offset);
+            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+        List<Tag> tags = tagService.getAll(order, max, offset);
         if (tags.isEmpty()) {
             throw new NoEntitiesFoundException("No tags are found");
         }
@@ -62,7 +66,10 @@ public class TagController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Tag create(@RequestBody Tag tag) {
-       return tagService.create(tag).orElseThrow(() -> new DuplicateKeyException("Tag with name [" + tag.getName() +"] already exists"));
+        if (isNull(tag.getName())) {
+            throw new NullPointerException("Tag name can not be empty");
+        }
+        return tagService.create(tag).orElseThrow(() -> new DuplicateKeyException("Tag with name [" + tag.getName() + "] already exists"));
 
 
     }
@@ -79,7 +86,7 @@ public class TagController {
     }
 
     @GetMapping("/mostUsedTagForRichestUser")
-    public Tag getMostUsedTagForRichestUser(){
+    public Tag getMostUsedTagForRichestUser() {
         return tagService.getMostUsedTagForRichestUser()
                 .orElseThrow(() -> new NoEntitiesFoundException("No certificates with tags exist in orders"));
     }

@@ -48,7 +48,7 @@ public class OrderService {
 
         String giftCertificateName = order.getGiftCertificate().getName();
         Long userId = order.getUser().getId();
-        GiftCertificate giftCertificateFromOrder = giftCertificateService.getByName(giftCertificateName)
+        GiftCertificate giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName)
                 .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
 
         User user = userService.getById(userId)

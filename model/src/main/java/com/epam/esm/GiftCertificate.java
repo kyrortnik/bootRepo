@@ -4,9 +4,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 
 import org.springframework.hateoas.RepresentationModel;
@@ -20,8 +18,10 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 
 //@EntityListeners(AuditListener.class)
+
 @Entity
 @Data
+@NoArgsConstructor
 @Component
 @Table(name = "certificates")
 public class GiftCertificate extends RepresentationModel<GiftCertificate> {
@@ -30,6 +30,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String name;
 
     private String description;
@@ -58,6 +59,16 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
+
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate){
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+    }
 
 
 //    public void addTag(Tag tag) {

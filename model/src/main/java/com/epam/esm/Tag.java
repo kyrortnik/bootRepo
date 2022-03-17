@@ -11,6 +11,7 @@ import java.util.Set;
 
 //@EntityListeners(AuditListener.class)
 @Entity
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Component

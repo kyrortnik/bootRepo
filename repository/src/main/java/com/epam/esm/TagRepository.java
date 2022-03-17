@@ -13,10 +13,6 @@ public interface TagRepository {
 
     Long createTag(Tag tag);
 
-    void update(Tag tag);
-
-    List<Tag> getTagsForCertificate(Long id);
-
     Optional<Tag> getMostUsedTagForRichestUser();
 
     Optional<Tag> getTagByName(String tagName);

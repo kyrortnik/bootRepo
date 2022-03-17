@@ -1,21 +1,19 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.*;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-//TODO tests with giftCertificates not empty
 class TagServiceTest {
 
     //mock
@@ -32,13 +30,6 @@ class TagServiceTest {
     private final String order = "ASC";
     private final int max = 20;
     private final int offset = 0;
-
-    private final long giftCertificateId = 1L;
-
-    private final Set<GiftCertificate> giftCertificates = new HashSet<GiftCertificate>(Arrays.asList(
-            new GiftCertificate(),
-            new GiftCertificate()
-    ));
 
     private final List<Tag> tags = Arrays.asList(
             new Tag(1L, "first tag"),
@@ -63,7 +54,7 @@ class TagServiceTest {
     }
 
     @Test
-    void testFetById_idDoesNotExist() {
+    void testTagById_idDoesNotExist() {
 
         when(tagRepository.getTag(tagId)).thenReturn(Optional.empty());
 
@@ -73,6 +64,29 @@ class TagServiceTest {
         assertFalse(returnTag.isPresent());
         assertEquals(Optional.empty(), returnTag);
 
+    }
+
+    @Test
+    void testGetTagByName_nameExists() {
+        Tag tag = new Tag(tagName);
+        when(tagRepository.getTagByName(tagName)).thenReturn(Optional.of(tag));
+
+        Optional<Tag> returnTag = tagService.getTagByName(tagName);
+
+        verify(tagRepository).getTagByName(tagName);
+        assertTrue(returnTag.isPresent());
+        assertEquals(tag, returnTag.get());
+    }
+
+    @Test
+    void testGetTagByName_nameDoesNotExists() {
+        when(tagRepository.getTagByName(tagName)).thenReturn(Optional.empty());
+
+        Optional<Tag> returnTag = tagService.getTagByName(tagName);
+
+        verify(tagRepository).getTagByName(tagName);
+        assertFalse(returnTag.isPresent());
+        assertEquals(Optional.empty(), returnTag);
     }
 
     @Test
@@ -112,27 +126,54 @@ class TagServiceTest {
     }
 
     @Test
-    void testCreate_withoutName() {
+    void testCreate_nameAlreadyExists() {
+        Tag tag = new Tag();
+        when(tagRepository.createTag(tag)).thenThrow(ConstraintViolationException.class);
+
+        Exception constraintViolationException = assertThrows(ConstraintViolationException.class, () -> tagService.create(tag));
+        String expectedMessage = "Tag with name [" + tag.getName() + "] already exists";
+        String actualMessage = constraintViolationException.getMessage();
+
+        verify(tagRepository).createTag(tag);
+        verify(tagRepository, never()).getTag(tagId);
+        assertEquals(expectedMessage, actualMessage);
 
     }
 
     @Test
-    void delete() {
+    void testDelete_idExists() {
+        when(tagRepository.delete(tagId)).thenReturn(true);
+
+        boolean result = tagService.delete(tagId);
+
+        verify(tagRepository).delete(tagId);
+        assertTrue(result);
     }
 
     @Test
-    void update() {
+    void testDelete_idDoesNotExist() {
+        when(tagRepository.delete(tagId)).thenReturn(false);
+
+        boolean result = tagService.delete(tagId);
+
+        verify(tagRepository).delete(tagId);
+        assertFalse(result);
+    }
+
+
+    @Test
+    void testGetMostUsedTagForRichestUser() {
+        Tag tag = new Tag(tagId, tagName);
+        when(tagRepository.getMostUsedTagForRichestUser()).thenReturn(Optional.of(tag));
+        Optional<Tag> mostUsedTagForRichestUser = tagService.getMostUsedTagForRichestUser();
+
+        verify(tagRepository).getMostUsedTagForRichestUser();
+        assertTrue(mostUsedTagForRichestUser.isPresent());
     }
 
     @Test
-    void updateTag() {
-    }
-
-    @Test
-    void getTagByName() {
-    }
-
-    @Test
-    void getMostUsedTagForRichestUser() {
+    void testUpdate_notSupportedException() {
+        Tag tag = new Tag(tagId, tagName);
+        assertThrows(UnsupportedOperationException.class, () -> tagService.update(tag, tagId));
     }
 }

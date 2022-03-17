@@ -48,7 +48,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     }
 
     @Override
-    public Optional<GiftCertificate> getCertificateByName(String name) {
+    public Optional<GiftCertificate> getGiftCertificateByName(String name) {
 
         Session session = sessionFactory.openSession();
         List<GiftCertificate> resultSet = session

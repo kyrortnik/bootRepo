@@ -8,7 +8,7 @@ public interface GiftCertificateRepository {
 
     Optional<GiftCertificate> getCertificateById(Long id);
 
-    Optional<GiftCertificate> getCertificateByName(String name);
+    Optional<GiftCertificate> getGiftCertificateByName(String name);
 
     List<GiftCertificate> getCertificates(String order, int max, int offset);
 

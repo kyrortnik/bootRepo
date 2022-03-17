@@ -17,9 +17,7 @@ import java.util.Set;
 @Service
 public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
-
     private final GiftCertificateRepository giftCertificateRepository;
-
 
     private final TagService tagService;
 
@@ -36,8 +34,8 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
         return giftCertificateRepository.getCertificateById(id);
     }
 
-    public Optional<GiftCertificate> getByName(String name) {
-        return giftCertificateRepository.getCertificateByName(name);
+    public Optional<GiftCertificate> getGiftCertificateByName(String name) {
+        return giftCertificateRepository.getGiftCertificateByName(name);
 
     }
 
@@ -48,10 +46,9 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     }
 
 
-
     public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
         Set<Tag> tags = new HashSet<>();
-        for (String tagName : tagNames){
+        for (String tagName : tagNames) {
             Optional<Tag> tag = tagService.getTagByName(tagName);
             tag.ifPresent(tags::add);
         }

@@ -65,16 +65,14 @@ public class OrderService {
 public Optional<Order> create(Order order) {
 
     String giftCertificateName = order.getGiftCertificate().getName();
+    Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName);
+
     Long userId = order.getUser().getId();
-    GiftCertificate giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName)
-            .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
+    Optional<User> user = userService.getById(userId);
 
-    User user = userService.getById(userId)
-            .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exist"));
-
-    order.setUser(user);
-    order.setGiftCertificate(giftCertificateFromOrder);
-    order.setOrderCost(giftCertificateFromOrder.getPrice());
+    user.ifPresent(order::setUser);
+    giftCertificateFromOrder.ifPresent(order::setGiftCertificate);
+    giftCertificateFromOrder.ifPresent(giftCertificate -> order.setOrderCost(giftCertificate.getPrice()));
     order.setOrderDate(LocalDateTime.now());
 
     return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));

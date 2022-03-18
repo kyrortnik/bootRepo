@@ -27,11 +27,13 @@ public class UserRepositoryHibernate implements UserRepository {
     public Optional<User> getUserById(Long id) {
 
         Session session = sessionFactory.getCurrentSession();
-        List<User> resultSet = session
+        User foundUser = session
                 .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o WHERE u.id = :userId", User.class)
-                .setParameter("userId", id).getResultList();
+                .setParameter("userId", id)
+                .setMaxResults(1)
+                .getSingleResult();
 
-        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+        return Optional.of(foundUser);
 
     }
 

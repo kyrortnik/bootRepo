@@ -48,19 +48,21 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     }
 
     @Override
-    public Optional<GiftCertificate> getCertificateByName(String name) {
+    public Optional<GiftCertificate> getGiftCertificateByName(String name) {
 
         Session session = sessionFactory.openSession();
-        List<GiftCertificate> resultSet = session
+        GiftCertificate foundGiftCertificate = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
-                .setParameter("name", name).getResultList();
+                .setParameter("name", name)
+                .setMaxResults(1)
+                .getSingleResult();
 
         session.close();
-        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+        return Optional.of(foundGiftCertificate);
     }
 
     @Override
-    public List<GiftCertificate> getCertificates(String order, int max, int offset) {
+    public List<GiftCertificate> getGiftCertificates(String order, int max, int offset) {
 
         Session session = sessionFactory.openSession();
         String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags ORDER BY c.name " + order;
@@ -108,8 +110,9 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     }
 
 
+    //TODO -- replace try-with-resources, no need to throw exception
     @Override
-    public Optional<GiftCertificate> update(GiftCertificate changedGiftCertificate, long giftCertificateId) {
+    public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, long giftCertificateId) {
 
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
@@ -134,11 +137,10 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
             throw new NoSuchElementException("Certificate with id [" + giftCertificateId + "] doesn't exist");
         }
 
-
     }
 
     @Override
-    public Long create(GiftCertificate giftCertificate) {
+    public Long createGiftCertificate(GiftCertificate giftCertificate) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             Set<Tag> tags = new HashSet<>(giftCertificate.getTags());

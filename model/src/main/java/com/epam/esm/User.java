@@ -40,4 +40,9 @@ public class User extends RepresentationModel<User> {
     Set<Order> orders = new HashSet<>();
 
 
+    public User(long id, String firstName, String secondName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.secondName = secondName;
+    }
 }

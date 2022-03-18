@@ -24,7 +24,7 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> getTag(Long id) {
+    public Optional<Tag> getTagById(Long id) {
         Session session = sessionFactory.getCurrentSession();
         return Optional.ofNullable(session.get(Tag.class, id));
     }
@@ -57,20 +57,6 @@ public class TagRepositoryHibernate implements TagRepository {
 
     }
 
-    @Override
-    public List<Tag> getTagsForCertificate(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id", Tag.class)
-                .setParameter("id", id).list();
-
-    }
-
-
-    @Override
-    public void update(Tag tag) {
-        Session session = sessionFactory.getCurrentSession();
-        session.saveOrUpdate(tag);
-    }
 
     @Override
     public Optional<Tag> getTagByName(String tagName) {
@@ -106,7 +92,7 @@ public class TagRepositoryHibernate implements TagRepository {
 
 
     private long getRichestUserId(Session session) {
-        return (long) (Integer) session.createNativeQuery(
+        return (long) /*(Integer)*/ session.createNativeQuery(
                 "SELECT u.id FROM users AS u\n" +
                         "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
                         "GROUP BY u.id\n" +

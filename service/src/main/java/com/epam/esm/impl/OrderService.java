@@ -43,24 +43,43 @@ public class OrderService {
         return orderRepository.orderAlreadyExists(order);
     }
 
-    @Transactional
-    public Optional<Order> create(Order order) {
+//    @Transactional
+//    public Optional<Order> create(Order order) {
+//
+//        String giftCertificateName = order.getGiftCertificate().getName();
+//        Long userId = order.getUser().getId();
+//        GiftCertificate giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName)
+//                .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
+//
+//        User user = userService.getById(userId)
+//                .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exist"));
+//
+//        order.setUser(user);
+//        order.setGiftCertificate(giftCertificateFromOrder);
+//        order.setOrderCost(giftCertificateFromOrder.getPrice());
+//        order.setOrderDate(LocalDateTime.now());
+//
+//        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
+//    }
+@Transactional
+public Optional<Order> create(Order order) {
 
-        String giftCertificateName = order.getGiftCertificate().getName();
-        Long userId = order.getUser().getId();
-        GiftCertificate giftCertificateFromOrder = giftCertificateService.getByName(giftCertificateName)
-                .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
+    String giftCertificateName = order.getGiftCertificate().getName();
+    Long userId = order.getUser().getId();
+    GiftCertificate giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName)
+            .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
 
-        User user = userService.getById(userId)
-                .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exist"));
+    User user = userService.getById(userId)
+            .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exist"));
 
-        order.setUser(user);
-        order.setGiftCertificate(giftCertificateFromOrder);
-        order.setOrderCost(giftCertificateFromOrder.getPrice());
-        order.setOrderDate(LocalDateTime.now());
+    order.setUser(user);
+    order.setGiftCertificate(giftCertificateFromOrder);
+    order.setOrderCost(giftCertificateFromOrder.getPrice());
+    order.setOrderDate(LocalDateTime.now());
 
-        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
-    }
+    return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
+}
+
 
     public boolean delete(Long id) {
         return orderRepository.delete(id);

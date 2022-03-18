@@ -24,7 +24,7 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> getTag(Long id) {
+    public Optional<Tag> getTagById(Long id) {
         Session session = sessionFactory.getCurrentSession();
         return Optional.ofNullable(session.get(Tag.class, id));
     }

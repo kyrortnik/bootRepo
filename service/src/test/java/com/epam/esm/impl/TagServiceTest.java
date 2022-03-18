@@ -6,10 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,36 +28,57 @@ class TagServiceTest {
     private final int max = 20;
     private final int offset = 0;
 
-    private final List<Tag> tags = Arrays.asList(
+    private final Tag firstTag = new Tag(1L, "first tag");
+    private final Tag secondTag = new Tag(2L, "second tag");
+    private final Tag thirdTag = new Tag(3L, "third tag");
+
+    private final String firstTagName = "first tag";
+    private final String secondTagName = "second tag";
+    private final String thirdTagName = "third tag";
+
+    private final List<Tag> tagsList = Arrays.asList(
+            firstTag,
+            secondTag,
+            thirdTag
+    );
+
+    private final Set<String> tagNamesSet = new HashSet<>(Arrays.asList(
+            firstTagName,
+            secondTagName,
+            thirdTagName
+    ));
+
+    private final Set<Tag> tagsSet = new HashSet<>(Arrays.asList(
             new Tag(1L, "first tag"),
             new Tag(2L, "second tag"),
             new Tag(3L, "third tag")
-    );
+    ));
+
 
     private final List<Tag> noTags = new ArrayList<>();
 
 
     @Test
-    void testGetById_idExists() {
+    void testGetTagById_idExists() {
         Tag tag = new Tag(tagId, tagName);
 
-        when(tagRepository.getTag(tagId)).thenReturn(Optional.of(tag));
+        when(tagRepository.getTagById(tagId)).thenReturn(Optional.of(tag));
 
         Optional<Tag> returnTag = tagService.getById(tagId);
 
-        verify(tagRepository).getTag(tagId);
+        verify(tagRepository).getTagById(tagId);
         assertTrue(returnTag.isPresent());
         assertEquals(tag, returnTag.get());
     }
 
     @Test
-    void testTagById_idDoesNotExist() {
+    void testGetTagById_idDoesNotExist() {
 
-        when(tagRepository.getTag(tagId)).thenReturn(Optional.empty());
+        when(tagRepository.getTagById(tagId)).thenReturn(Optional.empty());
 
         Optional<Tag> returnTag = tagService.getById(tagId);
 
-        verify(tagRepository).getTag(tagId);
+        verify(tagRepository).getTagById(tagId);
         assertFalse(returnTag.isPresent());
         assertEquals(Optional.empty(), returnTag);
 
@@ -91,12 +109,12 @@ class TagServiceTest {
 
     @Test
     void testGetAll_tagsExist() {
-        when(tagRepository.getTags(order, max, offset)).thenReturn(tags);
+        when(tagRepository.getTags(order, max, offset)).thenReturn(tagsList);
 
         List<Tag> returnTags = tagService.getAll(order, max, offset);
 
         verify(tagRepository).getTags(order, max, offset);
-        assertEquals(tags, returnTags);
+        assertEquals(tagsList, returnTags);
 
     }
 
@@ -115,12 +133,12 @@ class TagServiceTest {
         Tag tag = new Tag(tagName);
         Tag createdTag = new Tag(tagId, tagName);
         when(tagRepository.createTag(tag)).thenReturn(tagId);
-        when(tagRepository.getTag(tagId)).thenReturn(Optional.of(createdTag));
+        when(tagRepository.getTagById(tagId)).thenReturn(Optional.of(createdTag));
 
         Optional<Tag> returnTag = tagService.create(tag);
 
         verify(tagRepository).createTag(tag);
-        verify(tagRepository).getTag(tagId);
+        verify(tagRepository).getTagById(tagId);
         assertTrue(returnTag.isPresent());
         assertEquals(createdTag, returnTag.get());
     }
@@ -135,7 +153,7 @@ class TagServiceTest {
         String actualMessage = constraintViolationException.getMessage();
 
         verify(tagRepository).createTag(tag);
-        verify(tagRepository, never()).getTag(tagId);
+        verify(tagRepository, never()).getTagById(tagId);
         assertEquals(expectedMessage, actualMessage);
 
     }
@@ -175,5 +193,17 @@ class TagServiceTest {
     void testUpdate_notSupportedException() {
         Tag tag = new Tag(tagId, tagName);
         assertThrows(UnsupportedOperationException.class, () -> tagService.update(tag, tagId));
+    }
+
+    @Test
+    void testGetTagsByName_notEmptySet() {
+        when(tagRepository.getTagByName(firstTagName)).thenReturn(Optional.of(firstTag));
+        when(tagRepository.getTagByName(secondTagName)).thenReturn(Optional.of(secondTag));
+        when(tagRepository.getTagByName(thirdTagName)).thenReturn(Optional.of(thirdTag));
+
+        Set<Tag> returnTags = tagService.getTagsByNames(tagNamesSet);
+
+        assertTrue(returnTags.containsAll(tagsSet));
+
     }
 }

@@ -70,6 +70,28 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.lastUpdateDate = lastUpdateDate;
     }
 
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags){
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public GiftCertificate( @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags){
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+
 
 //    public void addTag(Tag tag) {
 //        tags.add(tag);

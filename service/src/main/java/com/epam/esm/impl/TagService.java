@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TagService implements CRUDService<Tag> {
@@ -24,7 +26,7 @@ public class TagService implements CRUDService<Tag> {
 
     @Override
     public Optional<Tag> getById(Long id) {
-        return tagRepository.getTag(id);
+        return tagRepository.getTagById(id);
     }
 
     @Override
@@ -60,6 +62,15 @@ public class TagService implements CRUDService<Tag> {
 
     public Optional<Tag> getMostUsedTagForRichestUser() {
         return tagRepository.getMostUsedTagForRichestUser();
+    }
+
+
+    public Set<Tag> getTagsByNames(Set<String> tagNames) {
+        Set<Tag> tags = new HashSet<>();
+        if (!tagNames.isEmpty()) {
+            tagNames.forEach(tagName -> getTagByName(tagName).ifPresent(tags::add));
+        }
+        return tags;
     }
 
 }

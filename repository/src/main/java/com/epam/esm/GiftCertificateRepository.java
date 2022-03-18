@@ -10,15 +10,15 @@ public interface GiftCertificateRepository {
 
     Optional<GiftCertificate> getGiftCertificateByName(String name);
 
-    List<GiftCertificate> getCertificates(String order, int max, int offset);
+    List<GiftCertificate> getGiftCertificates(String order, int max, int offset);
 
     List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset);
 
     boolean delete(Long id);
 
-    Optional<GiftCertificate> update(GiftCertificate element, long id);
+    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, long id);
 
-    Long create(GiftCertificate element);
+    Long createGiftCertificate(GiftCertificate giftCertificate);
 
 
 }

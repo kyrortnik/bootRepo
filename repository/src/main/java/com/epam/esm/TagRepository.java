@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface TagRepository {
 
-    Optional<Tag> getTag(Long id);
+    Optional<Tag> getTagById(Long id);
 
     List<Tag> getTags(String order, int max, int offset);
 

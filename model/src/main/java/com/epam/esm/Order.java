@@ -2,6 +2,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Data
+@AllArgsConstructor
 @Component
 @Table(name = "orders")
 public class Order extends RepresentationModel<Order> {
@@ -46,4 +48,9 @@ public class Order extends RepresentationModel<Order> {
     @ToString.Exclude
     private User user;
 
+
+    public Order(GiftCertificate giftCertificate, User user) {
+        this.giftCertificate = giftCertificate;
+        this.user = user;
+    }
 }

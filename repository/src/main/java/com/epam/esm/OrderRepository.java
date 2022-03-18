@@ -5,7 +5,7 @@ import java.util.Set;
 
 public interface OrderRepository {
 
-    Optional<Order> getOrder(Long id);
+    Optional<Order> getOrderById(Long id);
 
     Set<Order> getOrders(String order, int max, int offset);
 

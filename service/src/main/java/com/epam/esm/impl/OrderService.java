@@ -29,21 +29,20 @@ public class OrderService {
     }
 
     public Optional<Order> getOrderById(Long id) {
-        return orderRepository.getOrder(id);
+        return orderRepository.getOrderById(id);
     }
 
 
-    public Set<Order> getOrders(String order, int max,int offset) {
+    public Set<Order> getOrders(String order, int max, int offset) {
         return orderRepository.getOrders(order, max, offset);
     }
-
 
 
     public boolean orderAlreadyExists(Order order) {
         return orderRepository.orderAlreadyExists(order);
     }
 
-//    @Transactional
+    //    @Transactional
 //    public Optional<Order> create(Order order) {
 //
 //        String giftCertificateName = order.getGiftCertificate().getName();
@@ -61,22 +60,26 @@ public class OrderService {
 //
 //        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
 //    }
-@Transactional
-public Optional<Order> create(Order order) {
+    @Transactional
+    public Optional<Order> create(Order order) {
+        try {
+            String giftCertificateName = order.getGiftCertificate().getName();
+            Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName);
 
-    String giftCertificateName = order.getGiftCertificate().getName();
-    Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName);
+            Long userId = order.getUser().getId();
+            Optional<User> user = userService.getById(userId);
 
-    Long userId = order.getUser().getId();
-    Optional<User> user = userService.getById(userId);
+            user.ifPresent(order::setUser);
+            giftCertificateFromOrder.ifPresent(order::setGiftCertificate);
+            giftCertificateFromOrder.ifPresent(giftCertificate -> order.setOrderCost(giftCertificate.getPrice()));
+            order.setOrderDate(LocalDateTime.now());
 
-    user.ifPresent(order::setUser);
-    giftCertificateFromOrder.ifPresent(order::setGiftCertificate);
-    giftCertificateFromOrder.ifPresent(giftCertificate -> order.setOrderCost(giftCertificate.getPrice()));
-    order.setOrderDate(LocalDateTime.now());
+            return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrderById(orderRepository.createOrder(order));
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
+        }
 
-    return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
-}
+    }
 
 
     public boolean delete(Long id) {

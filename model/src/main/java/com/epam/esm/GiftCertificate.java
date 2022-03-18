@@ -91,6 +91,9 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.tags = tags;
     }
 
+    public GiftCertificate(@NonNull String name) {
+        this.name = name;
+    }
 
 
 //    public void addTag(Tag tag) {

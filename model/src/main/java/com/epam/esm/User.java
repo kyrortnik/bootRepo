@@ -45,4 +45,8 @@ public class User extends RepresentationModel<User> {
         this.firstName = firstName;
         this.secondName = secondName;
     }
+
+    public User(long id) {
+        this.id = id;
+    }
 }

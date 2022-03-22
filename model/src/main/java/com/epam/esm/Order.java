@@ -2,10 +2,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Component
 @Table(name = "orders")

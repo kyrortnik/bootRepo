@@ -100,10 +100,12 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     public boolean delete(Long id) {
 
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         boolean isDeletedGiftCertificate =
                 session.createQuery("DELETE FROM GiftCertificate WHERE id = :id")
                         .setParameter("id", id)
                         .executeUpdate() > 0;
+        session.getTransaction().commit();
         session.close();
         return isDeletedGiftCertificate;
 

@@ -70,6 +70,7 @@ public class ApplicationExceptionHandler {
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
 
     }
+
 }
 
 

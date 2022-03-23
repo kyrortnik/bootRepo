@@ -27,7 +27,10 @@ public class UserRepositoryHibernate implements UserRepository {
 
         Session session = sessionFactory.getCurrentSession();
         User foundUser = session
-                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o WHERE u.id = :userId", User.class)
+                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o " +
+                        "LEFT JOIN FETCH o.giftCertificate g " +
+                        "LEFT JOIN FETCH g.tags " +
+                        "WHERE u.id = :userId", User.class)
                 .setParameter("userId", id)
                 .setMaxResults(1)
                 .getSingleResult();

@@ -116,7 +116,6 @@ public class GiftCertificateController {
                 .getGiftCertificateTags(createdGiftCertificate.getId()))
                 .withRel("tags"));
 
-//        return createdGiftCertificate.orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
         return createdGiftCertificate;
     }

@@ -13,11 +13,9 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.sql.ResultSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 //@Transactional
 @Repository
@@ -37,22 +35,38 @@ public class OrderRepositoryHibernate implements OrderRepository {
 //    }
 
 
+    /*  Session session = sessionFactory.openSession();
+        GiftCertificate foundGiftCertificate = session
+                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
+                .setParameter("name", name)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        session.close();
+        return Optional.of(foundGiftCertificate);*/
+
     @Override
     public Optional<Order> getOrderById(Long orderId) {
-        Session session = sessionFactory.openSession();
-        Optional<Order> order = Optional.ofNullable(session.createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags WHERE o.id = :orderId",Order.class)
-                .setParameter("orderId",orderId)
-                .setMaxResults(1)
-                .getSingleResult());
-        session.close();
-        return order;
+        try{
+            Session session = sessionFactory.openSession();
+            Order order = session.createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags WHERE o.id = :orderId",Order.class)
+                    .setParameter("orderId",orderId)
+                    .setMaxResults(1)
+                    .getSingleResult();
+
+            session.close();
+            return Optional.ofNullable(order);
+        }catch (NoResultException e){
+            throw new NoSuchElementException("No order with id[" + orderId + "] exists");
+        }
+
     }
 
     @Override
     public Set<Order> getOrders(String order, int max, int offset) {
 
         Session session = sessionFactory.openSession();
-        String queryString = "SELECT order FROM Order order ORDER BY id " + order;
+        String queryString = "SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags ORDER BY o.id " + order;
 
         List<Order> orders = session.createQuery(queryString, Order.class)
                 .setMaxResults(max)
@@ -64,8 +78,10 @@ public class OrderRepositoryHibernate implements OrderRepository {
 
     @Override
     public Long createOrder(Order order) {
-        Session session = sessionFactory.getCurrentSession();
-        return (Long) session.save(order);
+        Session session = sessionFactory.openSession();
+        Long orderId = (Long) session.save(order);
+        session.close();
+        return orderId;
 
     }
 

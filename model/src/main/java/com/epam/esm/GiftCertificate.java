@@ -53,6 +53,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     private Set<Tag> tags = new HashSet<>();
 
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();

@@ -8,12 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
-
+@Transactional
 @Service
 public class OrderService {
 
@@ -30,10 +31,12 @@ public class OrderService {
     }
 
 
-    @Transactional
+
     public Optional<Order> getOrderById(Long id) {
-        Optional<Order> tempOptional = orderRepository.getOrderById(id);
-        return tempOptional;
+
+            Optional<Order> tempOptional = orderRepository.getOrderById(id);
+            return tempOptional;
+
     }
 
 
@@ -64,7 +67,7 @@ public class OrderService {
 //
 //        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
 //    }
-    @Transactional
+
     public Optional<Order> create(Order order) {
         try {
             String giftCertificateName = order.getGiftCertificate().getName();
@@ -79,7 +82,7 @@ public class OrderService {
             order.setOrderDate(LocalDateTime.now());
 
             return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrderById(orderRepository.createOrder(order));
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | NoResultException e) {
             throw new NoSuchElementException(e.getMessage());
         }
 

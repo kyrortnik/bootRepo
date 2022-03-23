@@ -1,15 +1,15 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-//@EntityListeners(AuditListener.class)
+@Audited
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class Order extends RepresentationModel<Order> {
 
     @Id
-//    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -33,15 +32,14 @@ public class Order extends RepresentationModel<Order> {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gift_certificate_id"/*, nullable = false*/)
-    @JsonIgnore
+    @JoinColumn(name = "gift_certificate_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private GiftCertificate giftCertificate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private User user;
@@ -51,4 +49,6 @@ public class Order extends RepresentationModel<Order> {
         this.giftCertificate = giftCertificate;
         this.user = user;
     }
+
+
 }

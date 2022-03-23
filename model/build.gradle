@@ -24,4 +24,7 @@ dependencies {
 
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
 
+    implementation 'org.hibernate:hibernate-envers:5.4.33.Final'
+
+
 }

@@ -3,6 +3,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-//@EntityListeners(AuditListener.class)
+@Audited
 @Entity
 @Data
 @NoArgsConstructor
@@ -34,7 +35,7 @@ public class User extends RepresentationModel<User> {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-//    @JsonIgnore
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     Set<Order> orders = new HashSet<>();

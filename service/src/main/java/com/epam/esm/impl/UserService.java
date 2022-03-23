@@ -29,9 +29,6 @@ public class UserService {
 
     }
 
-    //    public List<User> getUsers(String order, int max, int offset) {
-//        return userRepository.getUsers(order, max, offset);
-//    }
     public List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset) {
         return userRepository.getUsers(sortingParams, max, offset);
     }

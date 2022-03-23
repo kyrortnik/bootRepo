@@ -9,7 +9,5 @@ public interface UserRepository {
 
     Optional<User> getUserById(Long id);
 
-//    List<User> getUsers(String order, int max, int offset);
-
     List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset);
 }

@@ -1,10 +1,14 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.OrderRepository;
+import com.epam.esm.User;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.OpInc;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Transactional
+//@Transactional
 @Repository
 public class OrderRepositoryHibernate implements OrderRepository {
 
@@ -32,27 +36,29 @@ public class OrderRepositoryHibernate implements OrderRepository {
 //        return Optional.ofNullable(session.get(Order.class, id));
 //    }
 
-    @Override
-    public Optional<Order> getOrderById(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        List<Order> resultSet = session
-                .createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.giftCertificate LEFT JOIN FETCH o.user WHERE o.id = :id", Order.class)
-                .setParameter("id", id)
-                .getResultList();
 
-        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+    @Override
+    public Optional<Order> getOrderById(Long orderId) {
+        Session session = sessionFactory.openSession();
+        Optional<Order> order = Optional.ofNullable(session.createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags WHERE o.id = :orderId",Order.class)
+                .setParameter("orderId",orderId)
+                .setMaxResults(1)
+                .getSingleResult());
+        session.close();
+        return order;
     }
 
     @Override
     public Set<Order> getOrders(String order, int max, int offset) {
 
-        Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT order FROM Order order ORDER BY name " + order;
+        Session session = sessionFactory.openSession();
+        String queryString = "SELECT order FROM Order order ORDER BY id " + order;
 
         List<Order> orders = session.createQuery(queryString, Order.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
+        session.close();
         return new HashSet<>(orders);
     }
 

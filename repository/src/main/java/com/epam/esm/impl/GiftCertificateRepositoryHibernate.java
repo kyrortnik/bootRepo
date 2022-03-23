@@ -40,6 +40,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
         Session session = sessionFactory.openSession();
         List<GiftCertificate> resultSet = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
+//                .createQuery("SELECT c FROM GiftCertificate c WHERE c.id = :id", GiftCertificate.class)
                 .setParameter("id", id).getResultList();
 
         session.close();

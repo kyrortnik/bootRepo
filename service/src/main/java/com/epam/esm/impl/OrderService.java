@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+
 @Service
 public class OrderService {
 
@@ -28,8 +29,11 @@ public class OrderService {
         this.userService = userService;
     }
 
+
+    @Transactional
     public Optional<Order> getOrderById(Long id) {
-        return orderRepository.getOrderById(id);
+        Optional<Order> tempOptional = orderRepository.getOrderById(id);
+        return tempOptional;
     }
 
 

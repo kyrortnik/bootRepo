@@ -1,5 +1,6 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.BaseRepository;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
 import org.hibernate.Session;
@@ -10,13 +11,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Transactional
 @Repository
-public class TagRepositoryHibernate implements TagRepository {
+public class TagRepositoryHibernate extends BaseRepository implements TagRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -26,29 +28,34 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> getTagById(Long id) {
+    public Optional<Tag> getTagById(Long tagId) {
         Session session = sessionFactory.getCurrentSession();
-        return Optional.ofNullable(session.get(Tag.class, id));
+        return Optional.ofNullable(session.get(Tag.class, tagId));
     }
 
 
     @Override
-    public List<Tag> getTags(String order, int max, int offset) {
-        Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT tag FROM Tag tag ORDER BY name " + order;
+    public List<Tag> getTags(HashMap<String, Boolean> sortParams, int max, int offset) {
+        Session session = sessionFactory.openSession();
+        String tableAlias = "t.";
+        String query = "SELECT t FROM Tag t ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
-        return session.createQuery(queryString, Tag.class)
+        List<Tag> resultList = session.createQuery(queryWithParams, Tag.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
+        session.close();
+        return resultList;
+
     }
 
 
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long tagId) {
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery("DELETE from Tag where id = :id")
-                .setParameter("id", id)
+                .setParameter("id", tagId)
                 .executeUpdate() > 0;
     }
 
@@ -124,7 +131,7 @@ public class TagRepositoryHibernate implements TagRepository {
 //                .getSingleResult();
 //    }
     private long getRichestUserId(Session session) {
-        try{
+        try {
             return (long) (Integer) session.createNativeQuery(
                     "SELECT u.id FROM users AS u\n" +
                             "LEFT JOIN orders AS o ON u.id = o.user_id WHERE o.order_cost IS NOT NULL\n" +
@@ -132,7 +139,7 @@ public class TagRepositoryHibernate implements TagRepository {
                             "ORDER BY SUM(o.order_cost) DESC")
                     .setMaxResults(1)
                     .getSingleResult();
-        }catch (NoResultException e){
+        } catch (NoResultException e) {
             throw new NoSuchElementException("No tags exist");
         }
 

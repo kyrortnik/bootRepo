@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GiftCertificateService implements CRUDService<GiftCertificate> {
@@ -49,19 +46,19 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
 
     @Override
-    public List<GiftCertificate> getAll(String order, int max, int offset) {
-        return giftCertificateRepository.getGiftCertificates(order, max, offset);
+    public List<GiftCertificate> getAll(HashMap<String,Boolean> sortParams, int max, int offset) {
+        return giftCertificateRepository.getGiftCertificates(sortParams, max, offset);
     }
 
 
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
+    public List<GiftCertificate> getCertificatesByTags(HashMap<String,Boolean> sortParams, int max, Set<String> tagNames, int offset) {
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
-        return giftCertificateRepository.getCertificatesByTags(order, max, tags, offset);
+        return giftCertificateRepository.getGiftCertificatesByTags(sortParams, max, tags, offset);
     }
 
     @Override
     public boolean delete(Long id) {
-        return giftCertificateRepository.delete(id);
+        return giftCertificateRepository.deleteGiftCertificate(id);
     }
 
     @Override

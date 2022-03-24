@@ -1,9 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.GiftCertificate;
-import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.Tag;
-import com.epam.esm.TagRepository;
+import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -11,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +18,7 @@ import static java.util.Objects.nonNull;
 
 @Transactional
 @Repository
-public class GiftCertificateRepositoryHibernate implements GiftCertificateRepository {
+public class GiftCertificateRepositoryHibernate extends BaseRepository implements GiftCertificateRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -34,27 +31,41 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
     }
 
+//    @Override
+//    public Optional<GiftCertificate> getCertificateById(Long giftCertificateId) {
+//
+//        Session session = sessionFactory.openSession();
+//        List<GiftCertificate> resultSet = session
+//                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
+//                .setParameter("id", giftCertificateId).getResultList();
+//
+//        session.close();
+//        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+//
+//    }
+
     @Override
-    public Optional<GiftCertificate> getCertificateById(Long id) {
+    public Optional<GiftCertificate> getCertificateById(Long giftCertificateId) throws NoResultException {
 
         Session session = sessionFactory.openSession();
-        List<GiftCertificate> resultSet = session
+        GiftCertificate giftCertificate = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
-//                .createQuery("SELECT c FROM GiftCertificate c WHERE c.id = :id", GiftCertificate.class)
-                .setParameter("id", id).getResultList();
+                .setParameter("id", giftCertificateId)
+                .setMaxResults(1)
+                .getSingleResult();
 
         session.close();
-        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+        return Optional.of(giftCertificate);
 
     }
 
     @Override
-    public Optional<GiftCertificate> getGiftCertificateByName(String name) {
+    public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) throws NoResultException {
 
         Session session = sessionFactory.openSession();
         GiftCertificate foundGiftCertificate = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
-                .setParameter("name", name)
+                .setParameter("name", giftCertificateName)
                 .setMaxResults(1)
                 .getSingleResult();
 
@@ -63,13 +74,15 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     }
 
     @Override
-    public List<GiftCertificate> getGiftCertificates(String order, int max, int offset) {
+    public List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset) {
 
         Session session = sessionFactory.openSession();
-        String queryString = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags ORDER BY c.name " + order;
+        String tableAlias = "c.";
+        String query = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
         List<GiftCertificate> resultList =
-                session.createQuery(queryString, GiftCertificate.class)
+                session.createQuery(queryWithParams, GiftCertificate.class)
                         .setMaxResults(max)
                         .setFirstResult(offset)
                         .getResultList();
@@ -79,14 +92,17 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
 
     @Override
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<Tag> tags, int offset) {
+    public List<GiftCertificate> getGiftCertificatesByTags(HashMap<String,Boolean> sortParams, int max, Set<Tag> tags, int offset) {
 
         List<String> tagNames = tags.stream().map(Tag::getName).collect(Collectors.toList());
         Session session = sessionFactory.openSession();
-        String queryString = "SELECT DISTINCT c FROM Tag t LEFT JOIN t.certificates c WHERE t.name IN :tags ORDER BY c.name " + order;
+        String tableAlias = "c.";
+
+        String query = "SELECT DISTINCT c FROM Tag t LEFT JOIN t.certificates c WHERE t.name IN :tags ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
         List<GiftCertificate> giftCertificates =
-                session.createQuery(queryString, GiftCertificate.class)
+                session.createQuery(queryWithParams, GiftCertificate.class)
                         .setParameterList("tags", tagNames)
                         .setMaxResults(max)
                         .setFirstResult(offset)
@@ -98,13 +114,13 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
 
 
     @Override
-    public boolean delete(Long id) {
+    public boolean deleteGiftCertificate(Long giftCertificateId) {
 
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         boolean isDeletedGiftCertificate =
                 session.createQuery("DELETE FROM GiftCertificate WHERE id = :id")
-                        .setParameter("id", id)
+                        .setParameter("id", giftCertificateId)
                         .executeUpdate() > 0;
         session.getTransaction().commit();
         session.close();

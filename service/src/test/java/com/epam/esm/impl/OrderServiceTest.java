@@ -101,27 +101,27 @@ class OrderServiceTest {
         assertEquals(Optional.empty(), returnOrder);
     }
 
-    @Test
-    void testGetOrders_ordersExist() {
-
-        when(orderRepository.getOrders(sortingOrder, max, offset)).thenReturn(ordersSet);
-
-        Set<Order> returnOrders = orderService.getOrders(sortingOrder, max, offset);
-
-        verify(orderRepository).getOrders(sortingOrder, max, offset);
-        assertEquals(ordersSet, returnOrders);
-    }
-
-    @Test
-    void testGetOrders_noOrdersExist() {
-
-        when(orderRepository.getOrders(sortingOrder, max, offset)).thenReturn(noOrders);
-
-        Set<Order> returnOrders = orderService.getOrders(sortingOrder, max, offset);
-
-        verify(orderRepository).getOrders(sortingOrder, max, offset);
-        assertEquals(noOrders, returnOrders);
-    }
+//    @Test
+//    void testGetOrders_ordersExist() {
+//
+//        when(orderRepository.getOrders(sortingOrder, max, offset)).thenReturn(ordersSet);
+//
+//        Set<Order> returnOrders = orderService.getOrders(sortingOrder, max, offset);
+//
+//        verify(orderRepository).getOrders(sortingOrder, max, offset);
+//        assertEquals(ordersSet, returnOrders);
+//    }
+//
+//    @Test
+//    void testGetOrders_noOrdersExist() {
+//
+//        when(orderRepository.getOrders(sortingOrder, max, offset)).thenReturn(noOrders);
+//
+//        Set<Order> returnOrders = orderService.getOrders(sortingOrder, max, offset);
+//
+//        verify(orderRepository).getOrders(sortingOrder, max, offset);
+//        assertEquals(noOrders, returnOrders);
+//    }
 
     @Test
     void testOrderAlreadyExists_true() {

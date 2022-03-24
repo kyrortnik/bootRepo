@@ -3,6 +3,8 @@ package com.epam.esm.controller;
 import com.epam.esm.Tag;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.TagService;
+import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -10,25 +12,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.*;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "api/v1/tags", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagController {
-
-    private static final String DEFAULT_ORDER = "ASC";
-    private static final String DEFAULT_MAX_VALUE = "20";
-    private static final String DEFAULT_OFFSET = "0";
-
 
     private final TagService tagService;
 
@@ -45,12 +37,14 @@ public class TagController {
 
     }
 
+
     @GetMapping("/")
     public List<Tag> getTags(
-            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
-        List<Tag> tags = tagService.getAll(order, max, offset);
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        List<Tag> tags = tagService.getAll(sortingParams, max, offset);
         if (tags.isEmpty()) {
             throw new NoEntitiesFoundException("No tags are found");
         }

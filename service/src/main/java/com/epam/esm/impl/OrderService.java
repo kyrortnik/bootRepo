@@ -4,12 +4,14 @@ import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.OrderRepository;
 import com.epam.esm.User;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -40,8 +42,8 @@ public class OrderService {
     }
 
 
-    public Set<Order> getOrders(String order, int max, int offset) {
-        return orderRepository.getOrders(order, max, offset);
+    public Set<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
+        return orderRepository.getOrders(sortParams, max, offset);
     }
 
 

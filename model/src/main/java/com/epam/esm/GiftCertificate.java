@@ -43,7 +43,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
@@ -58,7 +58,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 
-    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate){
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -68,7 +68,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags){
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -79,7 +79,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.tags = tags;
     }
 
-    public GiftCertificate( @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags){
+    public GiftCertificate(@NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -92,27 +92,5 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     public GiftCertificate(@NonNull String name) {
         this.name = name;
     }
-
-
-
-
-//    public void addTag(Tag tag) {
-//        tags.add(tag);
-//        tag.addCertificate(this);
-//    }
-//
-//    public void removeTag(Tag tag) {
-//        tags.remove(tag);
-//        tag.removeCertificate(this);
-//    }
-
-//    public GiftCertificate(GiftCertificate existingGiftCertificate, GiftCertificate changedGiftCertificate) {
-//        existingGiftCertificate.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : existingGiftCertificate.getDescription());
-//        existingGiftCertificate.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : existingGiftCertificate.getPrice());
-//        existingGiftCertificate.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : existingGiftCertificate.getDuration());
-//        existingGiftCertificate.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : existingGiftCertificate.getCreateDate());
-//        existingGiftCertificate.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-//        existingGiftCertificate.setTags(!changedGiftCertificate.getTags().isEmpty() ? changedGiftCertificate.getTags() : existingGiftCertificate.getTags());
-//    }
 
 }

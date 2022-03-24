@@ -107,26 +107,26 @@ class TagServiceTest {
         assertEquals(Optional.empty(), returnTag);
     }
 
-    @Test
-    void testGetAll_tagsExist() {
-        when(tagRepository.getTags(order, max, offset)).thenReturn(tagsList);
-
-        List<Tag> returnTags = tagService.getAll(order, max, offset);
-
-        verify(tagRepository).getTags(order, max, offset);
-        assertEquals(tagsList, returnTags);
-
-    }
-
-    @Test
-    void testGetAll_noTagsExist() {
-        when(tagRepository.getTags(order, max, offset)).thenReturn(noTags);
-
-        List<Tag> returnTags = tagService.getAll(order, max, offset);
-
-        verify(tagRepository).getTags(order, max, offset);
-        assertEquals(noTags, returnTags);
-    }
+//    @Test
+//    void testGetAll_tagsExist() {
+//        when(tagRepository.getTags(order, max, offset)).thenReturn(tagsList);
+//
+//        List<Tag> returnTags = tagService.getAll(order, max, offset);
+//
+//        verify(tagRepository).getTags(order, max, offset);
+//        assertEquals(tagsList, returnTags);
+//
+//    }
+//
+//    @Test
+//    void testGetAll_noTagsExist() {
+//        when(tagRepository.getTags(order, max, offset)).thenReturn(noTags);
+//
+//        List<Tag> returnTags = tagService.getAll(order, max, offset);
+//
+//        verify(tagRepository).getTags(order, max, offset);
+//        assertEquals(noTags, returnTags);
+//    }
 
     @Test
     void testCreate_withName() {

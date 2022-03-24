@@ -1,5 +1,6 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.BaseRepository;
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
 import org.hibernate.Session;
@@ -13,7 +14,7 @@ import java.util.*;
 
 @Transactional
 @Repository
-public class UserRepositoryHibernate implements UserRepository {
+public class UserRepositoryHibernate extends BaseRepository implements UserRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -42,9 +43,12 @@ public class UserRepositoryHibernate implements UserRepository {
 
     @Override
     public List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset) {
+
         Session session = sessionFactory.openSession();
-        String queryString = formatGetUsersQuery(sortingParams);
-        List<User> resultList = session.createQuery(queryString, User.class)
+        String tableAlias = "user.";
+        String query = "SELECT user FROM User user LEFT JOIN FETCH  user.orders ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortingParams, query, tableAlias);
+        List<User> resultList = session.createQuery(queryWithParams, User.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
@@ -53,19 +57,4 @@ public class UserRepositoryHibernate implements UserRepository {
         return resultList;
     }
 
-
-    private String formatGetUsersQuery(HashMap<String, Boolean> sortingParams) {
-        Set<Map.Entry<String, Boolean>> paramsPairs = sortingParams.entrySet();
-        StringBuilder originalQuery = new StringBuilder("SELECT user FROM User user LEFT JOIN FETCH  user.orders ORDER BY ");
-        String comma = ", ";
-
-        for (Map.Entry<String,Boolean> paramPair : paramsPairs) {
-            originalQuery.append("user.");
-            originalQuery.append(paramPair.getKey());
-            originalQuery.append(paramPair.getValue() ? " ASC" : " DESC");
-            originalQuery.append(comma);
-        }
-        return originalQuery.substring(0, originalQuery.length() - 2);
-
-    }
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 public class RequestMapper {
 
     /**
-     * @param sortingRequestParam String containing sorting order and parameter. Request sorting parameter example: sort_by=asc(email)
+     * @param sortingRequestParam String containing sorting order and parameter. Request sorting parameter example: asc(email)
      * @return HashMap with key/value pairs
      */
     public static HashMap<String, Boolean> mapSortingParams(Set<String> sortingRequestParam) {

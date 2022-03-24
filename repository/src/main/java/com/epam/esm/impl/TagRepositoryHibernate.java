@@ -9,7 +9,9 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Transactional
@@ -58,21 +60,42 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
 
+//    @Override
+//    public Optional<Tag> getTagByName(String tagName) {
+//        Session session = sessionFactory.getCurrentSession();
+//
+//        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
+//                .setParameter("tagName", tagName)
+//                .getResultList();
+//
+//        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+//
+//    }
+
     @Override
     public Optional<Tag> getTagByName(String tagName) {
-        Session session = sessionFactory.getCurrentSession();
+        try {
+            Session session = sessionFactory.openSession();
 
-        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
-                .setParameter("tagName", tagName)
-                .getResultList();
+            Optional<Tag> tag = Optional.of(session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
+                    .setParameter("tagName", tagName)
+                    .setMaxResults(1)
+                    .getSingleResult());
 
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+            session.close();
+            return tag;
+        } catch (NoResultException e) {
+            throw new NoSuchElementException("No tag with name [" + tagName + "] exists");
+        }
+
 
     }
 
     @Override
     public Optional<Tag> getMostUsedTagForRichestUser() {
-        Session session = sessionFactory.getCurrentSession();
+//        Session session = sessionFactory.getCurrentSession();
+        Session session = sessionFactory.openSession();
+
         long richestUserId = getRichestUserId(session);
 
         String mostUsedTagName = (String) session.createNativeQuery(
@@ -91,14 +114,28 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
 
+    //    private long getRichestUserId(Session session) {
+//        return (long) (Integer) session.createNativeQuery(
+//                "SELECT u.id FROM users AS u\n" +
+//                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
+//                        "GROUP BY u.id\n" +
+//                        "ORDER BY SUM(o.order_cost) DESC")
+//                .setMaxResults(1)
+//                .getSingleResult();
+//    }
     private long getRichestUserId(Session session) {
-        return (long) /*(Integer)*/ session.createNativeQuery(
-                "SELECT u.id FROM users AS u\n" +
-                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
-                        "GROUP BY u.id\n" +
-                        "ORDER BY SUM(o.order_cost) DESC")
-                .setMaxResults(1)
-                .getSingleResult();
+        try{
+            return (long) (Integer) session.createNativeQuery(
+                    "SELECT u.id FROM users AS u\n" +
+                            "LEFT JOIN orders AS o ON u.id = o.user_id WHERE o.order_cost IS NOT NULL\n" +
+                            "GROUP BY u.id\n" +
+                            "ORDER BY SUM(o.order_cost) DESC")
+                    .setMaxResults(1)
+                    .getSingleResult();
+        }catch (NoResultException e){
+            throw new NoSuchElementException("No tags exist");
+        }
+
     }
 
 }

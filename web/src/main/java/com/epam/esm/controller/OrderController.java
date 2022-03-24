@@ -44,7 +44,7 @@ public class OrderController {
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrderGiftCertificate(order.getId()))
-                .withRel("certificate"));
+                .withRel("gift certificate"));
 
         order.add(linkTo(methodOn(UserController.class)
                 .getUser(order.getUser().getId()))
@@ -70,7 +70,7 @@ public class OrderController {
 
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrderGiftCertificate(foundOrder.getId()))
-                            .withRel("certificate"));
+                            .withRel("gift certificate"));
 
             foundOrder.add(linkTo(methodOn(UserController.class)
                             .getUser(foundOrder.getUser().getId()))
@@ -85,8 +85,21 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
-        Optional<Order> createdGiftCertificate = orderService.create(order);
-        return createdGiftCertificate.orElseThrow((() -> new DuplicateKeyException("Such order already exists")));
+        Order createdOrder = orderService.create(order).orElseThrow(() -> new DuplicateKeyException("Such order already exists"));
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .getOrder(createdOrder.getId()))
+                .withSelfRel());
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .deleteOrder( createdOrder.getId()))
+                .withRel("delete"));
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .getOrderGiftCertificate( createdOrder.getId()))
+                .withRel("gift certificate"));
+
+        return createdOrder;
     }
 
 

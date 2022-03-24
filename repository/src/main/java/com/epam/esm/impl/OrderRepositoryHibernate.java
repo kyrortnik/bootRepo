@@ -1,21 +1,23 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.OrderRepository;
+import com.epam.esm.User;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.OpInc;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.sql.ResultSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-@Transactional
+//@Transactional
 @Repository
 public class OrderRepositoryHibernate implements OrderRepository {
 
@@ -32,34 +34,54 @@ public class OrderRepositoryHibernate implements OrderRepository {
 //        return Optional.ofNullable(session.get(Order.class, id));
 //    }
 
-    @Override
-    public Optional<Order> getOrder(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        List<Order> resultSet = session
-                .createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.giftCertificate LEFT JOIN FETCH o.user WHERE o.id = :id", Order.class)
-                .setParameter("id", id)
-                .getResultList();
 
-        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
+    /*  Session session = sessionFactory.openSession();
+        GiftCertificate foundGiftCertificate = session
+                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
+                .setParameter("name", name)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        session.close();
+        return Optional.of(foundGiftCertificate);*/
+
+    @Override
+    public Optional<Order> getOrderById(Long orderId) {
+        try{
+            Session session = sessionFactory.openSession();
+            Order order = session.createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags WHERE o.id = :orderId",Order.class)
+                    .setParameter("orderId",orderId)
+                    .setMaxResults(1)
+                    .getSingleResult();
+
+            session.close();
+            return Optional.ofNullable(order);
+        }catch (NoResultException e){
+            throw new NoSuchElementException("No order with id[" + orderId + "] exists");
+        }
+
     }
 
     @Override
     public Set<Order> getOrders(String order, int max, int offset) {
 
-        Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT order FROM Order order ORDER BY name " + order;
+        Session session = sessionFactory.openSession();
+        String queryString = "SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags ORDER BY o.id " + order;
 
         List<Order> orders = session.createQuery(queryString, Order.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
+        session.close();
         return new HashSet<>(orders);
     }
 
     @Override
     public Long createOrder(Order order) {
-        Session session = sessionFactory.getCurrentSession();
-        return (Long) session.save(order);
+        Session session = sessionFactory.openSession();
+        Long orderId = (Long) session.save(order);
+        session.close();
+        return orderId;
 
     }
 

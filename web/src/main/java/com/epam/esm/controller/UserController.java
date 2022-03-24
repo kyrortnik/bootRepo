@@ -4,10 +4,12 @@ import com.epam.esm.Order;
 import com.epam.esm.User;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.UserService;
+import com.epam.esm.mapper.RequestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -20,10 +22,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserController {
 
 
-    private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
-    private static final String DEFAULT_ORDER = "ASC";
+    private static final String MAX_USERS_IN_RESPONSE = "20";
     private static final String DEFAULT_OFFSET = "0";
+    private static final String SORT_BY = "asc(first_name)";
+
+
     private final UserService userService;
+
 
     @Autowired
     public UserController(UserService userService) {
@@ -48,10 +53,11 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public List<User> getUsers(@RequestParam(value = "order", defaultValue = MAX_CERTIFICATES_IN_REQUEST) String order,
-                               @RequestParam(value = "max", defaultValue = DEFAULT_ORDER) int max,
+    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = SORT_BY) Set<String> sortBy,
+                               @RequestParam(value = "max", defaultValue = MAX_USERS_IN_RESPONSE) int max,
                                @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
-        List<User> users = userService.getUsers(order, max, offset);
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        List<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
             throw new NoEntitiesFoundException();
         }

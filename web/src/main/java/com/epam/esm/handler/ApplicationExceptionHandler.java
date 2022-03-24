@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
@@ -61,4 +62,15 @@ public class ApplicationExceptionHandler {
     ExceptionEntity nullPointerException(NullPointerException e){
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
+
+    @ExceptionHandler(NoResultException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody
+    ExceptionEntity noResultException(NoResultException e){
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+
+    }
+
 }
+
+

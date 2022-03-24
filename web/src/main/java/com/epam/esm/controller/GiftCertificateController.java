@@ -27,6 +27,7 @@ public class GiftCertificateController {
 
     private final GiftCertificateService service;
 
+
     @Autowired
     public GiftCertificateController(GiftCertificateService service) {
         this.service = service;
@@ -97,9 +98,26 @@ public class GiftCertificateController {
     public @ResponseBody
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
 
-        Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
-        return createdGiftCertificate.orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
+        GiftCertificate createdGiftCertificate = service.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getCertificate(createdGiftCertificate.getId()))
+                .withSelfRel());
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(giftCertificate, createdGiftCertificate.getId()))
+                .withRel("update"));
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .deleteGiftCertificate(createdGiftCertificate.getId()))
+                .withRel("delete"));
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getGiftCertificateTags(createdGiftCertificate.getId()))
+                .withRel("tags"));
+
+
+        return createdGiftCertificate;
     }
 
 
@@ -109,7 +127,7 @@ public class GiftCertificateController {
         if (service.delete(id)) {
             response = new ResponseEntity<>(HttpStatus.OK);
         } else {
-            response = new ResponseEntity<>("No certificate with id [" + id + "] was found", HttpStatus.OK);
+            response = new ResponseEntity<>("No Gift Certificate with id [" + id + "] exists", HttpStatus.OK);
         }
         return response;
     }

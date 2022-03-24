@@ -2,6 +2,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,7 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-//@EntityListeners(AuditListener.class)
+@Audited
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)

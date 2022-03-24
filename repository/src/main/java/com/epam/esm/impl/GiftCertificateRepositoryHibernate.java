@@ -40,6 +40,7 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
         Session session = sessionFactory.openSession();
         List<GiftCertificate> resultSet = session
                 .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
+//                .createQuery("SELECT c FROM GiftCertificate c WHERE c.id = :id", GiftCertificate.class)
                 .setParameter("id", id).getResultList();
 
         session.close();
@@ -100,10 +101,12 @@ public class GiftCertificateRepositoryHibernate implements GiftCertificateReposi
     public boolean delete(Long id) {
 
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         boolean isDeletedGiftCertificate =
                 session.createQuery("DELETE FROM GiftCertificate WHERE id = :id")
                         .setParameter("id", id)
                         .executeUpdate() > 0;
+        session.getTransaction().commit();
         session.close();
         return isDeletedGiftCertificate;
 

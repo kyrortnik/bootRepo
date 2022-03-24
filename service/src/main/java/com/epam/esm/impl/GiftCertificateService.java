@@ -34,6 +34,7 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     @Transactional
     @Override
     public Optional<GiftCertificate> getById(Long id) {
+
         return giftCertificateRepository.getCertificateById(id);
     }
 
@@ -65,7 +66,6 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
     @Override
     public boolean update(GiftCertificate giftCertificate, Long giftCertificateId) throws NoSuchElementException {
-
         try{
             giftCertificate.setLastUpdateDate(LocalDateTime.now());
             Optional<GiftCertificate> updatedGiftCertificated = giftCertificateRepository.updateGiftCertificate(giftCertificate, giftCertificateId);

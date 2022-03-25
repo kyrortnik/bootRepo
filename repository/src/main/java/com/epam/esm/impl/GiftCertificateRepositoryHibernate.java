@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.util.*;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
-@Transactional
 @Repository
 public class GiftCertificateRepositoryHibernate extends BaseRepository implements GiftCertificateRepository {
 
@@ -31,73 +29,55 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
 
     }
 
-//    @Override
-//    public Optional<GiftCertificate> getCertificateById(Long giftCertificateId) {
-//
-//        Session session = sessionFactory.openSession();
-//        List<GiftCertificate> resultSet = session
-//                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
-//                .setParameter("id", giftCertificateId).getResultList();
-//
-//        session.close();
-//        return resultSet.isEmpty() ? Optional.empty() : Optional.of(resultSet.get(0));
-//
-//    }
-
     @Override
-    public Optional<GiftCertificate> getCertificateById(Long giftCertificateId) throws NoResultException {
-
+    public Optional<GiftCertificate> getCertificateById(Long giftCertificateId) {
         Session session = sessionFactory.openSession();
-        GiftCertificate giftCertificate = session
-                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id", GiftCertificate.class)
+        List<GiftCertificate> resultList = session
+                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.orders LEFT JOIN FETCH c.tags WHERE c.id = :id",
+                        GiftCertificate.class)
                 .setParameter("id", giftCertificateId)
-                .setMaxResults(1)
-                .getSingleResult();
+                .getResultList();
 
         session.close();
-        return Optional.of(giftCertificate);
-
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
+
 
     @Override
     public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) throws NoResultException {
-
         Session session = sessionFactory.openSession();
-        GiftCertificate foundGiftCertificate = session
-                .createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ", GiftCertificate.class)
+        List<GiftCertificate> resultList = session.createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ",
+                GiftCertificate.class)
                 .setParameter("name", giftCertificateName)
-                .setMaxResults(1)
-                .getSingleResult();
+                .getResultList();
 
         session.close();
-        return Optional.of(foundGiftCertificate);
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
+
 
     @Override
     public List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset) {
-
         Session session = sessionFactory.openSession();
         String tableAlias = "c.";
         String query = "SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags ORDER BY ";
         String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
-        List<GiftCertificate> resultList =
+        List<GiftCertificate> giftCertificates =
                 session.createQuery(queryWithParams, GiftCertificate.class)
                         .setMaxResults(max)
                         .setFirstResult(offset)
                         .getResultList();
         session.close();
-        return resultList;
+        return giftCertificates;
     }
 
 
     @Override
-    public List<GiftCertificate> getGiftCertificatesByTags(HashMap<String,Boolean> sortParams, int max, Set<Tag> tags, int offset) {
-
-        List<String> tagNames = tags.stream().map(Tag::getName).collect(Collectors.toList());
+    public List<GiftCertificate> getGiftCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<Tag> tags, int offset) {
         Session session = sessionFactory.openSession();
+        List<String> tagNames = tags.stream().map(Tag::getName).collect(Collectors.toList());
         String tableAlias = "c.";
-
         String query = "SELECT DISTINCT c FROM Tag t LEFT JOIN t.certificates c WHERE t.name IN :tags ORDER BY ";
         String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
@@ -115,7 +95,6 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
 
     @Override
     public boolean deleteGiftCertificate(Long giftCertificateId) {
-
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         boolean isDeletedGiftCertificate =
@@ -130,69 +109,103 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
 
 
     //TODO -- replace try-with-resources, no need to throw exception
-    @Override
-    public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, long giftCertificateId) {
+//    @Override
+//    public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, long giftCertificateId) {
+//        try (Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            GiftCertificate existingGiftCertificate = getCertificateById(giftCertificateId)
+//                    .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with name [" + changedGiftCertificate.getName() + "] exists"));
+//            Set<Tag> tagsToUpdate = changedGiftCertificate.getTags();
+//            Set<Tag> tags = new HashSet<>(tagsToUpdate);
+//            for (Tag tag : tagsToUpdate) {
+//                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
+//                if (existingTag.isPresent()) {
+//                    tags.remove(tag);
+//                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+//                    tags.add(proxyTag);
+//                }
+//            }
+//            mergeTwoCertificates(existingGiftCertificate, changedGiftCertificate);
+//            existingGiftCertificate.setTags(tags);
+//            Optional<GiftCertificate> mergedGiftCertificate = Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
+//            session.getTransaction().commit();
+//            return mergedGiftCertificate;
+//        } catch (NoSuchElementException e) {
+//            throw new NoSuchElementException("Certificate with id [" + giftCertificateId + "] doesn't exist");
+//        }
+//
+//    }
 
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            GiftCertificate existingGiftCertificate = getCertificateById(giftCertificateId)
-                    .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with name [" + changedGiftCertificate.getName() + "] exists"));
-            Set<Tag> tagsToUpdate = changedGiftCertificate.getTags();
-            Set<Tag> tags = new HashSet<>(tagsToUpdate);
-            for (Tag tag : tagsToUpdate) {
-                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
-                if (existingTag.isPresent()) {
-                    tags.remove(tag);
-                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
-                    tags.add(proxyTag);
-                }
-            }
-            mergeTwoCertificates(existingGiftCertificate, changedGiftCertificate);
-            existingGiftCertificate.setTags(tags);
-            Optional<GiftCertificate> mergedGiftCertificate = Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
-            session.getTransaction().commit();
-            return mergedGiftCertificate;
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Certificate with id [" + giftCertificateId + "] doesn't exist");
-        }
+    @Override
+    public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, GiftCertificate existingGiftCertificate) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        Set<Tag> processedTags = getTags(changedGiftCertificate.getTags(), session);
+        existingGiftCertificate.mergeTwoGiftCertificate(changedGiftCertificate, processedTags);
+        Optional<GiftCertificate> mergedGiftCertificate = Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
+        session.getTransaction().commit();
+        return mergedGiftCertificate;
 
     }
 
-    @Override
+
+//    @Override
+//    public Long createGiftCertificate(GiftCertificate giftCertificate) {
+//        try (Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            Set<Tag> tags = new HashSet<>(giftCertificate.getTags());
+//            for (Tag tag : giftCertificate.getTags()) {
+//                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
+//                if (existingTag.isPresent()) {
+//                    tags.remove(tag);
+//                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+//                    tags.add(proxyTag);
+//                    proxyTag.addCertificate(giftCertificate);
+//                    session.merge(proxyTag);
+//                }
+//            }
+//            giftCertificate.setTags(tags);
+//            Long giftCertificateId = (Long) session.save(giftCertificate);
+//            session.getTransaction().commit();
+//            return giftCertificateId;
+//
+//        } catch (ConstraintViolationException e) {
+//
+//            throw new DuplicateKeyException("Certificate with  name [" + giftCertificate.getName() + "] already exists");
+//
+//        }
+//    }
+
+
     public Long createGiftCertificate(GiftCertificate giftCertificate) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Set<Tag> tags = new HashSet<>(giftCertificate.getTags());
-            for (Tag tag : giftCertificate.getTags()) {
-                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
-                if (existingTag.isPresent()) {
-                    tags.remove(tag);
-                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
-                    tags.add(proxyTag);
-                    proxyTag.addCertificate(giftCertificate);
-                    session.merge(proxyTag);
-                }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        Set<Tag> tags = getTags(giftCertificate.getTags(), session);
+        giftCertificate.setTags(tags);
+        Long giftCertificateId = (Long) session.save(giftCertificate);
+        session.getTransaction().commit();
+        return giftCertificateId;
+
+    }
+
+    //TODO -- to tagRepository
+    /**
+     * @param tagsToUpdate new Tag Set for GiftCertificate from client
+     * @param session      opened Session
+     * @return Tags Set where existing tags were replaced with proxies and non-existing tags not changes so they could be created.
+     */
+    private Set<Tag> getTags(Set<Tag> tagsToUpdate, Session session) {
+        Set<Tag> tags = new HashSet<>(tagsToUpdate);
+        for (Tag tag : tagsToUpdate) {
+            Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
+            if (existingTag.isPresent()) {
+                tags.remove(tag);
+                Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+                tags.add(proxyTag);
             }
-            giftCertificate.setTags(tags);
-            Long giftCertificateId = (Long) session.save(giftCertificate);
-            session.getTransaction().commit();
-            return giftCertificateId;
-
-        } catch (ConstraintViolationException e) {
-
-            throw new DuplicateKeyException("Certificate with  name [" + giftCertificate.getName() + "] already exists");
-
         }
+        return tags;
     }
 
-    private void mergeTwoCertificates(GiftCertificate existingGiftCertificate, GiftCertificate changedGiftCertificate) {
 
-        existingGiftCertificate.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : existingGiftCertificate.getDescription());
-        existingGiftCertificate.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : existingGiftCertificate.getPrice());
-        existingGiftCertificate.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : existingGiftCertificate.getDuration());
-        existingGiftCertificate.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : existingGiftCertificate.getCreateDate());
-        existingGiftCertificate.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-        existingGiftCertificate.setTags(!changedGiftCertificate.getTags().isEmpty() ? changedGiftCertificate.getTags() : existingGiftCertificate.getTags());
-
-    }
 }

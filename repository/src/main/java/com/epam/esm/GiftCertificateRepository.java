@@ -17,7 +17,8 @@ public interface GiftCertificateRepository {
 
     boolean deleteGiftCertificate(Long giftCertificateId);
 
-    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, long giftCertificateId);
+//    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, long giftCertificateId);
+Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
 
     Long createGiftCertificate(GiftCertificate giftCertificate);
 

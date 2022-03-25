@@ -67,42 +67,22 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
     }
 
 
-//    @Override
-//    public Optional<Tag> getTagByName(String tagName) {
-//        Session session = sessionFactory.getCurrentSession();
-//
-//        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
-//                .setParameter("tagName", tagName)
-//                .getResultList();
-//
-//        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
-//
-//    }
-
     @Override
     public Optional<Tag> getTagByName(String tagName) {
-        try {
-            Session session = sessionFactory.openSession();
+        Session session = sessionFactory.getCurrentSession();
 
-            Optional<Tag> tag = Optional.of(session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
-                    .setParameter("tagName", tagName)
-                    .setMaxResults(1)
-                    .getSingleResult());
+        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
+                .setParameter("tagName", tagName)
+                .getResultList();
 
-            session.close();
-            return tag;
-        } catch (NoResultException e) {
-            throw new NoSuchElementException("No tag with name [" + tagName + "] exists");
-        }
-
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
 
     }
 
+
     @Override
     public Optional<Tag> getMostUsedTagForRichestUser() {
-//        Session session = sessionFactory.getCurrentSession();
         Session session = sessionFactory.openSession();
-
         long richestUserId = getRichestUserId(session);
 
         String mostUsedTagName = (String) session.createNativeQuery(
@@ -120,16 +100,6 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
         return getTagByName(mostUsedTagName);
     }
 
-
-    //    private long getRichestUserId(Session session) {
-//        return (long) (Integer) session.createNativeQuery(
-//                "SELECT u.id FROM users AS u\n" +
-//                        "LEFT JOIN orders AS o ON u.id = o.user_id \n" +
-//                        "GROUP BY u.id\n" +
-//                        "ORDER BY SUM(o.order_cost) DESC")
-//                .setMaxResults(1)
-//                .getSingleResult();
-//    }
     private long getRichestUserId(Session session) {
         try {
             return (long) (Integer) session.createNativeQuery(
@@ -142,7 +112,6 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
         } catch (NoResultException e) {
             throw new NoSuchElementException("No tags exist");
         }
-
     }
 
 }

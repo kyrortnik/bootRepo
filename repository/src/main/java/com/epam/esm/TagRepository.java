@@ -8,9 +8,6 @@ public interface TagRepository {
 
     Optional<Tag> getTagById(Long tagId);
 
-    //TODO -- refactor order
-//    List<Tag> getTags(String order, int max, int offset);
-
     List<Tag> getTags(HashMap<String,Boolean> sortParams, int max, int offset);
 
     boolean delete(Long tagId);

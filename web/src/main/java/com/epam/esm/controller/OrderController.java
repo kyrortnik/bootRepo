@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -119,7 +118,7 @@ public class OrderController {
         GiftCertificate giftCertificate = order.getGiftCertificate();
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(giftCertificate.getId()))
+                .getCertificateById(giftCertificate.getId()))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

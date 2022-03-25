@@ -38,11 +38,11 @@ public class GiftCertificateController {
 
 
     @GetMapping("/{id}")
-    public GiftCertificate getCertificate(@PathVariable Long id) {
+    public GiftCertificate getCertificateById(@PathVariable Long id) {
         GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(id))
+                .getCertificateById(id))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -74,12 +74,12 @@ public class GiftCertificateController {
 
         if (giftCertificates.isEmpty()) {
             LOGGER.error("No Gift Certificates exists");
-            throw new NoEntitiesFoundException();
+            throw new NoEntitiesFoundException("No Gift Certificates exist");
         }
         giftCertificates.forEach(giftCertificate -> {
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                    .getCertificate(giftCertificate.getId()))
+                    .getCertificateById(giftCertificate.getId()))
                     .withSelfRel());
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -107,7 +107,7 @@ public class GiftCertificateController {
         GiftCertificate createdGiftCertificate = service.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(createdGiftCertificate.getId()))
+                .getCertificateById(createdGiftCertificate.getId()))
                 .withSelfRel());
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

@@ -8,9 +8,6 @@ public interface OrderRepository {
 
     Optional<Order> getOrderById(Long orderId);
 
-    //TODO -- refactor order
-//    Set<Order> getOrders(String order, int max, int offset);
-
     Set<Order> getOrders(HashMap<String,Boolean> sortParams, int max, int offset);
 
     Long createOrder(Order order);

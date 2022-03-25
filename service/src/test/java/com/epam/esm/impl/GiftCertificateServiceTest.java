@@ -226,33 +226,33 @@ class GiftCertificateServiceTest {
         assertEquals(expectedMessage, actualMessage);
     }
 
-    @Test
-    void testUpdateGiftCertificate_giftCertificateExists() {
-        GiftCertificate changedGiftCertificate = new GiftCertificate(giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
-        GiftCertificate updatedGiftCertificate = new GiftCertificate(giftCertificateId, giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
-
-        when(giftCertificateRepository.updateGiftCertificate(changedGiftCertificate, giftCertificateId)).thenReturn(Optional.of(updatedGiftCertificate));
-
-        boolean giftCertificateIsUpdated = giftCertificateService.update(changedGiftCertificate, giftCertificateId);
-
-        verify(giftCertificateRepository).updateGiftCertificate(changedGiftCertificate, giftCertificateId);
-        assertTrue(giftCertificateIsUpdated);
-
-    }
-
-    @Test
-    void testUpdateGiftCertificate_giftCertificateDoesNotExist() {
-
-        GiftCertificate changedGiftCertificate = new GiftCertificate(giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
-        long notExistingGiftCertificateID = 9999;
-        when(giftCertificateRepository.updateGiftCertificate(changedGiftCertificate, notExistingGiftCertificateID)).thenThrow(NoSuchElementException.class);
-
-        Exception NoSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService.update(changedGiftCertificate, notExistingGiftCertificateID));
-        String expectedMessage = "Certificate with id [" + notExistingGiftCertificateID + "] doesn't exist";
-        String actualMessage = NoSuchElementException.getMessage();
-
-        verify(giftCertificateRepository).updateGiftCertificate(changedGiftCertificate, notExistingGiftCertificateID);
-        assertEquals(expectedMessage, actualMessage);
-    }
+//    @Test
+//    void testUpdateGiftCertificate_giftCertificateExists() {
+//        GiftCertificate changedGiftCertificate = new GiftCertificate(giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
+//        GiftCertificate updatedGiftCertificate = new GiftCertificate(giftCertificateId, giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
+//
+//        when(giftCertificateRepository.updateGiftCertificate(changedGiftCertificate, giftCertificateId)).thenReturn(Optional.of(updatedGiftCertificate));
+//
+//        boolean giftCertificateIsUpdated = giftCertificateService.update(changedGiftCertificate, giftCertificateId);
+//
+//        verify(giftCertificateRepository).updateGiftCertificate(changedGiftCertificate, giftCertificateId);
+//        assertTrue(giftCertificateIsUpdated);
+//
+//    }
+//
+//    @Test
+//    void testUpdateGiftCertificate_giftCertificateDoesNotExist() {
+//
+//        GiftCertificate changedGiftCertificate = new GiftCertificate(giftCertificateName, description, price, duration, createDate, lastUpdateDate, tags);
+//        long notExistingGiftCertificateID = 9999;
+//        when(giftCertificateRepository.updateGiftCertificate(changedGiftCertificate, notExistingGiftCertificateID)).thenThrow(NoSuchElementException.class);
+//
+//        Exception NoSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService.update(changedGiftCertificate, notExistingGiftCertificateID));
+//        String expectedMessage = "Certificate with id [" + notExistingGiftCertificateID + "] doesn't exist";
+//        String actualMessage = NoSuchElementException.getMessage();
+//
+//        verify(giftCertificateRepository).updateGiftCertificate(changedGiftCertificate, notExistingGiftCertificateID);
+//        assertEquals(expectedMessage, actualMessage);
+//    }
 
 }

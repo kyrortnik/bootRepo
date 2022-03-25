@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+
 public abstract class BaseRepository {
 
     public String addParamsToQuery(HashMap<String, Boolean> sortingParams, String query, String tableAlias) {

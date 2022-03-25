@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
+
 @Audited
 @EqualsAndHashCode(callSuper = false)
 @Entity
@@ -91,6 +93,17 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     public GiftCertificate(@NonNull String name) {
         this.name = name;
+    }
+
+    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate, Set<Tag> tags) {
+
+        this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
+        this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
+        this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
+        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
+        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
+        this.setTags(tags);
+
     }
 
 }

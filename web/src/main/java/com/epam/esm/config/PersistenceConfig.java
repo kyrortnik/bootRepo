@@ -4,16 +4,13 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -22,25 +19,12 @@ import java.util.Properties;
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)
         })
-@EnableTransactionManagement
+//@EnableTransactionManagement
 public class PersistenceConfig {
 
-//    @Profile("prod")
-//    @Bean
-//    public DataSource dataSource() {
-//        BasicDataSource ds = new BasicDataSource();
-//        ds.setDriverClassName();
-//        ds.setUrl();
-//        ds.setUsername();
-//        ds.setPassword("admin");
-//        ds.setInitialSize(5);
-//        ds.setMaxActive(10);
-//        return ds;
-//    }
-
-    //    @Profile("prod")
+    @Profile("prod")
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSourcePostgres() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("org.postgresql.Driver");
         dataSourceBuilder.url("jdbc:postgresql://localhost/epam-lab");
@@ -49,34 +33,38 @@ public class PersistenceConfig {
         return dataSourceBuilder.build();
     }
 
-
-//    @Profile("dev")
-//    @Bean
-//    public DataSource embeddedDataSource() {
-//        return new EmbeddedDatabaseBuilder()
-//        .setType(EmbeddedDatabaseType.H2)
-//        .addScript("classpath:schema.sql")
-//        .addScript("classpath:test-data.sql")
-//        .build();
-//    }
-
-    //Entity manager factory
+    //TODO -- add testdata script
+    @Profile("dev")
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
+    public DataSource embeddedDataSource() {
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("classpath:schema.sql")
+//                .addScript("classpath:test-data.sql")
+                .build();
+    }
+
+    @Profile("prod")
+    @Bean
+    @Autowired
+    public LocalSessionFactoryBean sessionFactoryHibernate(DataSource dataSource) {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setDataSource(dataSource);
         sessionFactory.setPackagesToScan("com.epam.esm");
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
 
-    // Transactions manager
+    @Profile("dev")
     @Bean
-    @Autowired
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-        return new HibernateTransactionManager(sessionFactory);
+    public LocalSessionFactoryBean sessionFactoryH2() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(embeddedDataSource());
+        sessionFactory.setPackagesToScan("com.epam.esm");
+        return sessionFactory;
     }
 
+    @Profile("prod")
     final Properties hibernateProperties() {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
@@ -84,4 +72,11 @@ public class PersistenceConfig {
         properties.setProperty("org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
         return properties;
     }
+
+    @Bean
+    @Autowired
+    public HibernateTransactionManager transactionManagerHibernate(SessionFactory sessionFactory) {
+        return new HibernateTransactionManager(sessionFactory);
+    }
+
 }

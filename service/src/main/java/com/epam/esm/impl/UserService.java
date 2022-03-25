@@ -4,10 +4,10 @@ import com.epam.esm.User;
 import com.epam.esm.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -19,13 +19,10 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
+
     public Optional<User> getById(Long userId) {
-        try {
-            return userRepository.getUserById(userId);
-        } catch (NoResultException e) {
-            throw new NoSuchElementException("User with id [" + userId + "] does not exist");
-        }
+
+        return userRepository.getUserById(userId);
 
     }
 

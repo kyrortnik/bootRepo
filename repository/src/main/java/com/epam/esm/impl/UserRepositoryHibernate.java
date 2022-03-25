@@ -10,7 +10,9 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Repository
@@ -24,21 +26,19 @@ public class UserRepositoryHibernate extends BaseRepository implements UserRepos
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(Long userId) {
 
-        Session session = sessionFactory.getCurrentSession();
-        User foundUser = session
-                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o " +
-                        "LEFT JOIN FETCH o.giftCertificate g " +
-                        "LEFT JOIN FETCH g.tags " +
-                        "WHERE u.id = :userId", User.class)
-                .setParameter("userId", id)
-                .setMaxResults(1)
-                .getSingleResult();
-
-        return Optional.of(foundUser);
-
+        Session session = sessionFactory.openSession();
+        List<User> resultList = session.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o " +
+                "LEFT JOIN FETCH o.giftCertificate g " +
+                "LEFT JOIN FETCH g.tags " +
+                "WHERE u.id = :userId", User.class)
+                .setParameter("userId",userId)
+                .getResultList();
+        session.close();
+        return resultList.isEmpty()? Optional.empty() :Optional.of(resultList.get(0));
     }
+
 
 
     @Override

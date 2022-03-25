@@ -2,9 +2,12 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
-import com.epam.esm.exception.ControllerExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
+import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -12,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -23,10 +26,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderController {
 
-    private final OrderService orderService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
-    private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
-    private static final String DEFAULT_ORDER = "ASC";
+    private final OrderService orderService;
 
     @Autowired
     public OrderController(OrderService orderService) {
@@ -44,18 +46,23 @@ public class OrderController {
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrderGiftCertificate(order.getId()))
-                .withRel("certificates"));
+                .withRel("gift certificate"));
+
+        order.add(linkTo(methodOn(UserController.class)
+                .getUser(order.getUser().getId()))
+                .withRel("user"));
 
         return order;
     }
 
+
     @GetMapping("/")
     public Set<Order> getOrders(
-            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "pattern", required = false) String pattern) {
-        Set<Order> orders = orderService.getOrders(order, max);
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        Set<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
@@ -67,7 +74,11 @@ public class OrderController {
 
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrderGiftCertificate(foundOrder.getId()))
-                            .withRel("certificates"));
+                            .withRel("gift certificate"));
+
+                    foundOrder.add(linkTo(methodOn(UserController.class)
+                            .getUser(foundOrder.getUser().getId()))
+                            .withRel("user"));
                 }
         );
         return orders;
@@ -78,8 +89,21 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
-        Optional<Order> createdGiftCertificate = orderService.create(order);
-        return createdGiftCertificate.orElseThrow((() -> new DuplicateKeyException("Such order already exists")));
+        Order createdOrder = orderService.create(order).orElseThrow(() -> new DuplicateKeyException("Such order already exists"));
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .getOrder(createdOrder.getId()))
+                .withSelfRel());
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .deleteOrder( createdOrder.getId()))
+                .withRel("delete"));
+
+        createdOrder.add(linkTo(methodOn(OrderController.class)
+                .getOrderGiftCertificate( createdOrder.getId()))
+                .withRel("gift certificate"));
+
+        return createdOrder;
     }
 
 
@@ -90,14 +114,15 @@ public class OrderController {
                 : new ResponseEntity<>("No order with such id was found", HttpStatus.OK);
     }
 
-    @GetMapping("/{orderId}/giftCertificates")
-    public GiftCertificate getOrderGiftCertificate(/*@RequestParam(value = "orderId")*/ @PathVariable long orderId) {
+
+    @GetMapping("/{orderId}/giftCertificate")
+    public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(giftCertificate.getId()))
+                .getCertificateById(giftCertificate.getId()))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -111,16 +136,4 @@ public class OrderController {
         return giftCertificate;
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ControllerExceptionEntity duplicateKeyException(DuplicateKeyException e) {
-//        return new ControllerExceptionEntity(getErrorCode(400), "Tag with such name already exists");
-        return new ControllerExceptionEntity(getErrorCode(400), e.getMessage());
-    }
-
-    private static int getErrorCode(int errorCode) {
-        long counter = 0;
-        counter++;
-        return Integer.parseInt(errorCode + String.valueOf(counter));
-    }
 }

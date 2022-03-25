@@ -3,22 +3,18 @@ package com.epam.esm.impl;
 import com.epam.esm.CRUDService;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.sql.SQLException;
+import java.util.*;
 
 @Service
 public class TagService implements CRUDService<Tag> {
 
-
     private final TagRepository tagRepository;
-
-//    private final UserService userService;
-
-
 
     @Autowired
     public TagService(TagRepository tagRepository) {
@@ -27,24 +23,25 @@ public class TagService implements CRUDService<Tag> {
 
     @Override
     public Optional<Tag> getById(Long id) {
-        return tagRepository.getTag(id);
+        return tagRepository.getTagById(id);
     }
 
-    @Override
-    public List<Tag> getAll(String order, int max, int offset) {
 
-        return tagRepository.getTags(order, max, offset);
+    @Override
+    public List<Tag> getAll(HashMap<String,Boolean> sortParams, int max, int offset) {
+
+        return tagRepository.getTags(sortParams, max, offset);
     }
 
     @Transactional
     @Override
     public Optional<Tag> create(Tag tag) {
-        Optional<Tag> createdTag = Optional.empty();
-        Optional<Long> createdTagId = Optional.ofNullable(tagRepository.create(tag));
-        if (createdTagId.isPresent()) {
-            createdTag = getById(createdTagId.get());
+        try {
+            Long createdTagId = tagRepository.createTag(tag);
+            return getById(createdTagId);
+        } catch (ConstraintViolationException e) {
+            throw new ConstraintViolationException("Tag with name [" + tag.getName() + "] already exists", new SQLException(), "tag name");
         }
-        return createdTag;
     }
 
     @Override
@@ -57,14 +54,20 @@ public class TagService implements CRUDService<Tag> {
         throw new UnsupportedOperationException();
     }
 
+    public Optional<Tag> getTagByName(String tagName) {
+        return tagRepository.getTagByName(tagName);
+    }
 
-//    public List<Tag> getTagsForCertificate(Long id) {
-//        return tagRepository.getTagsForCertificate(id);
-//    }
+    public Optional<Tag> getMostUsedTagForRichestUser() {
+        return tagRepository.getMostUsedTagForRichestUser();
+    }
 
-//    public Optional<Tag> getMostUsedTag(){
-//        User user = userService.getUserWithBiggest
-//        return tagRepository.getMostUsedTag();
-//    }
 
+    public Set<Tag> getTagsByNames(Set<String> tagNames) {
+        Set<Tag> tags = new HashSet<>();
+        if (!tagNames.isEmpty()) {
+            tagNames.forEach(tagName -> getTagByName(tagName).ifPresent(tags::add));
+        }
+        return tags;
+    }
 }

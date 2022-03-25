@@ -1,23 +1,25 @@
 package com.epam.esm;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface GiftCertificateRepository {
 
-    Optional<GiftCertificate> getCertificateById(Long id);
+    Optional<GiftCertificate> getCertificateById(Long giftCertificateId);
 
-    Optional<GiftCertificate> getCertificateByName(String name);
+    Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName);
 
-    List<GiftCertificate> getCertificates(String order, int max);
+    List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset);
 
-    List<GiftCertificate> getCertificatesWithParams(String order, int max, String tag, String pattern);
+    List<GiftCertificate> getGiftCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<Tag> tags, int offset);
 
-    boolean delete(Long id);
+    boolean deleteGiftCertificate(Long giftCertificateId);
 
-    Optional<GiftCertificate> update(GiftCertificate element, long id);
+    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
 
-    Long create(GiftCertificate element);
+    Long createGiftCertificate(GiftCertificate giftCertificate);
 
 
 }

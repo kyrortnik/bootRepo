@@ -2,10 +2,13 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
-import com.epam.esm.exception.ControllerExceptionEntity;
-import com.epam.esm.exception.EntityNotFoundException;
+import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
-import com.epam.esm.impl.CertificateService;
+import com.epam.esm.impl.GiftCertificateService;
+import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -22,67 +26,104 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificateController {
 
-    private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
-    private static final String DEFAULT_ORDER = "ASC";
-    private static final String DEFAULT_OFFSET = "0";
-    private static long errorCodeCounter = 0;
+    private final GiftCertificateService service;
 
-    private final CertificateService service;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
+
 
     @Autowired
-    public GiftCertificateController(CertificateService service) {
+    public GiftCertificateController(GiftCertificateService service) {
         this.service = service;
     }
 
 
     @GetMapping("/{id}")
-    public GiftCertificate getCertificate(@PathVariable Long id) {
+    public GiftCertificate getCertificateById(@PathVariable Long id) {
         GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(id))
+                .getCertificateById(id))
                 .withSelfRel());
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(giftCertificate, id))
+                .withRel("update"));
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .deleteGiftCertificate(id))
+                .withRel("delete"));
+
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getGiftCertificateTags(id))
+                .withRel("tags"));
 
         return giftCertificate;
     }
 
 
-    //TODO -- add pagination
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
-            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "tag", required = false) String tag,
-            @RequestParam(value = "pattern", required = false) String pattern) {
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
+            @RequestParam(value = "tag", required = false) Set<String> tags) {
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        List<GiftCertificate> giftCertificates = Objects.isNull(tags)
+                ? service.getAll(sortingParams, max, offset)
+                : service.getCertificatesByTags(sortingParams, max, tags, offset);
 
-        List<GiftCertificate> giftCertificates = service.getEntitiesWithParams(order, max, tag, pattern);
         if (giftCertificates.isEmpty()) {
-            throw new NoEntitiesFoundException();
+            LOGGER.error("No Gift Certificates exists");
+            throw new NoEntitiesFoundException("No Gift Certificates exist");
         }
-
         giftCertificates.forEach(giftCertificate -> {
-                    giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                            .getCertificate(giftCertificate.getId()))
-                            .withSelfRel());
 
-                    giftCertificate.add(linkTo(methodOn(TagController.class)
-                            .getTags(DEFAULT_ORDER, Integer.parseInt(MAX_CERTIFICATES_IN_REQUEST), Integer.parseInt(DEFAULT_OFFSET)))
-                            .withRel("tags"));
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .getCertificateById(giftCertificate.getId()))
+                    .withSelfRel());
 
-                }
-        );
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .update(giftCertificate, giftCertificate.getId()))
+                    .withRel("update"));
+
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .deleteGiftCertificate(giftCertificate.getId()))
+                    .withRel("delete"));
+
+            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                    .getGiftCertificateTags(giftCertificate.getId()))
+                    .withRel("tags"));
+
+        });
         return giftCertificates;
     }
 
-    //TODO -- Runtime Exception
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
-        Optional<GiftCertificate> createdGiftCertificate = service.create(giftCertificate);
 
-        return createdGiftCertificate.orElseThrow(RuntimeException::new);
+        GiftCertificate createdGiftCertificate = service.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getCertificateById(createdGiftCertificate.getId()))
+                .withSelfRel());
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(giftCertificate, createdGiftCertificate.getId()))
+                .withRel("update"));
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .deleteGiftCertificate(createdGiftCertificate.getId()))
+                .withRel("delete"));
+
+        createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .getGiftCertificateTags(createdGiftCertificate.getId()))
+                .withRel("tags"));
+
+
+        return createdGiftCertificate;
     }
 
 
@@ -92,7 +133,7 @@ public class GiftCertificateController {
         if (service.delete(id)) {
             response = new ResponseEntity<>(HttpStatus.OK);
         } else {
-            response = new ResponseEntity<>("No certificate with id [" + id + "] was found", HttpStatus.OK);
+            response = new ResponseEntity<>("No Gift Certificate with id [" + id + "] exists", HttpStatus.OK);
         }
         return response;
     }
@@ -104,49 +145,21 @@ public class GiftCertificateController {
         if (service.update(giftCertificate, id)) {
             responseEntity = new ResponseEntity<>(HttpStatus.OK);
         } else {
-            ControllerExceptionEntity error = new ControllerExceptionEntity(getErrorCode(400), "Error while updating");
+            ExceptionEntity error = new ExceptionEntity(0, "Error while updating");
             responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
         }
         return responseEntity;
     }
 
-
     @GetMapping("/{giftCertificateId}/tags")
-    public Set<Tag> getGiftCertificateTags(@RequestParam(value = "giftCertificateId") long userId) {
+    public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
+        GiftCertificate giftCertificate = service.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
+        Set<Tag> giftCertificateTags = giftCertificate.getTags();
 
-        return new HashSet<>();
+        giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
+                .getTag(tag.getId()))
+                .withSelfRel())
+        );
+        return giftCertificateTags;
     }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity noSuchElement(NoSuchElementException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), e.getMessage());
-    }
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity certificateNotFound(EntityNotFoundException e) {
-        long certificateId = e.getEntityId();
-        return new ControllerExceptionEntity(getErrorCode(404), "Gift Certificate [" + certificateId + "] not found");
-    }
-
-    @ExceptionHandler(DuplicateKeyException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ControllerExceptionEntity duplicateKeyValues(DuplicateKeyException e) {
-        return new ControllerExceptionEntity(getErrorCode(500), e.getMostSpecificCause().getMessage());
-    }
-
-    @ExceptionHandler(NoEntitiesFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ControllerExceptionEntity certificatesNotFound(NoEntitiesFoundException e) {
-        return new ControllerExceptionEntity(getErrorCode(404), "No certificates are found");
-    }
-
-
-    private static int getErrorCode(int errorCode) {
-        errorCodeCounter++;
-        return Integer.parseInt(errorCode + String.valueOf(errorCodeCounter));
-    }
-
 }

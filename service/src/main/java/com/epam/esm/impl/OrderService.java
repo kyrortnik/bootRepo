@@ -9,58 +9,64 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+@Transactional
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    private final CertificateService certificateService;
+    private final GiftCertificateService giftCertificateService;
     private final UserService userService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, CertificateService certificateService, UserService userService) {
+    public OrderService(OrderRepository orderRepository, GiftCertificateService giftCertificateService, UserService userService) {
         this.orderRepository = orderRepository;
-        this.certificateService = certificateService;
+        this.giftCertificateService = giftCertificateService;
         this.userService = userService;
     }
 
+
     public Optional<Order> getOrderById(Long id) {
-        return orderRepository.getOrder(id);
+
+        return orderRepository.getOrderById(id);
+
     }
 
 
-    public Set<Order> getOrders(String order, int max) {
-        return orderRepository.getOrders(order, max);
+    public Set<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
+        return orderRepository.getOrders(sortParams, max, offset);
     }
-
 
 
     public boolean orderAlreadyExists(Order order) {
         return orderRepository.orderAlreadyExists(order);
     }
 
-    @Transactional
+
     public Optional<Order> create(Order order) {
 
         String giftCertificateName = order.getGiftCertificate().getName();
+        Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName);
+
         Long userId = order.getUser().getId();
-        GiftCertificate giftCertificateFromOrder = certificateService.getByName(giftCertificateName)
-                .orElseThrow(() -> new NoSuchElementException("gift certificate [" + giftCertificateName + "] doesn't exist"));
+        Optional<User> user = userService.getById(userId);
 
-        User user = userService.getById(userId)
-                .orElseThrow(() -> new NoSuchElementException("user [" + userId + "] doesn't exidt"));
 
-        order.setUser(user);
-        order.setGiftCertificate(giftCertificateFromOrder);
-        order.setOrderCost(giftCertificateFromOrder.getPrice());
+        order.setUser(user.orElseThrow(() -> new NoSuchElementException("User with id [" + userId + "] does not exist")));
+        order.setGiftCertificate(giftCertificateFromOrder.orElseThrow(() -> new NoSuchElementException("Gift Certificate with name [" + giftCertificateName + "] does not exist")));
+
+        order.setOrderCost(giftCertificateFromOrder.get().getPrice());
         order.setOrderDate(LocalDateTime.now());
 
-        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrder(orderRepository.createOrder(order));
+        return orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrderById(orderRepository.createOrder(order));
+
     }
+
 
     public boolean delete(Long id) {
         return orderRepository.delete(id);

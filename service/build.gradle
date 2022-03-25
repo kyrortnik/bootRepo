@@ -26,11 +26,16 @@ dependencies {
     implementation 'org.springframework:spring-context:5.3.14'
     implementation project (':model')
     implementation project (':repository')
-// https://mvnrepository.com/artifact/org.springframework/spring-tx
     implementation 'org.springframework:spring-tx:5.3.15'
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    implementation 'org.hibernate:hibernate-core:5.6.5.Final'
+
     // + needed spring boot for service
+}
+
+test {
+    useJUnitPlatform()
 }

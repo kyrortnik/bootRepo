@@ -1,10 +1,10 @@
 package com.epam.esm;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +13,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
+
+@Audited
 @EqualsAndHashCode(callSuper = false)
-@Data
-@Component
 @Entity
-@DynamicUpdate
+@Data
+@NoArgsConstructor
+@Component
 @Table(name = "certificates")
 public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
@@ -25,6 +28,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String name;
 
     private String description;
@@ -41,18 +45,65 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "certificates_tags",
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @JsonIgnore
+    @ToString.Exclude
     private Set<Tag> tags = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "giftCertificate"/*,fetch = FetchType.LAZY*/)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true)
     @JsonIgnore
-    /*@ToString.Exclude*/ private Set<Order> orders;
+    private Set<Order> orders = new HashSet<>();
+
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public GiftCertificate(@NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public GiftCertificate(@NonNull String name) {
+        this.name = name;
+    }
+
+    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate, Set<Tag> tags) {
+
+        this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
+        this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
+        this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
+        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
+        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
+        this.setTags(tags);
+
+    }
 
 }

@@ -1,6 +1,8 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.*;
+import com.epam.esm.BaseRepository;
+import com.epam.esm.Tag;
+import com.epam.esm.TagRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +10,12 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Transactional
 @Repository
-public class TagRepositoryHibernate implements TagRepository {
-
+public class TagRepositoryHibernate extends BaseRepository implements TagRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -24,74 +25,108 @@ public class TagRepositoryHibernate implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> getTag(Long id) {
+    public Optional<Tag> getTagById(Long tagId) {
         Session session = sessionFactory.getCurrentSession();
-        return Optional.ofNullable(session.get(Tag.class, id));
+        return Optional.ofNullable(session.get(Tag.class, tagId));
     }
 
 
     @Override
-    public List<Tag> getTags(String order, int max,int offset) {
-        Session session = sessionFactory.getCurrentSession();
-        String queryString = "SELECT tag FROM Tag tag ORDER BY name " + order;
+    public List<Tag> getTags(HashMap<String, Boolean> sortParams, int max, int offset) {
+        Session session = sessionFactory.openSession();
+        String tableAlias = "t.";
+        String query = "SELECT t FROM Tag t ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortParams, query, tableAlias);
 
-        return session.createQuery(queryString, Tag.class)
+        List<Tag> resultList = session.createQuery(queryWithParams, Tag.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
+        session.close();
+        return resultList;
+
     }
 
 
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long tagId) {
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery("DELETE from Tag where id = :id")
-                .setParameter("id", id)
+                .setParameter("id", tagId)
                 .executeUpdate() > 0;
     }
 
     @Override
-//    @Transactional
-    public Long create(Tag tag) {
+    public Long createTag(Tag tag) {
         Session session = sessionFactory.getCurrentSession();
         return (Long) session.save(tag);
 
     }
 
+
     @Override
-    public List<Tag> getTagsForCertificate(Long id) {
+    public Optional<Tag> getTagByName(String tagName) {
         Session session = sessionFactory.getCurrentSession();
-       return session.createQuery("SELECT t FROM Tag t LEFT JOIN t.certificates c WHERE c.id = :id",Tag.class)
-                .setParameter("id",id).list();
+
+        List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
+                .setParameter("tagName", tagName)
+                .getResultList();
+
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
 
     }
 
 
-    /*Get the most widely used tag of a user with the highest cost of all orders*/
     @Override
-    public Optional<Tag> getMostUsedTag() {
-        Session firstSession = sessionFactory.getCurrentSession();
-        User user = firstSession.createQuery(
-                "SELECT u FROM User u LEFT JOIN u.orders o ORDER BY o.totalOrderAmount DESC", User.class)
+    public Optional<Tag> getMostUsedTagForRichestUser() {
+        Session session = sessionFactory.openSession();
+        long richestUserId = getRichestUserId(session);
+
+        String mostUsedTagName = (String) session.createNativeQuery(
+                "SELECT t.name FROM tags AS t\n" +
+                        "LEFT JOIN certificates_tags AS ct ON t.id = ct.tag_id\n" +
+                        "LEFT JOIN certificates AS c ON ct.certificate_id =  c.id\n" +
+                        "LEFT JOIN orders AS o ON c.id = o.gift_certificate_id\n" +
+                        "LEFT JOIN users AS u ON o.user_id = u.id WHERE u.id = :id\n" +
+                        "GROUP BY t.name\n" +
+                        "ORDER BY COUNT(t.name) DESC")
                 .setMaxResults(1)
+                .setParameter("id", richestUserId)
                 .getSingleResult();
 
-        Set<Order> orders = user.getOrders();
-//        List<GiftCertificate> giftCertificates = new ArrayList<>();
-//        List<Tag> userTags = new ArrayList<>();
-//        for (Order order : orders) {
-//            Set<GiftCertificate> orderGiftCertificates = order.getGiftCertificates();
-//            for (GiftCertificate giftCertificate : orderGiftCertificates) {
-//                List<Tag> tags = Collectors.toList(giftCertificate.getTags());
-//            }
-
-        return Optional.empty();
-
-        }
-//        Set<GiftCertificate> giftCertificates = new HashSet<>();
-//        giftCertificates.stream().flatMap(Collection::stream).collect(Collectors.toSet());
-//
-//        Set<GiftCertificate> userGiftCertificates = sessionFactory.getCurrentSession()
-
+        return getTagByName(mostUsedTagName);
     }
 
+
+    @Override
+    public Set<Tag> replaceExistingTagsWithProxy(Set<Tag> tagsToUpdate){
+        Session session = sessionFactory.openSession();
+        Set<Tag> tags = new HashSet<>(tagsToUpdate);
+        for (Tag tag : tagsToUpdate) {
+            Optional<Tag> existingTag = getTagByName(tag.getName());
+            if (existingTag.isPresent()) {
+                tags.remove(tag);
+                Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+                tags.add(proxyTag);
+            }
+        }
+        session.close();
+        return tags;
+    }
+
+
+    private long getRichestUserId(Session session) {
+        try {
+            return (long) (Integer) session.createNativeQuery(
+                    "SELECT u.id FROM users AS u\n" +
+                            "LEFT JOIN orders AS o ON u.id = o.user_id WHERE o.order_cost IS NOT NULL\n" +
+                            "GROUP BY u.id\n" +
+                            "ORDER BY SUM(o.order_cost) DESC")
+                    .setMaxResults(1)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            throw new NoSuchElementException("No tags exist");
+        }
+    }
+
+}

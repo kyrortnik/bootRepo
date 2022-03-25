@@ -11,14 +11,13 @@ public interface GiftCertificateRepository {
 
     Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName);
 
-    List<GiftCertificate> getGiftCertificates(HashMap<String,Boolean> sortParams, int max, int offset);
+    List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset);
 
-    List<GiftCertificate> getGiftCertificatesByTags(HashMap<String,Boolean> sortParams, int max, Set<Tag> tags, int offset);
+    List<GiftCertificate> getGiftCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<Tag> tags, int offset);
 
     boolean deleteGiftCertificate(Long giftCertificateId);
 
-//    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, long giftCertificateId);
-Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
+    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
 
     Long createGiftCertificate(GiftCertificate giftCertificate);
 

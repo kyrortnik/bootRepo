@@ -11,10 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Transactional
 @Repository
@@ -99,6 +96,24 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
 
         return getTagByName(mostUsedTagName);
     }
+
+
+    @Override
+    public Set<Tag> replaceExistingTagsWithProxy(Set<Tag> tagsToUpdate){
+        Session session = sessionFactory.openSession();
+        Set<Tag> tags = new HashSet<>(tagsToUpdate);
+        for (Tag tag : tagsToUpdate) {
+            Optional<Tag> existingTag = getTagByName(tag.getName());
+            if (existingTag.isPresent()) {
+                tags.remove(tag);
+                Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
+                tags.add(proxyTag);
+            }
+        }
+        session.close();
+        return tags;
+    }
+
 
     private long getRichestUserId(Session session) {
         try {

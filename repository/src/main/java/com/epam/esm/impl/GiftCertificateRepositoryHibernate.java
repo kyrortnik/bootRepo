@@ -3,17 +3,16 @@ package com.epam.esm.impl;
 import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
 
 @Repository
 public class GiftCertificateRepositoryHibernate extends BaseRepository implements GiftCertificateRepository {
@@ -108,39 +107,11 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
     }
 
 
-    //TODO -- replace try-with-resources, no need to throw exception
-//    @Override
-//    public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, long giftCertificateId) {
-//        try (Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            GiftCertificate existingGiftCertificate = getCertificateById(giftCertificateId)
-//                    .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with name [" + changedGiftCertificate.getName() + "] exists"));
-//            Set<Tag> tagsToUpdate = changedGiftCertificate.getTags();
-//            Set<Tag> tags = new HashSet<>(tagsToUpdate);
-//            for (Tag tag : tagsToUpdate) {
-//                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
-//                if (existingTag.isPresent()) {
-//                    tags.remove(tag);
-//                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
-//                    tags.add(proxyTag);
-//                }
-//            }
-//            mergeTwoCertificates(existingGiftCertificate, changedGiftCertificate);
-//            existingGiftCertificate.setTags(tags);
-//            Optional<GiftCertificate> mergedGiftCertificate = Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
-//            session.getTransaction().commit();
-//            return mergedGiftCertificate;
-//        } catch (NoSuchElementException e) {
-//            throw new NoSuchElementException("Certificate with id [" + giftCertificateId + "] doesn't exist");
-//        }
-//
-//    }
-
     @Override
     public Optional<GiftCertificate> updateGiftCertificate(GiftCertificate changedGiftCertificate, GiftCertificate existingGiftCertificate) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-        Set<Tag> processedTags = getTags(changedGiftCertificate.getTags(), session);
+        Set<Tag> processedTags = tagRepository.replaceExistingTagsWithProxy(changedGiftCertificate.getTags());
         existingGiftCertificate.mergeTwoGiftCertificate(changedGiftCertificate, processedTags);
         Optional<GiftCertificate> mergedGiftCertificate = Optional.of((GiftCertificate) session.merge(existingGiftCertificate));
         session.getTransaction().commit();
@@ -149,63 +120,16 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
     }
 
 
-//    @Override
-//    public Long createGiftCertificate(GiftCertificate giftCertificate) {
-//        try (Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            Set<Tag> tags = new HashSet<>(giftCertificate.getTags());
-//            for (Tag tag : giftCertificate.getTags()) {
-//                Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
-//                if (existingTag.isPresent()) {
-//                    tags.remove(tag);
-//                    Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
-//                    tags.add(proxyTag);
-//                    proxyTag.addCertificate(giftCertificate);
-//                    session.merge(proxyTag);
-//                }
-//            }
-//            giftCertificate.setTags(tags);
-//            Long giftCertificateId = (Long) session.save(giftCertificate);
-//            session.getTransaction().commit();
-//            return giftCertificateId;
-//
-//        } catch (ConstraintViolationException e) {
-//
-//            throw new DuplicateKeyException("Certificate with  name [" + giftCertificate.getName() + "] already exists");
-//
-//        }
-//    }
-
-
+    @Override
     public Long createGiftCertificate(GiftCertificate giftCertificate) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-        Set<Tag> tags = getTags(giftCertificate.getTags(), session);
-        giftCertificate.setTags(tags);
+        Set<Tag> processedTags = tagRepository.replaceExistingTagsWithProxy(giftCertificate.getTags());
+        giftCertificate.setTags(processedTags);
         Long giftCertificateId = (Long) session.save(giftCertificate);
         session.getTransaction().commit();
         return giftCertificateId;
 
     }
-
-    //TODO -- to tagRepository
-    /**
-     * @param tagsToUpdate new Tag Set for GiftCertificate from client
-     * @param session      opened Session
-     * @return Tags Set where existing tags were replaced with proxies and non-existing tags not changes so they could be created.
-     */
-    private Set<Tag> getTags(Set<Tag> tagsToUpdate, Session session) {
-        Set<Tag> tags = new HashSet<>(tagsToUpdate);
-        for (Tag tag : tagsToUpdate) {
-            Optional<Tag> existingTag = tagRepository.getTagByName(tag.getName());
-            if (existingTag.isPresent()) {
-                tags.remove(tag);
-                Tag proxyTag = session.load(Tag.class, existingTag.get().getId());
-                tags.add(proxyTag);
-            }
-        }
-        return tags;
-    }
-
 
 }

@@ -5,6 +5,10 @@ import com.epam.esm.Tag;
 import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.GiftCertificateService;
+import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -21,11 +26,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificateController {
 
-    private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
-    private static final String DEFAULT_ORDER = "ASC";
-    private static final String DEFAULT_OFFSET = "0";
-
     private final GiftCertificateService service;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
 
 
     @Autowired
@@ -35,11 +38,11 @@ public class GiftCertificateController {
 
 
     @GetMapping("/{id}")
-    public GiftCertificate getCertificate(@PathVariable Long id) {
+    public GiftCertificate getCertificateById(@PathVariable Long id) {
         GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(id))
+                .getCertificateById(id))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -57,23 +60,26 @@ public class GiftCertificateController {
         return giftCertificate;
     }
 
+
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
-            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "tag", required = false) Set<String> tags,
-            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
+            @RequestParam(value = "tag", required = false) Set<String> tags) {
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<GiftCertificate> giftCertificates = Objects.isNull(tags)
-                ? service.getAll(order, max, offset)
-                : service.getCertificatesByTags(order, max, tags, offset);
+                ? service.getAll(sortingParams, max, offset)
+                : service.getCertificatesByTags(sortingParams, max, tags, offset);
 
         if (giftCertificates.isEmpty()) {
-            throw new NoEntitiesFoundException();
+            LOGGER.error("No Gift Certificates exists");
+            throw new NoEntitiesFoundException("No Gift Certificates exist");
         }
         giftCertificates.forEach(giftCertificate -> {
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                    .getCertificate(giftCertificate.getId()))
+                    .getCertificateById(giftCertificate.getId()))
                     .withSelfRel());
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -101,7 +107,7 @@ public class GiftCertificateController {
         GiftCertificate createdGiftCertificate = service.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(createdGiftCertificate.getId()))
+                .getCertificateById(createdGiftCertificate.getId()))
                 .withSelfRel());
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

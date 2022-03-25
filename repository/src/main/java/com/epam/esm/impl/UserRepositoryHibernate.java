@@ -1,5 +1,6 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.BaseRepository;
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
 import org.hibernate.Session;
@@ -9,11 +10,13 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Repository
-public class UserRepositoryHibernate implements UserRepository {
+public class UserRepositoryHibernate extends BaseRepository implements UserRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -23,28 +26,29 @@ public class UserRepositoryHibernate implements UserRepository {
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(Long userId) {
 
-        Session session = sessionFactory.getCurrentSession();
-        User foundUser = session
-                .createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o " +
-                        "LEFT JOIN FETCH o.giftCertificate g " +
-                        "LEFT JOIN FETCH g.tags " +
-                        "WHERE u.id = :userId", User.class)
-                .setParameter("userId", id)
-                .setMaxResults(1)
-                .getSingleResult();
-
-        return Optional.of(foundUser);
-
+        Session session = sessionFactory.openSession();
+        List<User> resultList = session.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.orders o " +
+                "LEFT JOIN FETCH o.giftCertificate g " +
+                "LEFT JOIN FETCH g.tags " +
+                "WHERE u.id = :userId", User.class)
+                .setParameter("userId",userId)
+                .getResultList();
+        session.close();
+        return resultList.isEmpty()? Optional.empty() :Optional.of(resultList.get(0));
     }
+
 
 
     @Override
     public List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset) {
+
         Session session = sessionFactory.openSession();
-        String queryString = formatGetUsersQuery(sortingParams);
-        List<User> resultList = session.createQuery(queryString, User.class)
+        String tableAlias = "user.";
+        String query = "SELECT user FROM User user LEFT JOIN FETCH  user.orders ORDER BY ";
+        String queryWithParams = addParamsToQuery(sortingParams, query, tableAlias);
+        List<User> resultList = session.createQuery(queryWithParams, User.class)
                 .setMaxResults(max)
                 .setFirstResult(offset)
                 .getResultList();
@@ -53,19 +57,4 @@ public class UserRepositoryHibernate implements UserRepository {
         return resultList;
     }
 
-
-    private String formatGetUsersQuery(HashMap<String, Boolean> sortingParams) {
-        Set<Map.Entry<String, Boolean>> paramsPairs = sortingParams.entrySet();
-        StringBuilder originalQuery = new StringBuilder("SELECT user FROM User user LEFT JOIN FETCH  user.orders ORDER BY ");
-        String comma = ", ";
-
-        for (Map.Entry<String,Boolean> paramPair : paramsPairs) {
-            originalQuery.append("user.");
-            originalQuery.append(paramPair.getKey());
-            originalQuery.append(paramPair.getValue() ? " ASC" : " DESC");
-            originalQuery.append(comma);
-        }
-        return originalQuery.substring(0, originalQuery.length() - 2);
-
-    }
 }

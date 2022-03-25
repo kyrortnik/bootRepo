@@ -4,6 +4,10 @@ import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
+import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -11,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -22,11 +26,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderController {
 
-    private final OrderService orderService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
-    private static final String MAX_CERTIFICATES_IN_REQUEST = "20";
-    private static final String DEFAULT_ORDER = "ASC";
-    private static final String DEFAULT_OFFSET = "0";
+    private final OrderService orderService;
 
     @Autowired
     public OrderController(OrderService orderService) {
@@ -53,12 +55,14 @@ public class OrderController {
         return order;
     }
 
+
     @GetMapping("/")
     public Set<Order> getOrders(
-            @RequestParam(value = "order", defaultValue = DEFAULT_ORDER) String order,
-            @RequestParam(value = "max", defaultValue = MAX_CERTIFICATES_IN_REQUEST) int max,
-            @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
-        Set<Order> orders = orderService.getOrders(order, max, offset);
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        Set<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
             throw new NoEntitiesFoundException();
         }
@@ -72,7 +76,7 @@ public class OrderController {
                             .getOrderGiftCertificate(foundOrder.getId()))
                             .withRel("gift certificate"));
 
-            foundOrder.add(linkTo(methodOn(UserController.class)
+                    foundOrder.add(linkTo(methodOn(UserController.class)
                             .getUser(foundOrder.getUser().getId()))
                             .withRel("user"));
                 }
@@ -118,7 +122,7 @@ public class OrderController {
         GiftCertificate giftCertificate = order.getGiftCertificate();
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificate(giftCertificate.getId()))
+                .getCertificateById(giftCertificate.getId()))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

@@ -5,6 +5,9 @@ import com.epam.esm.User;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.UserService;
 import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +24,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
-
-    private static final String MAX_USERS_IN_RESPONSE = "20";
-    private static final String DEFAULT_OFFSET = "0";
-    private static final String SORT_BY = "asc(first_name)";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
-
 
     @Autowired
     public UserController(UserService userService) {
@@ -53,9 +51,9 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = SORT_BY) Set<String> sortBy,
-                               @RequestParam(value = "max", defaultValue = MAX_USERS_IN_RESPONSE) int max,
-                               @RequestParam(value = "offset", defaultValue = DEFAULT_OFFSET) int offset) {
+    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+                               @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+                               @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {

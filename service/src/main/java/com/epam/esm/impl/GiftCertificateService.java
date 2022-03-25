@@ -9,13 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+
 
 @Service
 public class GiftCertificateService implements CRUDService<GiftCertificate> {
@@ -39,57 +36,50 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     }
 
     public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) {
-        try{
-            return giftCertificateRepository.getGiftCertificateByName(giftCertificateName);
-        }catch (NoResultException e){
-            throw new NoSuchElementException("Gift Certificate with name [" + giftCertificateName +"] does not exist");
-        }
+
+        return giftCertificateRepository.getGiftCertificateByName(giftCertificateName);
 
     }
 
 
     @Override
-    public List<GiftCertificate> getAll(String order, int max, int offset) {
-        return giftCertificateRepository.getGiftCertificates(order, max, offset);
+    public List<GiftCertificate> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
+        return giftCertificateRepository.getGiftCertificates(sortParams, max, offset);
     }
 
 
-    public List<GiftCertificate> getCertificatesByTags(String order, int max, Set<String> tagNames, int offset) {
+    public List<GiftCertificate> getCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<String> tagNames, int offset) {
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
-        return giftCertificateRepository.getCertificatesByTags(order, max, tags, offset);
+        return giftCertificateRepository.getGiftCertificatesByTags(sortParams, max, tags, offset);
     }
 
     @Override
     public boolean delete(Long id) {
-        return giftCertificateRepository.delete(id);
+        return giftCertificateRepository.deleteGiftCertificate(id);
     }
+
 
     @Override
     public boolean update(GiftCertificate giftCertificate, Long giftCertificateId) throws NoSuchElementException {
-        try{
+            GiftCertificate existingGiftCertificate = getById(giftCertificateId)
+                    .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with id [" + giftCertificateId + "] exists"));
             giftCertificate.setLastUpdateDate(LocalDateTime.now());
-            Optional<GiftCertificate> updatedGiftCertificated = giftCertificateRepository.updateGiftCertificate(giftCertificate, giftCertificateId);
+            Optional<GiftCertificate> updatedGiftCertificated = giftCertificateRepository.updateGiftCertificate(giftCertificate, existingGiftCertificate);
 
             return updatedGiftCertificated.isPresent();
-        }catch (NoSuchElementException e){
-            throw new NoSuchElementException("Certificate with id [" + giftCertificateId + "] doesn't exist");
-        }
-
-
     }
 
 
     @Override
     public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
-        try {
+        try{
             giftCertificate.setCreateDate(LocalDateTime.now());
             giftCertificate.setLastUpdateDate(LocalDateTime.now());
-
             Long createdGiftCertificateId = giftCertificateRepository.createGiftCertificate(giftCertificate);
 
             return getById(createdGiftCertificateId);
-        } catch (ConstraintViolationException e) {
-            throw new ConstraintViolationException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists", new SQLException(), "tag name");
+        }catch (ConstraintViolationException e){
+            throw new ConstraintViolationException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists", new SQLException(),"gift certificate name");
         }
 
     }

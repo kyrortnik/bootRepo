@@ -3,6 +3,8 @@ package com.epam.esm.impl;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
 import org.hibernate.exception.ConstraintViolationException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -24,38 +26,65 @@ class TagServiceTest {
     private final long tagId = 1L;
     private final String tagName = "tag name";
 
-    private final String order = "ASC";
-    private final int max = 20;
-    private final int offset = 0;
-
-    private final Tag firstTag = new Tag(1L, "first tag");
-    private final Tag secondTag = new Tag(2L, "second tag");
-    private final Tag thirdTag = new Tag(3L, "third tag");
+    private Tag firstTag;
+    private Tag secondTag;
+    private Tag thirdTag;
 
     private final String firstTagName = "first tag";
     private final String secondTagName = "second tag";
     private final String thirdTagName = "third tag";
 
-    private final List<Tag> tagsList = Arrays.asList(
-            firstTag,
-            secondTag,
-            thirdTag
-    );
+    private List<Tag> tagList;
 
-    private final Set<String> tagNamesSet = new HashSet<>(Arrays.asList(
-            firstTagName,
-            secondTagName,
-            thirdTagName
-    ));
+    private Set<String> tagNamesSet;
 
-    private final Set<Tag> tagsSet = new HashSet<>(Arrays.asList(
-            new Tag(1L, "first tag"),
-            new Tag(2L, "second tag"),
-            new Tag(3L, "third tag")
-    ));
+    private Set<Tag> tagsSet;
 
+    private List<Tag> noTags;
 
-    private final List<Tag> noTags = new ArrayList<>();
+    private HashMap<String, Boolean> sortParams;
+    private final int max = 20;
+    private final int offset = 0;
+
+    @BeforeEach
+    void setUp() {
+        firstTag = new Tag(1L, "first tag");
+        secondTag = new Tag(2L, "second tag");
+        thirdTag = new Tag(3L, "third tag");
+
+        tagList = Arrays.asList(
+                firstTag,
+                secondTag,
+                thirdTag
+        );
+
+        tagNamesSet = new HashSet<>(Arrays.asList(
+                firstTagName,
+                secondTagName,
+                thirdTagName
+        ));
+
+        tagsSet = new HashSet<>(Arrays.asList(
+                new Tag(1L, "first tag"),
+                new Tag(2L, "second tag"),
+                new Tag(3L, "third tag")
+        ));
+
+        noTags = new ArrayList<>();
+        sortParams = new HashMap<>();
+        sortParams.put("name", true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        firstTag = new Tag();
+        secondTag = new Tag();
+        thirdTag = new Tag();
+        tagList = new ArrayList<>();
+        tagNamesSet.clear();
+        tagsSet.clear();
+        sortParams.clear();
+    }
 
 
     @Test
@@ -109,22 +138,22 @@ class TagServiceTest {
 
     @Test
     void testGetAll_tagsExist() {
-        when(tagRepository.getTags(order, max, offset)).thenReturn(tagsList);
+        when(tagRepository.getTags(sortParams, max, offset)).thenReturn(tagList);
 
-        List<Tag> returnTags = tagService.getAll(order, max, offset);
+        List<Tag> returnTags = tagService.getAll(sortParams, max, offset);
 
-        verify(tagRepository).getTags(order, max, offset);
-        assertEquals(tagsList, returnTags);
+        verify(tagRepository).getTags(sortParams, max, offset);
+        assertEquals(tagList, returnTags);
 
     }
 
     @Test
     void testGetAll_noTagsExist() {
-        when(tagRepository.getTags(order, max, offset)).thenReturn(noTags);
+        when(tagRepository.getTags(sortParams, max, offset)).thenReturn(noTags);
 
-        List<Tag> returnTags = tagService.getAll(order, max, offset);
+        List<Tag> returnTags = tagService.getAll(sortParams, max, offset);
 
-        verify(tagRepository).getTags(order, max, offset);
+        verify(tagRepository).getTags(sortParams, max, offset);
         assertEquals(noTags, returnTags);
     }
 

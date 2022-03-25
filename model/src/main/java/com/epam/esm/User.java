@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -23,7 +22,6 @@ import java.util.Set;
 public class User extends RepresentationModel<User> {
 
     @Id
-//    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 

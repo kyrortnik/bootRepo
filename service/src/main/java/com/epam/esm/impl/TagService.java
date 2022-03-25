@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class TagService implements CRUDService<Tag> {
@@ -29,10 +26,11 @@ public class TagService implements CRUDService<Tag> {
         return tagRepository.getTagById(id);
     }
 
-    @Override
-    public List<Tag> getAll(String order, int max, int offset) {
 
-        return tagRepository.getTags(order, max, offset);
+    @Override
+    public List<Tag> getAll(HashMap<String,Boolean> sortParams, int max, int offset) {
+
+        return tagRepository.getTags(sortParams, max, offset);
     }
 
     @Transactional
@@ -72,5 +70,4 @@ public class TagService implements CRUDService<Tag> {
         }
         return tags;
     }
-
 }

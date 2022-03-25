@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import java.util.*;
 
 
@@ -29,11 +28,11 @@ public class OrderRepositoryHibernate extends BaseRepository implements OrderRep
 
         Session session = sessionFactory.openSession();
         List<Order> resultList = session.createQuery("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags WHERE o.id = :orderId", Order.class)
-                .setParameter("orderId",orderId)
+                .setParameter("orderId", orderId)
                 .getResultList();
 
         session.close();
-        return resultList.isEmpty() ?  Optional.empty() :  Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
 
     }
 
@@ -67,9 +66,11 @@ public class OrderRepositoryHibernate extends BaseRepository implements OrderRep
     @Override
     public boolean delete(Long orderId) {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("DELETE from Order where id = :id")
+        boolean orderIsDeleted = session.createQuery("DELETE from Order where id = :id")
                 .setParameter("id", orderId)
                 .executeUpdate() > 0;
+        session.close();
+        return orderIsDeleted;
     }
 
     @Override

@@ -3,12 +3,10 @@ package com.epam.esm.impl;
 import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;

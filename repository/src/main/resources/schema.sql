@@ -47,7 +47,7 @@ PRIMARY KEY (rev));
 
 
 CREATE TABLE  IF NOT EXISTS orders_aud (
-id SERIAL NOT NULL,
+id INTEGER NOT NULL,
 rev INTEGER NOT NULL,
 revtype SMALLINT,
 order_cost DOUBLE PRECISION,
@@ -59,7 +59,7 @@ CONSTRAINT fke27yw2ep0cm2h5hin5fipu55h FOREIGN KEY (rev) REFERENCES revinfo(rev)
 
 
 CREATE TABLE  IF NOT EXISTS tags_aud (
-id SERIAL NOT NULL,
+id INTEGER NOT NULL,
 rev INTEGER NOT NULL,
 revtype SMALLINT,
 name CHARACTER VARYING(255),
@@ -68,7 +68,7 @@ CONSTRAINT fk80n0rnnao71nirkhxe2dqowkp FOREIGN KEY (rev) REFERENCES revinfo(rev)
 
 
 CREATE TABLE  IF NOT EXISTS users_aud (
-id SERIAL NOT NULL,
+id INTEGER NOT NULL,
 rev INTEGER NOT NULL,
 revtype SMALLINT,
 first_name CHARACTER VARYING(255),
@@ -78,7 +78,7 @@ CONSTRAINT fkl1mf0jaesfny93lglupp17d9u FOREIGN KEY (rev) REFERENCES revinfo(rev)
 
 
 CREATE TABLE  IF NOT EXISTS certificates_aud (
-id SERIAL NOT NULL,
+id INTEGER NOT NULL,
 rev INTEGER NOT NULL,
 revtype SMALLINT,
 create_date TIMESTAMP(6) WITHOUT TIME ZONE,
@@ -91,7 +91,7 @@ CONSTRAINT fkhkf1i50y3qmebf0u9a78nvjhv FOREIGN KEY (rev) REFERENCES revinfo(rev)
 
 
 CREATE TABLE  IF NOT EXISTS certificates_tags_aud (
-rev SERIAL NOT NULL,
+rev INTEGER NOT NULL,
 certificate_id BIGINT NOT NULL,
 tag_id BIGINT NOT NULL, revtype SMALLINT,
 PRIMARY KEY (rev, certificate_id, tag_id),

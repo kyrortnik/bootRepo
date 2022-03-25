@@ -1,7 +1,7 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id 'org.springframework.boot'  version '2.6.3'  apply false
+    id 'org.springframework.boot' version '2.6.3' apply false
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -17,15 +17,15 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom   SpringBootPlugin.BOM_COORDINATES
+        mavenBom SpringBootPlugin.BOM_COORDINATES
     }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework:spring-context:5.3.14'
-    implementation project (':model')
-    implementation project (':repository')
+    implementation project(':model')
+    implementation project(':repository')
     implementation 'org.springframework:spring-tx:5.3.15'
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
 
@@ -33,9 +33,9 @@ dependencies {
 
     implementation 'org.hibernate:hibernate-core:5.6.5.Final'
 
-    // + needed spring boot for service
 }
 
 test {
     useJUnitPlatform()
+
 }

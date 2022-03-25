@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -28,8 +29,7 @@ public class TagService implements CRUDService<Tag> {
 
 
     @Override
-    public List<Tag> getAll(HashMap<String,Boolean> sortParams, int max, int offset) {
-
+    public List<Tag> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
         return tagRepository.getTags(sortParams, max, offset);
     }
 
@@ -59,7 +59,12 @@ public class TagService implements CRUDService<Tag> {
     }
 
     public Optional<Tag> getMostUsedTagForRichestUser() {
-        return tagRepository.getMostUsedTagForRichestUser();
+        try {
+            return tagRepository.getMostUsedTagForRichestUser();
+        } catch (NoResultException e) {
+            throw new NoResultException("No tags exist yet.");
+        }
+
     }
 
 

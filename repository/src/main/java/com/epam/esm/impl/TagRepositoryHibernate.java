@@ -26,8 +26,10 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
 
     @Override
     public Optional<Tag> getTagById(Long tagId) {
-        Session session = sessionFactory.getCurrentSession();
-        return Optional.ofNullable(session.get(Tag.class, tagId));
+        Session session = sessionFactory.openSession();
+        Optional<Tag> tag = Optional.ofNullable(session.get(Tag.class, tagId));
+        session.close();
+        return tag;
     }
 
 
@@ -50,35 +52,37 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
 
     @Override
     public boolean delete(Long tagId) {
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("DELETE from Tag where id = :id")
+        Session session = sessionFactory.openSession();
+        boolean tagIsDeleted = session.createQuery("DELETE from Tag where id = :id")
                 .setParameter("id", tagId)
                 .executeUpdate() > 0;
+        session.close();
+        return tagIsDeleted;
     }
 
     @Override
     public Long createTag(Tag tag) {
-        Session session = sessionFactory.getCurrentSession();
-        return (Long) session.save(tag);
-
+        Session session = sessionFactory.openSession();
+        Long createdTagId = (Long) session.save(tag);
+        session.close();
+        return createdTagId;
     }
-
 
     @Override
     public Optional<Tag> getTagByName(String tagName) {
-        Session session = sessionFactory.getCurrentSession();
-
+        Session session = sessionFactory.openSession();
         List<Tag> resultList = session.createQuery("SELECT t FROM Tag t WHERE t.name = :tagName", Tag.class)
                 .setParameter("tagName", tagName)
                 .getResultList();
 
+        session.close();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
 
     }
 
 
     @Override
-    public Optional<Tag> getMostUsedTagForRichestUser() {
+    public Optional<Tag> getMostUsedTagForRichestUser() throws NoResultException {
         Session session = sessionFactory.openSession();
         long richestUserId = getRichestUserId(session);
 
@@ -99,7 +103,7 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
 
 
     @Override
-    public Set<Tag> replaceExistingTagsWithProxy(Set<Tag> tagsToUpdate){
+    public Set<Tag> replaceExistingTagsWithProxy(Set<Tag> tagsToUpdate) {
         Session session = sessionFactory.openSession();
         Set<Tag> tags = new HashSet<>(tagsToUpdate);
         for (Tag tag : tagsToUpdate) {
@@ -115,18 +119,15 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
     }
 
 
-    private long getRichestUserId(Session session) {
-        try {
-            return (long) (Integer) session.createNativeQuery(
-                    "SELECT u.id FROM users AS u\n" +
-                            "LEFT JOIN orders AS o ON u.id = o.user_id WHERE o.order_cost IS NOT NULL\n" +
-                            "GROUP BY u.id\n" +
-                            "ORDER BY SUM(o.order_cost) DESC")
-                    .setMaxResults(1)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            throw new NoSuchElementException("No tags exist");
-        }
+    private long getRichestUserId(Session session) throws NoResultException {
+
+        return (long) (Integer) session.createNativeQuery(
+                "SELECT u.id FROM users AS u\n" +
+                        "LEFT JOIN orders AS o ON u.id = o.user_id WHERE o.order_cost IS NOT NULL\n" +
+                        "GROUP BY u.id\n" +
+                        "ORDER BY SUM(o.order_cost) DESC")
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
 }

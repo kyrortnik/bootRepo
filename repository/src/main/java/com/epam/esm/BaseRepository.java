@@ -11,7 +11,6 @@ public abstract class BaseRepository {
         Set<Map.Entry<String, Boolean>> paramsPairs = sortingParams.entrySet();
         StringBuilder originalQuery = new StringBuilder(query);
         String comma = ", ";
-
         for (Map.Entry<String, Boolean> paramPair : paramsPairs) {
             originalQuery.append(tableAlias);
             originalQuery.append(paramPair.getKey());
@@ -19,6 +18,5 @@ public abstract class BaseRepository {
             originalQuery.append(comma);
         }
         return originalQuery.substring(0, originalQuery.length() - 2);
-
     }
 }

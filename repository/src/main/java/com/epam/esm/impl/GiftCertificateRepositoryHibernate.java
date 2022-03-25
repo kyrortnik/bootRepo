@@ -3,6 +3,7 @@ package com.epam.esm.impl;
 import com.epam.esm.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.stereotype.Repository;
@@ -43,7 +44,7 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
 
 
     @Override
-    public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) throws NoResultException {
+    public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName)  {
         Session session = sessionFactory.openSession();
         List<GiftCertificate> resultList = session.createQuery("SELECT c FROM GiftCertificate c LEFT JOIN FETCH c.tags WHERE c.name =:name ",
                 GiftCertificate.class)
@@ -122,14 +123,15 @@ public class GiftCertificateRepositoryHibernate extends BaseRepository implement
 
     @Override
     public Long createGiftCertificate(GiftCertificate giftCertificate) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Set<Tag> processedTags = tagRepository.replaceExistingTagsWithProxy(giftCertificate.getTags());
-        giftCertificate.setTags(processedTags);
-        Long giftCertificateId = (Long) session.save(giftCertificate);
-        session.getTransaction().commit();
-        return giftCertificateId;
+            Session session = sessionFactory.openSession();
+            session.beginTransaction();
+            Set<Tag> processedTags = tagRepository.replaceExistingTagsWithProxy(giftCertificate.getTags());
+            giftCertificate.setTags(processedTags);
+            Long giftCertificateId = (Long) session.save(giftCertificate);
+            session.getTransaction().commit();
+            return giftCertificateId;
+        }
 
-    }
+
 
 }

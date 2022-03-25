@@ -5,6 +5,8 @@ import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.TagService;
 import com.epam.esm.mapper.RequestMapper;
 import com.epam.esm.util.GetMethodProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping(value = "api/v1/tags", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagController.class);
 
     private final TagService tagService;
 

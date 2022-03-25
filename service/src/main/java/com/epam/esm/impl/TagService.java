@@ -26,11 +26,6 @@ public class TagService implements CRUDService<Tag> {
         return tagRepository.getTagById(id);
     }
 
-//    @Override
-//    public List<Tag> getAll(String order, int max, int offset) {
-//
-//        return tagRepository.getTags(order, max, offset);
-//    }
 
     @Override
     public List<Tag> getAll(HashMap<String,Boolean> sortParams, int max, int offset) {
@@ -75,5 +70,4 @@ public class TagService implements CRUDService<Tag> {
         }
         return tags;
     }
-
 }

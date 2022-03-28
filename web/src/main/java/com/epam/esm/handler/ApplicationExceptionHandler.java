@@ -22,14 +22,14 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody
     ExceptionEntity noSuchElement(NoSuchElementException e) {
-        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(NoEntitiesFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody
     ExceptionEntity entitiesNotFound(NoEntitiesFoundException e) {
-        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
@@ -54,10 +54,10 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler(NoResultException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody
     ExceptionEntity noResultException(NoResultException e) {
-        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
 
     }
 

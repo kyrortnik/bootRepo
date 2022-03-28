@@ -8,7 +8,6 @@ import java.util.*;
 @Component
 public class RequestMapper {
 
-
     /**
      * @param sortingRequestParam String containing sorting order and parameter. Request sorting parameter example: asc(email)
      * @return HashMap with key/value pairs
@@ -22,8 +21,6 @@ public class RequestMapper {
             String orderParam = StringUtils.substringBetween(sortingPair, "(", ")");
             parametersPairs.put(orderParam, orderDir);
         }
-
         return parametersPairs;
-
     }
 }

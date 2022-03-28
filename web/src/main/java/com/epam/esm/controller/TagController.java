@@ -44,10 +44,10 @@ public class TagController {
 
     @GetMapping("/")
     public List<Tag> getTags(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<Tag> tags = tagService.getAll(sortingParams, max, offset);
         if (tags.isEmpty()) {
             throw new NoEntitiesFoundException("No tags are found");

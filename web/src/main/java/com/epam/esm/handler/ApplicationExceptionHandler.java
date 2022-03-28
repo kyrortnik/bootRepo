@@ -1,7 +1,6 @@
 package com.epam.esm.handler;
 
 import com.epam.esm.exception.ExceptionEntity;
-import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -26,19 +25,10 @@ public class ApplicationExceptionHandler {
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody
-    ExceptionEntity tagNotFound(EntityNotFoundException e) {
-        long tagId = e.getEntityId();
-        return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
-    }
-
     @ExceptionHandler(NoEntitiesFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody
-    ExceptionEntity tagsNotFound(NoEntitiesFoundException e) {
+    ExceptionEntity entitiesNotFound(NoEntitiesFoundException e) {
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
@@ -59,14 +49,14 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
-    ExceptionEntity nullPointerException(NullPointerException e){
+    ExceptionEntity nullPointerException(NullPointerException e) {
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
     }
 
     @ExceptionHandler(NoResultException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
-    ExceptionEntity noResultException(NoResultException e){
+    ExceptionEntity noResultException(NoResultException e) {
         return new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
 
     }

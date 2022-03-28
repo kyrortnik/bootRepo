@@ -15,9 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -58,10 +56,10 @@ public class OrderController {
 
     @GetMapping("/")
     public Set<Order> getOrders(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         Set<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
             throw new NoEntitiesFoundException();

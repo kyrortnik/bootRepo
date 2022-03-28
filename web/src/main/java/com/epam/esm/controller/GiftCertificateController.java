@@ -63,11 +63,14 @@ public class GiftCertificateController {
 
     @GetMapping("/")
     public List<GiftCertificate> getCertificates(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
             @RequestParam(value = "tag", required = false) Set<String> tags) {
-        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        if (sortingParams.containsKey(null)) {
+            throw new NullPointerException("Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");
+        }
         List<GiftCertificate> giftCertificates = Objects.isNull(tags)
                 ? service.getAll(sortingParams, max, offset)
                 : service.getCertificatesByTags(sortingParams, max, tags, offset);
@@ -97,6 +100,8 @@ public class GiftCertificateController {
         });
         return giftCertificates;
     }
+
+
 
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)

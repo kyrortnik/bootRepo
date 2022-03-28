@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -51,10 +48,10 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) Set<String> sortBy,
+    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
                                @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
                                @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        HashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
             throw new NoEntitiesFoundException();

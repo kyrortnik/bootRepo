@@ -140,14 +140,13 @@ class GiftCertificateServiceTest {
 
     @Test
     void testGetById_idExists() {
-        GiftCertificate giftCertificate = new GiftCertificate(giftCertificateId, giftCertificateName, description, price, duration, createDate, lastUpdateDate);
-        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.of(giftCertificate));
+        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
 
         Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getById(giftCertificateId);
 
         verify(giftCertificateRepository).getCertificateById(giftCertificateId);
         assertTrue(returnGiftCertificate.isPresent());
-        assertEquals(giftCertificate, returnGiftCertificate.get());
+        assertEquals(existingGiftCertificate, returnGiftCertificate.get());
     }
 
     @Test
@@ -163,14 +162,13 @@ class GiftCertificateServiceTest {
 
     @Test
     void testGetGiftCertificateByName_nameExists() {
-        GiftCertificate giftCertificate = new GiftCertificate(giftCertificateId, giftCertificateName, description, price, duration, createDate, lastUpdateDate);
-        when(giftCertificateRepository.getGiftCertificateByName(giftCertificateName)).thenReturn(Optional.of(giftCertificate));
+        when(giftCertificateRepository.getGiftCertificateByName(giftCertificateName)).thenReturn(Optional.of(existingGiftCertificate));
 
         Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getGiftCertificateByName(giftCertificateName);
 
         verify(giftCertificateRepository).getGiftCertificateByName(giftCertificateName);
         assertTrue(returnGiftCertificate.isPresent());
-        assertEquals(giftCertificate, returnGiftCertificate.get());
+        assertEquals(existingGiftCertificate, returnGiftCertificate.get());
     }
 
     @Test

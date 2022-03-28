@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.persistence.NoResultException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -209,13 +210,25 @@ class TagServiceTest {
 
 
     @Test
-    void testGetMostUsedTagForRichestUser() {
+    void testGetMostUsedTagForRichestUser_tagsExist() {
         Tag tag = new Tag(tagId, tagName);
         when(tagRepository.getMostUsedTagForRichestUser()).thenReturn(Optional.of(tag));
         Optional<Tag> mostUsedTagForRichestUser = tagService.getMostUsedTagForRichestUser();
 
         verify(tagRepository).getMostUsedTagForRichestUser();
         assertTrue(mostUsedTagForRichestUser.isPresent());
+    }
+
+    @Test
+    void testGetMostUsedTagForRichestUser_noTagsExist() {
+        when(tagRepository.getMostUsedTagForRichestUser()).thenThrow(NoResultException.class);
+
+        Exception noResultException = assertThrows(NoResultException.class, tagService::getMostUsedTagForRichestUser);
+        String expectedMessage = "No tags exist yet.";
+        String actualMessage = noResultException.getMessage();
+
+        verify(tagRepository).getMostUsedTagForRichestUser();
+        assertEquals(expectedMessage,actualMessage);
     }
 
     @Test

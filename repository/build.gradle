@@ -24,19 +24,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation project (':model')
     implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.6.3'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'org.postgresql:postgresql'
-
     implementation 'org.apache.commons:commons-lang3:3.0'
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
     implementation 'org.hibernate:hibernate-core:5.6.5.Final'
 
-
-    // + needed spring boot for DB
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
 }

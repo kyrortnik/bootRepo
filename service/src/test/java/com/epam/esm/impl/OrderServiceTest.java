@@ -29,13 +29,13 @@ class OrderServiceTest {
     private final LocalDateTime orderDate = LocalDateTime.now();
     private final double orderCost = 99.9;
 
-    private final Set<Order> noOrders = new HashSet<>();
-    private Set<Order> orders;
+    private final List<Order> noOrders = new ArrayList<>();
+    private List<Order> orders;
 
     private final long userId = 1L;
     private final String firstName = "first name";
     private final String secondName = "second name";
-    private final User user = new User(userId, firstName, secondName, noOrders);
+    private final User user = new User(userId, firstName, secondName, new HashSet<>(noOrders));
 
     private GiftCertificate giftCertificateForOrder;
     private User userForOrder;
@@ -77,11 +77,11 @@ class OrderServiceTest {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         giftCertificate.setTags(tags);
 
-        orders = new HashSet<>(Arrays.asList(
+        orders = Arrays.asList(
                 order,
                 secondOrder,
                 thirdOrder
-        ));
+        );
 
         tags = new HashSet<>(Arrays.asList(
                 new Tag(1L, "first tag"),
@@ -98,7 +98,7 @@ class OrderServiceTest {
         order = new Order();
         giftCertificateForOrder = new GiftCertificate();
         userForOrder = new User();
-        orders = new HashSet<>();
+        orders = new ArrayList<>();
         tags = new HashSet<>();
         giftCertificate = new GiftCertificate();
         sortParams.clear();
@@ -134,7 +134,7 @@ class OrderServiceTest {
 
         when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(orders);
 
-        Set<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
 
         verify(orderRepository).getOrders(sortParams, max, offset);
         assertEquals(orders, returnOrders);
@@ -145,7 +145,7 @@ class OrderServiceTest {
 
         when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(noOrders);
 
-        Set<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
 
         verify(orderRepository).getOrders(sortParams, max, offset);
         assertEquals(noOrders, returnOrders);
@@ -250,7 +250,7 @@ class OrderServiceTest {
     void testDeleteOrder_idExists() {
         when(orderRepository.delete(orderId)).thenReturn(true);
 
-        boolean result = orderService.delete(orderId);
+        boolean result = orderService.deleteOrder(orderId);
 
         verify(orderRepository).delete(orderId);
         assertTrue(result);
@@ -260,7 +260,7 @@ class OrderServiceTest {
     void testDeleteOrder_idDoesNotExist() {
         when(orderRepository.delete(orderId)).thenReturn(false);
 
-        boolean result = orderService.delete(orderId);
+        boolean result = orderService.deleteOrder(orderId);
 
         verify(orderRepository).delete(orderId);
         assertFalse(result);

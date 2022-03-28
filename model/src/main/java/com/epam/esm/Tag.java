@@ -44,15 +44,4 @@ public class Tag extends RepresentationModel<Tag> {
     }
 
 
-    public void addCertificate(GiftCertificate giftCertificate) {
-        this.certificates.add(giftCertificate);
-        giftCertificate.getTags().add(this);
-    }
-
-    public void removeCertificate(GiftCertificate giftCertificate) {
-        this.certificates.remove(giftCertificate);
-        giftCertificate.getTags().remove(this);
-    }
-
-
 }

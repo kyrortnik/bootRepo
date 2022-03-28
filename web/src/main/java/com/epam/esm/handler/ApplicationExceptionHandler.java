@@ -61,7 +61,7 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
     ExceptionEntity constraintViolationException(SQLException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage().split(":")[0]);
         LOGGER.error("SQLException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());
@@ -91,7 +91,6 @@ public class ApplicationExceptionHandler {
                 "\nerror code:" + exceptionEntity.getCode());
 
         return exceptionEntity;
-
     }
 
 }

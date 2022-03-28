@@ -4,7 +4,7 @@ import com.epam.esm.Order;
 import com.epam.esm.User;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.UserService;
-import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class UserController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.info("Entering UserController.getUsers()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
         List<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +

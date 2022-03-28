@@ -19,7 +19,7 @@ import java.util.Optional;
 @Repository
 public class OrderRepositoryHibernate extends BaseRepository implements OrderRepository {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(BaseRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(OrderRepositoryHibernate.class);
 
     private final SessionFactory sessionFactory;
 

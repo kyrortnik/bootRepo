@@ -5,7 +5,7 @@ import com.epam.esm.Tag;
 import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.GiftCertificateService;
-import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class GiftCertificateController {
             @RequestParam(value = "tag", required = false) Set<String> tags) {
         LOGGER.info("Entering GiftCertificateController.getCertificates()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
         if (sortingParams.containsKey(null)) {
             LOGGER.error("NullPointerException in GiftCertificateController.getCertificates()\n" +
                     "Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");

@@ -4,7 +4,7 @@ import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
-import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class OrderController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.info("Entering OrderController.getOrders()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
         List<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in OrderController.getOrders()\n" +

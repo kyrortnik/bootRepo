@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Repository
 public class GiftCertificateRepositoryHibernate extends BaseRepository implements GiftCertificateRepository {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(BaseRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateRepositoryHibernate.class);
 
     private final SessionFactory sessionFactory;
 

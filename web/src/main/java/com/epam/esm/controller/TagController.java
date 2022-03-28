@@ -3,7 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.Tag;
 import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.TagService;
-import com.epam.esm.mapper.RequestMapper;
+import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class TagController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.info("Entering TagController.getTags()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
+        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
         List<Tag> tags = tagService.getAll(sortingParams, max, offset);
         if (tags.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +

@@ -19,7 +19,7 @@ import java.util.*;
 @Repository
 public class TagRepositoryHibernate extends BaseRepository implements TagRepository {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(BaseRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(TagRepositoryHibernate.class);
 
     private final SessionFactory sessionFactory;
 

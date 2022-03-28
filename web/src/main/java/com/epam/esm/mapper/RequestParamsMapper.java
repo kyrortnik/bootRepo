@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class RequestMapper {
+public class RequestParamsMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
 

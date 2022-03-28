@@ -119,7 +119,7 @@ public class OrderController {
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
         LOGGER.info("Entering OrderController.deleteOrder()");
 
-        ResponseEntity<String> response = orderService.delete(orderId)
+        ResponseEntity<String> response = orderService.deleteOrder(orderId)
                 ? new ResponseEntity<>(HttpStatus.OK)
                 : new ResponseEntity<>("No order with id [" + orderId + "] was found", HttpStatus.OK);
 

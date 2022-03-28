@@ -250,7 +250,7 @@ class OrderServiceTest {
     void testDeleteOrder_idExists() {
         when(orderRepository.delete(orderId)).thenReturn(true);
 
-        boolean result = orderService.delete(orderId);
+        boolean result = orderService.deleteOrder(orderId);
 
         verify(orderRepository).delete(orderId);
         assertTrue(result);
@@ -260,7 +260,7 @@ class OrderServiceTest {
     void testDeleteOrder_idDoesNotExist() {
         when(orderRepository.delete(orderId)).thenReturn(false);
 
-        boolean result = orderService.delete(orderId);
+        boolean result = orderService.deleteOrder(orderId);
 
         verify(orderRepository).delete(orderId);
         assertFalse(result);

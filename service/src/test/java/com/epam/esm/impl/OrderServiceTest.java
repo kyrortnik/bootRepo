@@ -77,11 +77,11 @@ class OrderServiceTest {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         giftCertificate.setTags(tags);
 
-        orders = new HashSet<>(Arrays.asList(
+        orders = Arrays.asList(
                 order,
                 secondOrder,
                 thirdOrder
-        ));
+        );
 
         tags = new HashSet<>(Arrays.asList(
                 new Tag(1L, "first tag"),
@@ -98,7 +98,7 @@ class OrderServiceTest {
         order = new Order();
         giftCertificateForOrder = new GiftCertificate();
         userForOrder = new User();
-        orders = new HashSet<>();
+        orders = new ArrayList<>();
         tags = new HashSet<>();
         giftCertificate = new GiftCertificate();
         sortParams.clear();

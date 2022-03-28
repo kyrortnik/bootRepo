@@ -84,8 +84,8 @@ public class GiftCertificateController {
 
         if (giftCertificates.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
-                    "No Gift Certificates exists");
-            throw new NoEntitiesFoundException("No Gift Certificates exist");
+                    "No Satisfying Gift Certificates exists");
+            throw new NoEntitiesFoundException("No Satisfying Gift Certificates exist");
         }
         giftCertificates.forEach(giftCertificate -> {
 

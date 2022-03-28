@@ -33,6 +33,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable Long userId) {
+        LOGGER.info("Entering UserController.getUser()");
 
         User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
@@ -44,17 +45,23 @@ public class UserController {
                 .getUserOrders(user.getId()))
                 .withRel("orders"));
 
+        LOGGER.info("Exiting UserController.getUser()");
         return user;
     }
 
     @GetMapping("/")
-    public List<User> getUsers(@RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
-                               @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
-                               @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+    public List<User> getUsers(
+            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
+            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        LOGGER.info("Entering UserController.getUsers()");
+
         LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
-            throw new NoEntitiesFoundException();
+            LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +
+                    "No Orders exist");
+            throw new NoEntitiesFoundException("No Orders exist");
         }
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)
@@ -66,16 +73,22 @@ public class UserController {
                             .withRel("orders"));
                 }
         );
+
+        LOGGER.info("Exiting UserController.getUsers()");
         return users;
     }
 
 
     @GetMapping("/{userId}/orders")
     public Set<Order> getUserOrders(@PathVariable long userId) {
+        LOGGER.info("Entering UserController.getUserOrders()");
+
         User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
         Set<Order> userOrders = user.getOrders();
         if (userOrders.isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in UserController.getUserOrders()\n" +
+                    "No order exists for this user");
             throw new NoEntitiesFoundException("No order exists for this user");
         }
         userOrders.forEach(order -> {
@@ -92,6 +105,8 @@ public class UserController {
                             .withRel("giftCertificate"));
                 }
         );
+
+        LOGGER.info("Exiting UserController.getUserOrders()");
         return userOrders;
     }
 }

@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Transactional
 @Service
@@ -38,7 +35,7 @@ public class OrderService {
     }
 
 
-    public Set<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
+    public List<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
         return orderRepository.getOrders(sortParams, max, offset);
     }
 

@@ -29,13 +29,13 @@ class OrderServiceTest {
     private final LocalDateTime orderDate = LocalDateTime.now();
     private final double orderCost = 99.9;
 
-    private final Set<Order> noOrders = new HashSet<>();
-    private Set<Order> orders;
+    private final List<Order> noOrders = new ArrayList<>();
+    private List<Order> orders;
 
     private final long userId = 1L;
     private final String firstName = "first name";
     private final String secondName = "second name";
-    private final User user = new User(userId, firstName, secondName, noOrders);
+    private final User user = new User(userId, firstName, secondName, new HashSet<>(noOrders));
 
     private GiftCertificate giftCertificateForOrder;
     private User userForOrder;
@@ -134,7 +134,7 @@ class OrderServiceTest {
 
         when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(orders);
 
-        Set<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
 
         verify(orderRepository).getOrders(sortParams, max, offset);
         assertEquals(orders, returnOrders);
@@ -145,7 +145,7 @@ class OrderServiceTest {
 
         when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(noOrders);
 
-        Set<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
 
         verify(orderRepository).getOrders(sortParams, max, offset);
         assertEquals(noOrders, returnOrders);

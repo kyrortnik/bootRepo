@@ -14,9 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
 
-import static java.util.Objects.isNull;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -34,10 +35,22 @@ public class TagController {
         this.tagService = tagService;
     }
 
-    @GetMapping("/{id}")
-    public Tag getTag(@PathVariable Long id) {
-        Optional<Tag> tag = tagService.getById(id);
-        return tag.orElseThrow(() -> new NoSuchElementException("Tag with id [" + id + "] not found"));
+    @GetMapping("/{tagId}")
+    public Tag getTagById(@PathVariable Long tagId) {
+        LOGGER.info("Entering TagController.getTag()");
+
+        Tag tag = tagService.getById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with tagId [" + tagId + "] not found"));
+
+        tag.add(linkTo(methodOn(TagController.class)
+                .getTagById(tagId))
+                .withSelfRel());
+
+        tag.add(linkTo(methodOn(TagController.class)
+                .deleteTag(tagId))
+                .withRel("delete"));
+
+        LOGGER.info("Exiting TagController.getTag()");
+        return tag;
 
     }
 
@@ -47,15 +60,26 @@ public class TagController {
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        LOGGER.info("Entering TagController.getTags()");
+
         LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         List<Tag> tags = tagService.getAll(sortingParams, max, offset);
         if (tags.isEmpty()) {
-            throw new NoEntitiesFoundException("No tags are found");
+            LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
+                    "No Tags exist");
+            throw new NoEntitiesFoundException("No Tags exist");
         }
-        tags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
-                .getTag(tag.getId()))
-                .withSelfRel())
+        tags.forEach(tag -> {
+                    tag.add(linkTo(methodOn(TagController.class)
+                            .getTagById(tag.getId()))
+                            .withSelfRel());
+                    tag.add(linkTo(methodOn(TagController.class)
+                            .deleteTag(tag.getId()))
+                            .withRel("delete"));
+                }
         );
+
+        LOGGER.info("Exiting TagController.getTags()");
         return tags;
     }
 
@@ -64,29 +88,50 @@ public class TagController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Tag create(@RequestBody Tag tag) {
-        if (isNull(tag.getName())) {
+        LOGGER.info("Entering TagController.create()");
+
+        if ((tag.getName().isEmpty())) {
+            LOGGER.error("NullPointerException in TagController.create()\n" +
+                    "Tag name can not be empty");
             throw new NullPointerException("Tag name can not be empty");
         }
-        return tagService.create(tag).orElseThrow(() -> new DuplicateKeyException("Tag with name [" + tag.getName() + "] already exists"));
+        Tag createdTag = tagService.create(tag).orElseThrow(() -> new DuplicateKeyException("Tag with name [" + tag.getName() + "] already exists"));
+
+        createdTag.add(linkTo(methodOn(TagController.class)
+                .getTagById(createdTag.getId()))
+                .withSelfRel());
+
+        createdTag.add(linkTo(methodOn(TagController.class)
+                .deleteTag(createdTag.getId()))
+                .withRel("delete"));
+
+        LOGGER.info("Exiting TagController.create()");
+        return createdTag;
 
 
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        ResponseEntity<String> response;
-        if (tagService.delete(id)) {
-            response = new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            response = new ResponseEntity<>("No tag with such id was found", HttpStatus.OK);
-        }
+
+    @DeleteMapping("/{tagId}")
+    public ResponseEntity<String> deleteTag(@PathVariable Long tagId) {
+        LOGGER.info("Entering TagController.delete()");
+
+        ResponseEntity<String> response = tagService.delete(tagId)
+                ? new ResponseEntity<>(HttpStatus.OK)
+                : new ResponseEntity<>("No tag with tagId [" + tagId + "] was found", HttpStatus.OK);
+
+        LOGGER.info("Exiting TagController.delete()");
         return response;
     }
 
     @GetMapping("/mostUsedTagForRichestUser")
     public Tag getMostUsedTagForRichestUser() {
-        return tagService.getMostUsedTagForRichestUser()
+        LOGGER.info("Entering TagController.getMostUsedTagForRichestUser()");
+        Tag tag = tagService.getMostUsedTagForRichestUser()
                 .orElseThrow(() -> new NoEntitiesFoundException("No certificates with tags exist in orders"));
+
+        LOGGER.info("Exiting TagController.getMostUsedTagForRichestUser()");
+        return tag;
     }
 
 

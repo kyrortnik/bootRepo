@@ -38,7 +38,7 @@ public class OrderRepositoryHibernate extends BaseRepository implements OrderRep
 
 
     @Override
-    public Set<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
+    public List<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
         Session session = sessionFactory.openSession();
         String tableAlias = "o.";
         String query = "SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.giftCertificate g LEFT JOIN FETCH g.tags ORDER BY ";
@@ -49,7 +49,7 @@ public class OrderRepositoryHibernate extends BaseRepository implements OrderRep
                 .setFirstResult(offset)
                 .getResultList();
         session.close();
-        return new HashSet<>(resultList);
+        return resultList;
     }
 
     @Override

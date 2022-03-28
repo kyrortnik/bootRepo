@@ -35,8 +35,9 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public Order getOrder(@PathVariable Long orderId) {
+        LOGGER.info("Entering OrderController.getOrder()");
 
-        Order order = orderService.getOrderById(orderId).orElseThrow(NoSuchElementException::new);
+        Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("Order with id [" + orderId + "] not found"));
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrder(order.getId()))
@@ -50,19 +51,24 @@ public class OrderController {
                 .getUser(order.getUser().getId()))
                 .withRel("user"));
 
+        LOGGER.info("Exiting OrderController.getOrder()");
         return order;
     }
 
 
     @GetMapping("/")
-    public Set<Order> getOrders(
+    public List<Order> getOrders(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+        LOGGER.info("Entering OrderController.getOrders()");
+
         LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
-        Set<Order> orders = orderService.getOrders(sortingParams, max, offset);
+        List<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
-            throw new NoEntitiesFoundException();
+            LOGGER.error("NoEntitiesFoundException in OrderController.getOrders()\n" +
+                    "No Orders exist");
+            throw new NoEntitiesFoundException("No Orders exist");
         }
 
         orders.forEach(foundOrder -> {
@@ -79,6 +85,7 @@ public class OrderController {
                             .withRel("user"));
                 }
         );
+        LOGGER.info("Exiting OrderController.getOrders()");
         return orders;
     }
 
@@ -87,6 +94,8 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
+        LOGGER.info("Entering OrderController.createOrder()");
+
         Order createdOrder = orderService.create(order).orElseThrow(() -> new DuplicateKeyException("Such order already exists"));
 
         createdOrder.add(linkTo(methodOn(OrderController.class)
@@ -94,27 +103,34 @@ public class OrderController {
                 .withSelfRel());
 
         createdOrder.add(linkTo(methodOn(OrderController.class)
-                .deleteOrder( createdOrder.getId()))
+                .deleteOrder(createdOrder.getId()))
                 .withRel("delete"));
 
         createdOrder.add(linkTo(methodOn(OrderController.class)
-                .getOrderGiftCertificate( createdOrder.getId()))
+                .getOrderGiftCertificate(createdOrder.getId()))
                 .withRel("gift certificate"));
 
+        LOGGER.info("Exiting OrderController.createOrder()");
         return createdOrder;
     }
 
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
-        return orderService.delete(orderId)
+        LOGGER.info("Entering OrderController.deleteOrder()");
+
+        ResponseEntity<String> response = orderService.delete(orderId)
                 ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>("No order with such id was found", HttpStatus.OK);
+                : new ResponseEntity<>("No order with id [" + orderId + "] was found", HttpStatus.OK);
+
+        LOGGER.info("Exiting OrderController.deleteOrder()");
+        return response;
     }
 
 
     @GetMapping("/{orderId}/giftCertificate")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
+        LOGGER.info("Entering OrderController.getOrderGiftCertificate()");
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
@@ -131,6 +147,7 @@ public class OrderController {
                 .getGiftCertificateTags(giftCertificate.getId()))
                 .withRel("tags"));
 
+        LOGGER.info("Exiting OrderController.getOrderGiftCertificate()");
         return giftCertificate;
     }
 

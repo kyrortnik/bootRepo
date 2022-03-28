@@ -53,9 +53,11 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
     @Override
     public boolean delete(Long tagId) {
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         boolean tagIsDeleted = session.createQuery("DELETE from Tag where id = :id")
                 .setParameter("id", tagId)
                 .executeUpdate() > 0;
+        session.getTransaction().commit();
         session.close();
         return tagIsDeleted;
     }
@@ -63,7 +65,9 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
     @Override
     public Long createTag(Tag tag) {
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         Long createdTagId = (Long) session.save(tag);
+        session.getTransaction().commit();
         session.close();
         return createdTagId;
     }

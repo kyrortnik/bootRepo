@@ -26,20 +26,21 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificateController {
 
-    private final GiftCertificateService service;
+    private final GiftCertificateService giftCertificateService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
 
-
     @Autowired
-    public GiftCertificateController(GiftCertificateService service) {
-        this.service = service;
+    public GiftCertificateController(GiftCertificateService giftCertificateService) {
+        this.giftCertificateService = giftCertificateService;
     }
 
 
     @GetMapping("/{id}")
     public GiftCertificate getCertificateById(@PathVariable Long id) {
-        GiftCertificate giftCertificate = service.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
+        LOGGER.info("Entering GiftCertificateController.getCertificatedById()");
+
+        GiftCertificate giftCertificate = giftCertificateService.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(id))
@@ -57,6 +58,7 @@ public class GiftCertificateController {
                 .getGiftCertificateTags(id))
                 .withRel("tags"));
 
+        LOGGER.info("Exiting GiftCertificateController.getCertificatedById()");
         return giftCertificate;
     }
 
@@ -67,16 +69,22 @@ public class GiftCertificateController {
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
             @RequestParam(value = "tag", required = false) Set<String> tags) {
+        LOGGER.info("Entering GiftCertificateController.getCertificates()");
+
         LinkedHashMap<String, Boolean> sortingParams = RequestMapper.mapSortingParams(sortBy);
         if (sortingParams.containsKey(null)) {
+            LOGGER.error("NullPointerException in GiftCertificateController.getCertificates()\n" +
+                    "Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");
+
             throw new NullPointerException("Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");
         }
         List<GiftCertificate> giftCertificates = Objects.isNull(tags)
-                ? service.getAll(sortingParams, max, offset)
-                : service.getCertificatesByTags(sortingParams, max, tags, offset);
+                ? giftCertificateService.getAll(sortingParams, max, offset)
+                : giftCertificateService.getCertificatesByTags(sortingParams, max, tags, offset);
 
         if (giftCertificates.isEmpty()) {
-            LOGGER.error("No Gift Certificates exists");
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
+                    "No Gift Certificates exists");
             throw new NoEntitiesFoundException("No Gift Certificates exist");
         }
         giftCertificates.forEach(giftCertificate -> {
@@ -97,10 +105,11 @@ public class GiftCertificateController {
                     .getGiftCertificateTags(giftCertificate.getId()))
                     .withRel("tags"));
 
+
         });
+        LOGGER.info("Exiting GiftCertificateController.getCertificates()");
         return giftCertificates;
     }
-
 
 
     @PostMapping(path = "/",
@@ -108,8 +117,9 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
+        LOGGER.info("Entering GiftCertificateController.createGiftCertificate()");
 
-        GiftCertificate createdGiftCertificate = service.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
+        GiftCertificate createdGiftCertificate = giftCertificateService.create(giftCertificate).orElseThrow(() -> new DuplicateKeyException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"));
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(createdGiftCertificate.getId()))
@@ -127,44 +137,51 @@ public class GiftCertificateController {
                 .getGiftCertificateTags(createdGiftCertificate.getId()))
                 .withRel("tags"));
 
-
+        LOGGER.info("Exiting GiftCertificateController.createGiftCertificate()");
         return createdGiftCertificate;
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteGiftCertificate(@PathVariable Long id) {
-        ResponseEntity<String> response;
-        if (service.delete(id)) {
-            response = new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            response = new ResponseEntity<>("No Gift Certificate with id [" + id + "] exists", HttpStatus.OK);
-        }
+        LOGGER.info("Entering GiftCertificateController.deleteGiftCertificate()");
+
+        ResponseEntity<String> response = giftCertificateService.delete(id)
+                ? new ResponseEntity<>(HttpStatus.OK)
+                : new ResponseEntity<>("No Gift Certificate with id [\" + id + \"] exists", HttpStatus.OK);
+
+        LOGGER.info("Exiting GiftCertificateController.deleteGiftCertificate()");
         return response;
     }
 
     @PutMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody GiftCertificate giftCertificate, @PathVariable Long id) {
+        LOGGER.info("Entering GiftCertificateController.update()");
+
         ResponseEntity<?> responseEntity;
-        if (service.update(giftCertificate, id)) {
+        if (giftCertificateService.update(giftCertificate, id)) {
             responseEntity = new ResponseEntity<>(HttpStatus.OK);
         } else {
             ExceptionEntity error = new ExceptionEntity(0, "Error while updating");
             responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
         }
+        LOGGER.info("Exiting GiftCertificateController.update()");
         return responseEntity;
     }
 
     @GetMapping("/{giftCertificateId}/tags")
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
-        GiftCertificate giftCertificate = service.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
+        LOGGER.info("Entering GiftCertificateController.getGiftCertificateTags()");
+
+        GiftCertificate giftCertificate = giftCertificateService.getById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
         Set<Tag> giftCertificateTags = giftCertificate.getTags();
 
         giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
-                .getTag(tag.getId()))
+                .getTagById(tag.getId()))
                 .withSelfRel())
         );
+        LOGGER.info("Exiting GiftCertificateController.getGiftCertificateTags()");
         return giftCertificateTags;
     }
 }

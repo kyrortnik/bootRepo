@@ -21,6 +21,7 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
 
     public static final Logger LOGGER = LoggerFactory.getLogger(TagRepositoryHibernate.class);
 
+
     private final SessionFactory sessionFactory;
 
     @Autowired
@@ -110,6 +111,7 @@ public class TagRepositoryHibernate extends BaseRepository implements TagReposit
     }
 
 
+    //TODO -- move to static final String
     @Override
     public Optional<Tag> getMostUsedTagForRichestUser() throws NoResultException {
         LOGGER.info("Entering TagRepositoryHibernate.getMostUsedTagForRichestUser()");

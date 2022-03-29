@@ -40,7 +40,8 @@ public class GiftCertificateController {
     public GiftCertificate getCertificateById(@PathVariable Long id) {
         LOGGER.info("Entering GiftCertificateController.getCertificatedById()");
 
-        GiftCertificate giftCertificate = giftCertificateService.getById(id).orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
+        GiftCertificate giftCertificate = giftCertificateService.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(id))

@@ -13,6 +13,7 @@ public class RequestParamsMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
 
+    //TODO -- check on null throw here
     /**
      * @param sortingRequestParam String containing sorting order and parameter. Request sorting parameter example: asc(email)
      * @return HashMap with key/value pairs

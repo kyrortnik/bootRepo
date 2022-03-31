@@ -3,6 +3,7 @@ package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","orders"})
 @Audited
 @EqualsAndHashCode(callSuper = false)
 @Entity
@@ -28,7 +30,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+//    @NonNull
     private String name;
 
     private String description;
@@ -52,58 +54,109 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     @ToString.Exclude
+    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true, fetch = FetchType.LAZY)
+//    @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 
-    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
+    public GiftCertificate(GiftCertificateBuilder builder){
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.price = builder.price;
+        this.duration = builder.duration;
+        this.createDate = builder.createDate;
+        this.lastUpdateDate = builder.lastUpdateDate;
+        this.tags = builder.tags;
+        this.orders = builder.orders;
+
     }
 
-    public GiftCertificate(Long id, @NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
-    }
+//    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate, Set<Tag> tags) {
+//
+//        this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
+//        this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
+//        this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
+//        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
+//        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
+//        this.setTags(tags);
+//
+//    }
 
-    public GiftCertificate(@NonNull String name, String description, Long price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, Set<Tag> tags) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
-    }
+    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
 
-    public GiftCertificate(@NonNull String name) {
-        this.name = name;
-    }
-
-    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate, Set<Tag> tags) {
-
+        this.setName(nonNull(changedGiftCertificate.getName()) ? changedGiftCertificate.getName() : this.getName());
         this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
         this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
         this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
         this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
         this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-        this.setTags(tags);
+        this.setTags(nonNull(changedGiftCertificate.getTags()) ? changedGiftCertificate.getTags() : this.getTags());
+        this.setOrders(nonNull(changedGiftCertificate.getOrders()) ? changedGiftCertificate.getOrders() : this.getOrders());
 
+    }
+
+    public static class GiftCertificateBuilder {
+
+        private  long id;
+        private final String name;
+        private  String description;
+        private  long price;
+        private  long duration;
+        private  LocalDateTime createDate;
+        private  LocalDateTime lastUpdateDate;
+        private  Set<Tag> tags;
+        private  Set<Order> orders;
+
+        public GiftCertificateBuilder(String name) {
+            this.name = name;
+
+        }
+
+        public GiftCertificateBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public GiftCertificateBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+        public GiftCertificateBuilder price(long price) {
+            this.price = price;
+            return this;
+        }
+        public GiftCertificateBuilder duration(long duration) {
+            this.duration = duration;
+            return this;
+        }
+        public GiftCertificateBuilder createDate(LocalDateTime createDate) {
+            this.createDate = createDate;
+            return this;
+        }
+
+        public GiftCertificateBuilder lastUpdateDate(LocalDateTime lastUpdateDate) {
+            this.lastUpdateDate = lastUpdateDate;
+            return this;
+        }
+
+        public GiftCertificateBuilder tags(Set<Tag> tags) {
+            this.tags = tags;
+            return this;
+        }
+
+        public GiftCertificateBuilder orders(Set<Order> orders) {
+            this.orders = orders;
+            return this;
+        }
+
+        public GiftCertificate build() {
+            return new GiftCertificate(this);
+        }
     }
 
 }

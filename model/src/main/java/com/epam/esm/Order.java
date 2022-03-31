@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @EqualsAndHashCode(callSuper = false)
@@ -39,7 +41,6 @@ public class Order extends RepresentationModel<Order> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private User user;

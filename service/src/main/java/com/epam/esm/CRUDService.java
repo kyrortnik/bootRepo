@@ -1,5 +1,8 @@
 package com.epam.esm;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -9,12 +12,14 @@ public interface CRUDService<E> {
 
     Optional<E> getById(Long id);
 
-    List<E> getAll(HashMap<String,Boolean> sortParams, int max, int offset);
+//    List<E> getAll(HashMap<String,Boolean> sortParams, int max, int offset);
+
+    Page<E> getAll(Sort sortParams, int max, int offset);
 
     boolean delete(Long id);
 
-    boolean update(E element, Long id);
+    void update(E element, Long id);
 
-    Optional<E> create(E element);
+    E create(E element);
 
 }

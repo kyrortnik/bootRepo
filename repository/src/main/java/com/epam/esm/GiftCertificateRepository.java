@@ -1,25 +1,32 @@
 package com.epam.esm;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface GiftCertificateRepository {
+public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long> {
 
-    Optional<GiftCertificate> getCertificateById(Long giftCertificateId);
+    @Override
+    @NonNull Optional<GiftCertificate> findById(@NonNull Long aLong);
 
-    Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName);
+    Optional<GiftCertificate> findByName(String name);
 
-    List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset);
+    @Override
+    @NonNull Page<GiftCertificate> findAll(@NonNull Pageable pageable);
 
-    List<GiftCertificate> getGiftCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<Tag> tags, int offset);
+    //TODO -- make sure that works
+    Page<GiftCertificate> findByTagsIn(Set<Tag> tags, Pageable pageable);
 
-    boolean deleteGiftCertificate(Long giftCertificateId);
+    @Override
+    void deleteById(@NonNull Long giftCertificateId);
 
-    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
-
-    Long createGiftCertificate(GiftCertificate giftCertificate);
-
-
+    @Override
+    @NonNull <S extends GiftCertificate> S save(@NonNull S giftCertificate);
 }

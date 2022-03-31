@@ -1,20 +1,37 @@
 package com.epam.esm;
 
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface OrderRepository {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    Optional<Order> getOrderById(Long orderId);
 
-    //    Set<Order> getOrders(HashMap<String,Boolean> sortParams, int max, int offset);
-    List<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset);
+    @Override
+    @NonNull  Optional<Order> findById(@NonNull Long orderId);
 
-    Long createOrder(Order order);
 
-    boolean delete(Long orderId);
+    @Override
+    @NonNull  Page<Order> findAll(@NonNull  Pageable pageable);
 
-    boolean orderAlreadyExists(Order order);
+
+    @Override
+    @NonNull <S extends Order> S save(@NonNull  S order);
+
+
+    @Override
+    void deleteById(@NonNull Long orderId);
+
+
+    @Override
+    <S extends Order> boolean exists(@NonNull Example<S> orderExample);
 }

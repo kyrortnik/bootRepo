@@ -10,12 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -35,7 +39,7 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public Order getOrder(@PathVariable Long orderId) {
-        LOGGER.info("Entering OrderController.getOrder()");
+//        LOGGER.debug("Entering OrderController.getOrder()");
 
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("Order with id [" + orderId + "] not found"));
 
@@ -51,20 +55,21 @@ public class OrderController {
                 .getUser(order.getUser().getId()))
                 .withRel("user"));
 
-        LOGGER.info("Exiting OrderController.getOrder()");
+//        LOGGER.debug("Exiting OrderController.getOrder()");
         return order;
     }
 
 
     @GetMapping("/")
-    public List<Order> getOrders(
+    public Page<Order> getOrders(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        LOGGER.info("Entering OrderController.getOrders()");
+//        LOGGER.debug("Entering OrderController.getOrders()");
+        LocalDateTime start = LocalDateTime.now();
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
-        List<Order> orders = orderService.getOrders(sortingParams, max, offset);
+        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
+        Page<Order> orders = orderService.getOrders(sortingParams, max, offset);
         if (orders.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in OrderController.getOrders()\n" +
                     "No Orders exist");
@@ -85,7 +90,7 @@ public class OrderController {
                             .withRel("user"));
                 }
         );
-        LOGGER.info("Exiting OrderController.getOrders()");
+//        LOGGER.debug("Exiting OrderController.getOrders()");
         return orders;
     }
 
@@ -94,7 +99,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
-        LOGGER.info("Entering OrderController.createOrder()");
+        LOGGER.debug("Entering OrderController.createOrder()");
 
         Order createdOrder = orderService.create(order).orElseThrow(() -> new DuplicateKeyException("Such order already exists"));
 
@@ -110,27 +115,27 @@ public class OrderController {
                 .getOrderGiftCertificate(createdOrder.getId()))
                 .withRel("gift certificate"));
 
-        LOGGER.info("Exiting OrderController.createOrder()");
+        LOGGER.debug("Exiting OrderController.createOrder()");
         return createdOrder;
     }
 
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
-        LOGGER.info("Entering OrderController.deleteOrder()");
+        LOGGER.debug("Entering OrderController.deleteOrder()");
 
         ResponseEntity<String> response = orderService.deleteOrder(orderId)
                 ? new ResponseEntity<>(HttpStatus.OK)
                 : new ResponseEntity<>("No order with id [" + orderId + "] was found", HttpStatus.OK);
 
-        LOGGER.info("Exiting OrderController.deleteOrder()");
+        LOGGER.debug("Exiting OrderController.deleteOrder()");
         return response;
     }
 
 
     @GetMapping("/{orderId}/giftCertificate")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
-        LOGGER.info("Entering OrderController.getOrderGiftCertificate()");
+        LOGGER.debug("Entering OrderController.getOrderGiftCertificate()");
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
@@ -147,7 +152,7 @@ public class OrderController {
                 .getGiftCertificateTags(giftCertificate.getId()))
                 .withRel("tags"));
 
-        LOGGER.info("Exiting OrderController.getOrderGiftCertificate()");
+        LOGGER.debug("Exiting OrderController.getOrderGiftCertificate()");
         return giftCertificate;
     }
 

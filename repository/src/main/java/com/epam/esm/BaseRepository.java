@@ -13,7 +13,7 @@ public abstract class BaseRepository {
     public static final Logger LOGGER = LoggerFactory.getLogger(BaseRepository.class);
 
     public String addParamsToQuery(HashMap<String, Boolean> sortingParams, String query, String tableAlias) {
-        LOGGER.info("Entering BaseRepository.addParamsToQuery()");
+        LOGGER.debug("Entering BaseRepository.addParamsToQuery()");
 
         Set<Map.Entry<String, Boolean>> paramsPairs = sortingParams.entrySet();
         StringBuilder originalQuery = new StringBuilder(query);
@@ -24,7 +24,7 @@ public abstract class BaseRepository {
             originalQuery.append(paramPair.getValue() ? " ASC" : " DESC");
             originalQuery.append(comma);
         }
-        LOGGER.info("Exiting BaseRepository.addParamsToQuery()");
+        LOGGER.debug("Exiting BaseRepository.addParamsToQuery()");
         return originalQuery.substring(0, originalQuery.length() - 2);
     }
 }

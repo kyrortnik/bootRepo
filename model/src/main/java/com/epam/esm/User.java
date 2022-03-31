@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @Data
@@ -37,13 +38,6 @@ public class User extends RepresentationModel<User> {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     Set<Order> orders = new HashSet<>();
-
-
-    public User(long id, String firstName, String secondName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.secondName = secondName;
-    }
 
     public User(long id) {
         this.id = id;

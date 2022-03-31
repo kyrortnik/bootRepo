@@ -4,12 +4,14 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -18,6 +20,7 @@ import java.util.Properties;
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)
         })
+@EnableJpaRepositories("com.epam.esm")
 public class PersistenceConfig {
 
     @Profile("prod")
@@ -54,7 +57,7 @@ public class PersistenceConfig {
 
     @Profile("dev")
     @Bean
-    public LocalSessionFactoryBean sessionFactoryH2() {
+    public LocalSessionFactoryBean entityManagerFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(embeddedDataSource());
         sessionFactory.setPackagesToScan("com.epam.esm");
@@ -72,8 +75,14 @@ public class PersistenceConfig {
 
     @Bean
     @Autowired
-    public HibernateTransactionManager transactionManagerHibernate(SessionFactory sessionFactory) {
+    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
         return new HibernateTransactionManager(sessionFactory);
     }
+
+//    @Bean
+//    @Autowired
+//    public SessionFactory entityManagerFactory(SessionFactory sessionFactory) {
+//        return sessionFactory;
+//    }
 
 }

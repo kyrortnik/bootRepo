@@ -1,12 +1,19 @@
 package com.epam.esm;
 
-import java.util.HashMap;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
+
 import java.util.Optional;
 
-public interface UserRepository {
+public interface UserRepository  extends PagingAndSortingRepository<User, Long> {
 
-    Optional<User> getUserById(Long id);
 
-    List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset);
+    @Override
+    @NonNull Optional<User> findById(@NonNull Long userId);
+
+    @Override
+    @NonNull Page<User> findAll(@NonNull Pageable pageable);
+
 }

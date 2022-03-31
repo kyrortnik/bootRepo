@@ -9,6 +9,8 @@ import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +35,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable Long userId) {
-        LOGGER.info("Entering UserController.getUser()");
+        LOGGER.debug("Entering UserController.getUser()");
 
         User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
@@ -45,19 +47,20 @@ public class UserController {
                 .getUserOrders(user.getId()))
                 .withRel("orders"));
 
-        LOGGER.info("Exiting UserController.getUser()");
+        LOGGER.debug("Exiting UserController.getUser()");
         return user;
     }
 
     @GetMapping("/")
-    public List<User> getUsers(
+    public Page<User> getUsers(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        LOGGER.info("Entering UserController.getUsers()");
+        LOGGER.debug("Entering UserController.getUsers()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
-        List<User> users = userService.getUsers(sortingParams, max, offset);
+//        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
+        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
+        Page<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +
                     "No Orders exist");
@@ -74,14 +77,14 @@ public class UserController {
                 }
         );
 
-        LOGGER.info("Exiting UserController.getUsers()");
+        LOGGER.debug("Exiting UserController.getUsers()");
         return users;
     }
 
 
     @GetMapping("/{userId}/orders")
     public Set<Order> getUserOrders(@PathVariable long userId) {
-        LOGGER.info("Entering UserController.getUserOrders()");
+        LOGGER.debug("Entering UserController.getUserOrders()");
 
         User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
 
@@ -106,7 +109,7 @@ public class UserController {
                 }
         );
 
-        LOGGER.info("Exiting UserController.getUserOrders()");
+        LOGGER.debug("Exiting UserController.getUserOrders()");
         return userOrders;
     }
 }

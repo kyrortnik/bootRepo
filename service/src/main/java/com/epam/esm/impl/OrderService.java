@@ -7,6 +7,10 @@ import com.epam.esm.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,40 +37,42 @@ public class OrderService {
     }
 
 
-    public Optional<Order> getOrderById(Long id) {
-        LOGGER.info("Entering OrderService.getOrderById()");
+    public Optional<Order> getOrderById(Long orderId) {
+//        LOGGER.debug("Entering OrderService.getOrderById()");
 
-        Optional<Order> foundOrder = orderRepository.getOrderById(id);
+        Optional<Order> foundOrder = orderRepository.findById(orderId);
 
-        LOGGER.info("Exiting OrderService.getOrderById()");
+//        LOGGER.debug("Exiting OrderService.getOrderById()");
         return foundOrder;
 
 
     }
 
 
-    public List<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset) {
-        LOGGER.info("Entering OrderService.getOrders()");
+    public Page<Order> getOrders(Sort sortParams, int max, int offset) {
+        LOGGER.debug("Entering OrderService.getOrders()");
 
-        List<Order> foundOrders = orderRepository.getOrders(sortParams, max, offset);
+        Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(offset, max, sortParams));
 
-        LOGGER.info("Exiting OrderService.getOrders()");
+        LOGGER.debug("Exiting OrderService.getOrders()");
         return foundOrders;
     }
 
 
     public boolean orderAlreadyExists(Order order) {
-        LOGGER.info("Entering OrderService.orderAlreadyExists()");
+        LOGGER.debug("Entering OrderService.orderAlreadyExists()");
 
-        boolean orderAlreadyExists = orderRepository.orderAlreadyExists(order);
+        Example<Order> orderExample = Example.of(order);
 
-        LOGGER.info("Exiting OrderService.orderAlreadyExists()");
+        boolean orderAlreadyExists = orderRepository.exists(orderExample);
+
+        LOGGER.debug("Exiting OrderService.orderAlreadyExists()");
         return orderAlreadyExists;
     }
 
 
     public Optional<Order> create(Order order) {
-        LOGGER.info("Entering OrderService.create()");
+        LOGGER.debug("Entering OrderService.create()");
         Optional<Order> createdOrder;
 
         String giftCertificateName = order.getGiftCertificate().getName();
@@ -82,21 +88,26 @@ public class OrderService {
         order.setOrderCost(giftCertificateFromOrder.get().getPrice());
         order.setOrderDate(LocalDateTime.now());
 
-        createdOrder = orderAlreadyExists(order) ? Optional.empty() : orderRepository.getOrderById(orderRepository.createOrder(order));
+        createdOrder = orderAlreadyExists(order) ? Optional.empty() : Optional.of(orderRepository.save(order));
 
-        LOGGER.info("Exiting OrderService.create()");
+        LOGGER.debug("Exiting OrderService.create()");
         return createdOrder;
 
     }
 
 
     public boolean deleteOrder(Long id) {
-        LOGGER.info("Entering OrderService.deleteOrder()");
+        LOGGER.debug("Entering OrderService.deleteOrder()");
+        boolean result;
 
-        boolean orderIsDeleted = orderRepository.delete(id);
+        orderRepository.deleteById(id);
+        result = !orderRepository.findById(id).isPresent();
 
-        LOGGER.info("Exiting OrderService.deleteOrder()");
-        return orderIsDeleted;
+        LOGGER.debug("Exiting OrderService.deleteOrder()");
+
+        return result;
+
+
     }
 }
 

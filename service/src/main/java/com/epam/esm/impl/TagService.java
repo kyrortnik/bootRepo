@@ -7,6 +7,9 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +22,13 @@ public class TagService implements CRUDService<Tag> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
 
+//    private final TagRepository tagRepository;
     private final TagRepository tagRepository;
+
+//    @Autowired
+//    public TagService(TagRepository tagRepository) {
+//        this.tagRepository = tagRepository;
+//    }
 
     @Autowired
     public TagService(TagRepository tagRepository) {
@@ -28,36 +37,59 @@ public class TagService implements CRUDService<Tag> {
 
     @Override
     public Optional<Tag> getById(Long id) {
-        LOGGER.info("Entering tagService.getById()");
+        LOGGER.debug("Entering tagService.getById()");
 
-        Optional<Tag> foundTag = tagRepository.getTagById(id);
+        Optional<Tag> foundTag = tagRepository.findById(id);
 
-        LOGGER.info("Exiting tagService.getById()");
+        LOGGER.debug("Exiting tagService.getById()");
         return foundTag;
     }
 
 
+//    @Override
+//    public List<Tag> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
+//        LOGGER.debug("Entering tagService.getAll()");
+//
+//        PageRequest pageRequest = PageRequest.of(offset,max, Sort.by().and(Sort.by("id").ascending()));
+//
+//        List<Tag> foundTags = tagRepository.findAll(sortParams, max, offset);
+//
+//        LOGGER.debug("Exiting tagService.getAll()");
+//        return foundTags;
+//    }
+
     @Override
-    public List<Tag> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
-        LOGGER.info("Entering tagService.getAll()");
+    public Page<Tag> getAll(Sort sortParams, int max, int offset) {
+        LOGGER.debug("Entering tagService.getAll()");
 
-        List<Tag> foundTags = tagRepository.getTags(sortParams, max, offset);
 
-        LOGGER.info("Exiting tagService.getAll()");
+        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset,max,sortParams));
+        if (foundTags.isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
+                    "No Tags exist");
+            throw new NoSuchElementException("No Tags exist");
+        }
+
+        LOGGER.debug("Exiting tagService.getAll()");
         return foundTags;
     }
 
     @Transactional
     @Override
-    public Optional<Tag> create(Tag tag) {
+    public Tag create(Tag tag) {
         try {
-            LOGGER.info("Entering TagService.create()");
-            Optional<Tag> createdTag;
+            LOGGER.debug("Entering TagService.create()");
 
-            Long createdTagId = tagRepository.createTag(tag);
+            if ((tag.getName().isEmpty())) {
+                LOGGER.error("NullPointerException in TagController.create()\n" +
+                        "Tag name can not be empty");
+                throw new NullPointerException("Tag name can not be empty");
+            }
+            Tag createdTag;
 
-            createdTag = getById(createdTagId);
-            LOGGER.info("Exiting TagService.create()");
+            createdTag = tagRepository.save(tag);
+
+            LOGGER.debug("Exiting TagService.create()");
             return createdTag;
         } catch (ConstraintViolationException e) {
             LOGGER.error("ConstraintViolationException in TagService.create()\n" +
@@ -68,37 +100,39 @@ public class TagService implements CRUDService<Tag> {
 
     @Override
     public boolean delete(Long id) {
-        LOGGER.info("Entering TagService.delete()");
+        LOGGER.debug("Entering TagService.delete()");
 
-        boolean tagIsDeleted = tagRepository.delete(id);
+        tagRepository.deleteById(id);
 
-        LOGGER.info("Exiting TagService.delete()");
-        return tagIsDeleted;
+        LOGGER.debug("Exiting TagService.delete()");
+        return !tagRepository.findById(id).isPresent();
     }
 
     @Override
-    public boolean update(Tag element, Long id) {
-        LOGGER.info("Entering TagService.update()");
+    public void update(Tag element, Long id) {
+        LOGGER.debug("Entering TagService.update()");
         LOGGER.error("UnsupportedOperationException in TagService.update()");
         throw new UnsupportedOperationException();
     }
 
     public Optional<Tag> getTagByName(String tagName) {
-        LOGGER.info("Entering TagService.getTagByName()");
+        LOGGER.debug("Entering TagService.getTagByName()");
 
-        Optional<Tag> foundTag = tagRepository.getTagByName(tagName);
+        Optional<Tag> foundTag = tagRepository.findByName(tagName);
 
-        LOGGER.info("Exiting TagService.getTagByName()");
+        LOGGER.debug("Exiting TagService.getTagByName()");
         return foundTag;
     }
 
     public Optional<Tag> getMostUsedTagForRichestUser() {
         try {
-            LOGGER.info("Entering TagService.getMostUsedTagForRichestUser()");
+            LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");
 
-            Optional<Tag> tag = tagRepository.getMostUsedTagForRichestUser();
+            long richestUserId = tagRepository.getRichestUserId();
 
-            LOGGER.info("Exiting TagService.getMostUsedTagForRichestUser()");
+            Optional<Tag> tag = tagRepository.getMostUsedTagForRichestUser(richestUserId);
+
+            LOGGER.debug("Exiting TagService.getMostUsedTagForRichestUser()");
             return tag;
         } catch (NoResultException e) {
             LOGGER.error("NoResultException in TagService.getMostUsedTagForRichestUser()\n"
@@ -110,12 +144,12 @@ public class TagService implements CRUDService<Tag> {
 
 
     public Set<Tag> getTagsByNames(Set<String> tagNames) {
-        LOGGER.info("Entering TagService.getTagsByNames()");
+        LOGGER.debug("Entering TagService.getTagsByNames()");
         Set<Tag> tags = new HashSet<>();
         if (!tagNames.isEmpty()) {
             tagNames.forEach(tagName -> getTagByName(tagName).ifPresent(tags::add));
         }
-        LOGGER.info("Exiting TagService.getTagsByNames()");
+        LOGGER.debug("Exiting TagService.getTagsByNames()");
         return tags;
     }
 }

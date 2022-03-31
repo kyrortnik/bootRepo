@@ -1,18 +1,23 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.User;
+import com.epam.esm.UserPrincipal;
 import com.epam.esm.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
 
@@ -23,22 +28,28 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+//TODO - refactor after moving repos to Spring Data
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+       User user = getById(1L).orElseThrow( () -> new UsernameNotFoundException("cannot find userName(for now Id): 1"));
+       return new UserPrincipal(user);
+    }
 
     public Optional<User> getById(Long userId) {
-        LOGGER.info("Entering UserService.getById()");
-        Optional<User> foundUser = userRepository.getUserById(userId);
+        LOGGER.debug("Entering UserService.getById()");
+        Optional<User> foundUser = userRepository.findById(userId);
 
-        LOGGER.info("Exiting UserService.getById()");
+        LOGGER.debug("Exiting UserService.getById()");
         return foundUser;
 
     }
 
-    public List<User> getUsers(HashMap<String, Boolean> sortingParams, int max, int offset) {
-        LOGGER.info("Entering UserService.getUsers()");
+    public Page<User> getUsers(Sort sortingParams, int max, int offset) {
+        LOGGER.debug("Entering UserService.getUsers()");
 
-        List<User> foundUsers = userRepository.getUsers(sortingParams, max, offset);
+        Page<User> foundUsers = userRepository.findAll(PageRequest.of(offset, max, sortingParams));
 
-        LOGGER.info("Exiting UserService.getUsers()");
+        LOGGER.debug("Exiting UserService.getUsers()");
         return foundUsers;
     }
 }

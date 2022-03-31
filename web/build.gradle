@@ -24,6 +24,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'log4j:log4j:1.2.17'
     implementation 'com.h2database:h2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

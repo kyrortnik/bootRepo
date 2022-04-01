@@ -18,6 +18,7 @@ INSERT INTO tags VALUES (DEFAULT,'abroad');
 
 INSERT INTO certificates_tags VALUES (1,1);
 INSERT INTO certificates_tags VALUES (1,2);
+INSERT INTO certificates_tags VALUES (2,1);
 INSERT INTO certificates_tags VALUES (2,3);
 INSERT INTO certificates_tags VALUES (3,4);
 INSERT INTO certificates_tags VALUES (3,5);

@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface CRUDService<E> {
 
-    Optional<E> getById(Long id);
+    Optional<E> findById(Long id);
 
 //    List<E> getAll(HashMap<String,Boolean> sortParams, int max, int offset);
 

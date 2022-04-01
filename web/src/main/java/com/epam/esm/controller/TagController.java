@@ -8,7 +8,6 @@ import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -16,10 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -42,7 +39,7 @@ public class TagController {
     public Tag getTagById(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.getTag()");
 
-        Tag tag = tagService.getById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with tagId [" + tagId + "] not found"));
+        Tag tag = tagService.findById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with tagId [" + tagId + "] not found"));
 
         tag.add(linkTo(methodOn(TagController.class)
                 .getTagById(tagId))

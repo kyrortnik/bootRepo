@@ -17,49 +17,35 @@ public class RequestParamsMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
 
-    //TODO -- check on null throw here
+    private static final String  SPLIT = "\\.";
 
-    /**
-     * @param sortingRequestParam String containing sorting order and parameter. Request sorting parameter example: asc(email)
-     * @return HashMap with key/value pairs
-     */
-    public static LinkedHashMap<String, Boolean> mapSortingParams(List<String> sortingRequestParam) {
-
-        LinkedHashMap<String, Boolean> parametersPairs = new LinkedHashMap<>();
-
-        for (String sortingPair : sortingRequestParam) {
-            String orderDirString = sortingPair.split("\\(")[0];
-            boolean orderDir = orderDirString.equals("asc");
-            String orderParam = StringUtils.substringBetween(sortingPair, "(", ")");
-            parametersPairs.put(orderParam, orderDir);
-        }
-        LOGGER.debug("Exiting RequestMapper.mapSortingParams()");
-        return parametersPairs;
-    }
 
     public static Sort mapParams(List<String> sortingParams) {
-        String parameter;
-        Direction direction;
-        List<Order> orders = new ArrayList<>();
-        if (sortingParams.size() == 1) {
-            parameter = sortingParams.get(0).split("\\.")[0];
-            direction = getSortDirection(sortingParams.get(0).split("\\.")[1]);
-            orders.add(new Order(direction, parameter));
-        } else {
-            for (String param : sortingParams) {
-                parameter = param.split("\\.")[0];
-                direction = getSortDirection(param.split("\\.")[1]);
+        try{
+            String parameter;
+            Direction direction;
+            List<Order> orders = new ArrayList<>();
+            if (sortingParams.size() == 1) {
+                parameter = sortingParams.get(0).split(SPLIT)[0];
+                direction = getSortDirection(sortingParams.get(0).split(SPLIT)[1]);
                 orders.add(new Order(direction, parameter));
+            } else {
+                for (String param : sortingParams) {
+                    parameter = param.split(SPLIT)[0];
+                    direction = getSortDirection(param.split(SPLIT)[1]);
+                    orders.add(new Order(direction, parameter));
+                }
             }
+            return Sort.by(orders);
+        }catch (ArrayIndexOutOfBoundsException e){
+            throw  new ArrayIndexOutOfBoundsException(" Incorrect sort_by pattern. Exmaple : sort_by=id.desc");
         }
 
-        return Sort.by(orders);
 
     }
 
     private static Direction getSortDirection(String direction) {
 
         return direction.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
     }
 }

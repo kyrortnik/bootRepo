@@ -7,6 +7,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -36,7 +37,7 @@ public class TagService implements CRUDService<Tag> {
     }
 
     @Override
-    public Optional<Tag> getById(Long id) {
+    public Optional<Tag> findById(Long id) {
         LOGGER.debug("Entering tagService.getById()");
 
         Optional<Tag> foundTag = tagRepository.findById(id);
@@ -115,7 +116,7 @@ public class TagService implements CRUDService<Tag> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<Tag> getTagByName(String tagName) {
+    public Optional<Tag> findTagByName(String tagName) {
         LOGGER.debug("Entering TagService.getTagByName()");
 
         Optional<Tag> foundTag = tagRepository.findByName(tagName);
@@ -147,9 +148,35 @@ public class TagService implements CRUDService<Tag> {
         LOGGER.debug("Entering TagService.getTagsByNames()");
         Set<Tag> tags = new HashSet<>();
         if (!tagNames.isEmpty()) {
-            tagNames.forEach(tagName -> getTagByName(tagName).ifPresent(tags::add));
+            tagNames.forEach(tagName -> findTagByName(tagName).ifPresent(tags::add));
         }
         LOGGER.debug("Exiting TagService.getTagsByNames()");
         return tags;
+    }
+
+    public Set<Tag> getTagsForCertificate(Long giftCertificateId) {
+
+        return tagRepository.findByCertificatesId(giftCertificateId);
+    }
+
+    public boolean tagExists(Tag tag) {
+        LOGGER.debug("start ");
+
+        boolean tagExists;
+        Example<Tag> tagExample = Example.of(tag);
+
+        tagExists = tagRepository.exists(tagExample);
+
+        LOGGER.debug("exit");
+        return tagExists;
+
+
+    }
+
+    public Tag getById(Long tagId) {
+        LOGGER.debug("start");
+        Tag proxyTag = tagRepository.getById(tagId);
+        LOGGER.debug("end");
+        return proxyTag;
     }
 }

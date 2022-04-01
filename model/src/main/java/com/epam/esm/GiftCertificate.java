@@ -1,10 +1,13 @@
 package com.epam.esm;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -16,9 +19,9 @@ import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","orders"})
-@Audited
 @EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Audited
 @Entity
 @Data
 @NoArgsConstructor
@@ -30,7 +33,6 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @NonNull
     private String name;
 
     private String description;
@@ -53,14 +55,12 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @ToString.Exclude
-    @JsonIgnore
+    @JsonProperty(access =  JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 
-
-    @ToString.Exclude
+    //TODO -- add HATEOAS to certificates getters
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true, fetch = FetchType.LAZY)
-//    @JsonIgnore
+    @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 
     public GiftCertificate(GiftCertificateBuilder builder){
@@ -75,18 +75,8 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.orders = builder.orders;
 
     }
-
-//    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate, Set<Tag> tags) {
-//
-//        this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
-//        this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
-//        this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
-//        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
-//        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-//        this.setTags(tags);
-//
-//    }
-
+    //TODO -- investigate why can't add commented line - HibernateException
+    //Hibernate - A collection with cascade=”all-delete-orphan” was no longer referenced by the owning entity instance
     public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
 
         this.setName(nonNull(changedGiftCertificate.getName()) ? changedGiftCertificate.getName() : this.getName());
@@ -96,7 +86,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
         this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
         this.setTags(nonNull(changedGiftCertificate.getTags()) ? changedGiftCertificate.getTags() : this.getTags());
-        this.setOrders(nonNull(changedGiftCertificate.getOrders()) ? changedGiftCertificate.getOrders() : this.getOrders());
+//        this.setOrders(nonNull(changedGiftCertificate.getOrders()) ? changedGiftCertificate.getOrders() : this.getOrders());
 
     }
 

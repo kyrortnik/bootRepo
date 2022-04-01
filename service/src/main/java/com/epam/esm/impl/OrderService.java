@@ -76,7 +76,7 @@ public class OrderService {
         Optional<Order> createdOrder;
 
         String giftCertificateName = order.getGiftCertificate().getName();
-        Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.getGiftCertificateByName(giftCertificateName);
+        Optional<GiftCertificate> giftCertificateFromOrder = giftCertificateService.findGiftCertificateByName(giftCertificateName);
 
         Long userId = order.getUser().getId();
         Optional<User> user = userService.getById(userId);

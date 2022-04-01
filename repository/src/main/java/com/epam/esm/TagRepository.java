@@ -1,15 +1,18 @@
 package com.epam.esm;
 
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 
 import java.util.Optional;
+import java.util.Set;
 
-public interface TagRepository extends PagingAndSortingRepository<Tag, Long> {
+public interface TagRepository extends JpaRepository<Tag, Long> {
 
      String THE_RICHEST_USER_QUERY =
             "SELECT u.id FROM users AS u\n" +
@@ -46,13 +49,8 @@ public interface TagRepository extends PagingAndSortingRepository<Tag, Long> {
     @Query(value = THE_RICHEST_USER_QUERY, nativeQuery = true)
      long getRichestUserId();
 
-//    /**
-//     * @param tagsToUpdate new Tag Set for GiftCertificate from client
-//     * @return Tag Set where existing tags were replaced with proxies and non-existing tags not changes so they could be created.
-//     */
-//    Set<Tag> replaceExistingTagsWithProxy(Set<Tag> tagsToUpdate);
+    Set<Tag> findByCertificatesId(Long certificatesId);
 
-
-
-
+    @Override
+    <S extends Tag> boolean exists(@NonNull Example<S> tag);
 }

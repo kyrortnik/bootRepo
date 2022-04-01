@@ -19,7 +19,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.Objects.isNull;
 
+@Transactional
 @Service
 public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
@@ -38,7 +40,7 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
     @Transactional
     @Override
-    public Optional<GiftCertificate> getById(Long id) {
+    public Optional<GiftCertificate> findById(Long id) {
         LOGGER.debug("Entering GiftCertificateService.getById()");
 
         Optional<GiftCertificate> foundGiftCertificate = giftCertificateRepository.findById(id);
@@ -47,7 +49,7 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
         return foundGiftCertificate;
     }
 
-    public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) {
+    public Optional<GiftCertificate> findGiftCertificateByName(String giftCertificateName) {
         LOGGER.debug("Entering GiftCertificateService.getGiftCertificateByName()");
 
         Optional<GiftCertificate> foundGiftCertificate = giftCertificateRepository.findByName(giftCertificateName);
@@ -57,30 +59,31 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
 
     }
 
+    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, Sort sortingParams, int max, int offset) {
+        Page<GiftCertificate> giftCertificates = isNull(tagNames)
+                ? getAll(sortingParams, max, offset)
+                : getCertificatesByTags(sortingParams, max, offset, tagNames);
+        if (giftCertificates.getContent().isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
+                    "No Satisfying Gift Certificates exists");
+            throw new NoSuchElementException("No Satisfying Gift Certificates exist");
+        }
+        return giftCertificates;
+    }
 
-//    @Override
-//    public List<GiftCertificate> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
-//        LOGGER.debug("Entering GiftCertificateService.getAll()");
-//        List<GiftCertificate> foundGiftCertificates = giftCertificateRepository.getGiftCertificates(sortParams, max, offset);
-//
-//        LOGGER.debug("Exiting GiftCertificateService.getAll()");
-//        return foundGiftCertificates;
-//    }
 
     @Override
     public Page<GiftCertificate> getAll(Sort sortParams, int max, int offset) {
         LOGGER.debug("Entering GiftCertificateService.getAll()");
-//        List<GiftCertificate> foundGiftCertificates = giftCertificateRepository.getGiftCertificates(sortParams, max, offset);
 
-        Page<GiftCertificate> foundGiftCertificate = giftCertificateRepository.findAll(PageRequest.of(offset, max, sortParams));
+        Page<GiftCertificate> foundGiftCertificates = giftCertificateRepository.findAll(PageRequest.of(offset, max, sortParams));
 
         LOGGER.debug("Exiting GiftCertificateService.getAll()");
-//        return foundGiftCertificates;
-        return foundGiftCertificate;
+        return foundGiftCertificates;
     }
 
-
-    public Page<GiftCertificate> getCertificatesByTags(Sort sortParams, int max, Set<String> tagNames, int offset) {
+    //TODO -- fix return. Return duplicates, 'and' condition is not met
+    public Page<GiftCertificate> getCertificatesByTags(Sort sortParams, int max, int offset, Set<String> tagNames) {
         LOGGER.debug("Entering GiftCertificateService.getCertificatesByTags()");
 
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
@@ -97,47 +100,70 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
         boolean giftCertificateIsDeleted;
         giftCertificateRepository.deleteById(giftCertificateId);
 
-//        giftCertificateId = giftCertificateRepository.findById(giftCertificateId).isPresent();
-
         giftCertificateIsDeleted = giftCertificateRepository.findById(giftCertificateId).isPresent();
 
-//        LOGGER.debug("Exiting GiftCertificateService.delete()");
+        LOGGER.debug("Exiting GiftCertificateService.delete()");
         return giftCertificateIsDeleted;
     }
 
 
-    //TODO -- test on update with existing/new tags
     @Override
     public void update(GiftCertificate changedGiftCertificate, Long giftCertificateId) throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.update()");
 
-        GiftCertificate existingGiftCertificate = getById(giftCertificateId)
+        GiftCertificate existingGiftCertificate = findById(giftCertificateId)
                 .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with id [" + giftCertificateId + "] exists"));
-
         changedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
+        Set<Tag> updatedTags = replaceExistingWithProxy(changedGiftCertificate.getTags());
+
+        changedGiftCertificate.setTags(updatedTags);
         existingGiftCertificate.mergeTwoGiftCertificate(changedGiftCertificate);
         giftCertificateRepository.save(existingGiftCertificate);
 
         LOGGER.debug("Exiting GiftCertificateService.update()");
     }
 
-    //TODO -- test on create with existing/new tags
+
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) {
-        try {
+
             LOGGER.debug("Entering GiftCertificateService.create()");
+
+            if (findGiftCertificateByName(giftCertificate.getName()).isPresent()) {
+                throw new ConstraintViolationException
+                        ("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"
+                                , new SQLException(), "gift certificate name");
+            }
             giftCertificate.setCreateDate(LocalDateTime.now());
             giftCertificate.setLastUpdateDate(LocalDateTime.now());
+
+            Set<Tag> updatedTags = replaceExistingWithProxy(giftCertificate.getTags());
+            giftCertificate.setTags(updatedTags);
             GiftCertificate createdGiftCertificate = giftCertificateRepository.save(giftCertificate);
 
             LOGGER.debug("Exiting GiftCertificateService.create()");
             return createdGiftCertificate;
-        } catch (ConstraintViolationException e) {
-            LOGGER.error("ConstraintViolationException in GiftCertificateService.create()\n" +
-                    e.getMessage());
-            throw new ConstraintViolationException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists", new SQLException(), "gift certificate name");
-        }
+    }
 
+
+    public Set<Tag> getCertificateTags(Long giftCertificateId) {
+
+        Set<Tag> giftCertificateTag = tagService.getTagsForCertificate(giftCertificateId);
+
+        return giftCertificateTag;
+    }
+
+    private Set<Tag> replaceExistingWithProxy(Set<Tag> tags) {
+        Set<Tag> updatedTags = new HashSet<>();
+        for (Tag tag : tags) {
+            Optional<Tag> foundTag = tagService.findTagByName(tag.getName());
+            if (foundTag.isPresent()) {
+                updatedTags.remove(tag);
+                Tag proxyTag = tagService.getById(foundTag.get().getId());
+                updatedTags.add(proxyTag);
+            }
+        }
+        return updatedTags;
     }
 
 }

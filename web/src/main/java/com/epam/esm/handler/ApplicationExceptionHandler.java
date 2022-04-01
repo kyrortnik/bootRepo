@@ -2,6 +2,7 @@ package com.epam.esm.handler;
 
 import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -60,7 +61,7 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(SQLException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
-    ExceptionEntity constraintViolationException(SQLException e) {
+    ExceptionEntity constraintViolationException(ConstraintViolationException e) {
         ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage().split(":")[0]);
         LOGGER.error("SQLException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
@@ -87,6 +88,18 @@ public class ApplicationExceptionHandler {
     ExceptionEntity noResultException(NoResultException e) {
         ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
         LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
+                "message: " + exceptionEntity.getMessage() +
+                "\nerror code:" + exceptionEntity.getCode());
+
+        return exceptionEntity;
+    }
+
+    @ExceptionHandler(ArrayIndexOutOfBoundsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody
+    ExceptionEntity incorrectSortByPattern(ArrayIndexOutOfBoundsException e) {
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        LOGGER.error("ArrayIndexOutOfBoundsException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());
 

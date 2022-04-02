@@ -127,22 +127,22 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) {
 
-            LOGGER.debug("Entering GiftCertificateService.create()");
+        LOGGER.debug("Entering GiftCertificateService.create()");
 
-            if (findGiftCertificateByName(giftCertificate.getName()).isPresent()) {
-                throw new ConstraintViolationException
-                        ("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"
-                                , new SQLException(), "gift certificate name");
-            }
-            giftCertificate.setCreateDate(LocalDateTime.now());
-            giftCertificate.setLastUpdateDate(LocalDateTime.now());
+        if (findGiftCertificateByName(giftCertificate.getName()).isPresent()) {
+            throw new ConstraintViolationException
+                    ("Gift Certificate with name [" + giftCertificate.getName() + "] already exists"
+                            , new SQLException(), "gift certificate name");
+        }
+        giftCertificate.setCreateDate(LocalDateTime.now());
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
-            Set<Tag> updatedTags = replaceExistingWithProxy(giftCertificate.getTags());
-            giftCertificate.setTags(updatedTags);
-            GiftCertificate createdGiftCertificate = giftCertificateRepository.save(giftCertificate);
+        Set<Tag> updatedTags = replaceExistingWithProxy(giftCertificate.getTags());
+        giftCertificate.setTags(updatedTags);
+        GiftCertificate createdGiftCertificate = giftCertificateRepository.save(giftCertificate);
 
-            LOGGER.debug("Exiting GiftCertificateService.create()");
-            return createdGiftCertificate;
+        LOGGER.debug("Exiting GiftCertificateService.create()");
+        return createdGiftCertificate;
     }
 
 

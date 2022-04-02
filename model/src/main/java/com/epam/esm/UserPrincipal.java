@@ -1,25 +1,34 @@
 package com.epam.esm;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
+@Data
+@AllArgsConstructor
 public class UserPrincipal implements UserDetails {
 
     private User user;
 
-    public UserPrincipal(User user){
-        this.user = user;
+    private List<AuthGroup> authGroups;
 
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("USER"));
+
+        Set<SimpleGrantedAuthority> grantedAuthorities;
+        if (Objects.nonNull(authGroups)) {
+            grantedAuthorities = new HashSet<>();
+            authGroups.forEach(group -> grantedAuthorities.add(new SimpleGrantedAuthority(group.getAuthGroup())));
+        } else {
+            grantedAuthorities = Collections.emptySet();
+        }
+        return grantedAuthorities;
     }
 
     @Override

@@ -1,17 +1,14 @@
 package com.epam.esm.config;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -36,7 +33,7 @@ public class PersistenceConfig {
 
     @Profile("dev")
     @Bean
-    public DataSource embeddedDataSource() {
+    public DataSource dataSourceEmbedded() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
@@ -45,9 +42,9 @@ public class PersistenceConfig {
     }
 
     @Profile("prod")
-    @Bean
+    @Bean(name = "entityManagerFactory")
     @Autowired
-    public LocalSessionFactoryBean sessionFactoryHibernate(DataSource dataSource) {
+    public LocalSessionFactoryBean entityManagerFactoryPostgres(DataSource dataSource) {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setPackagesToScan("com.epam.esm");
@@ -56,10 +53,11 @@ public class PersistenceConfig {
     }
 
     @Profile("dev")
-    @Bean
-    public LocalSessionFactoryBean entityManagerFactory() {
+    @Bean(name = "entityManagerFactory")
+    @Autowired
+    public LocalSessionFactoryBean entityManagerFactoryEmbedded(DataSource dataSource) {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(embeddedDataSource());
+        sessionFactory.setDataSource(dataSource);
         sessionFactory.setPackagesToScan("com.epam.esm");
         return sessionFactory;
     }
@@ -67,22 +65,10 @@ public class PersistenceConfig {
     @Profile("prod")
     final Properties hibernateProperties() {
         final Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.hbm2ddl.auto", "none");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         properties.setProperty("org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
         return properties;
     }
-
-    @Bean
-    @Autowired
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-        return new HibernateTransactionManager(sessionFactory);
-    }
-
-//    @Bean
-//    @Autowired
-//    public SessionFactory entityManagerFactory(SessionFactory sessionFactory) {
-//        return sessionFactory;
-//    }
 
 }

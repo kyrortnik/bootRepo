@@ -62,55 +62,6 @@ public class GiftCertificateController {
         return giftCertificate;
     }
 
-
-//    @GetMapping("/")
-//    public List<GiftCertificate> getCertificates(
-//            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
-//            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
-//            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
-//            @RequestParam(value = "tag", required = false) Set<String> tags) {
-//      LOGGER.debug("Entering GiftCertificateController.getCertificates()");
-//
-//        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
-//        if (sortingParams.containsKey(null)) {
-//            LOGGER.error("NullPointerException in GiftCertificateController.getCertificates()\n" +
-//                    "Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");
-//
-//            throw new NullPointerException("Incorrect sort_by pattern. Use parenthesis. Example: sort_by=asc(name)");
-//        }
-//        List<GiftCertificate> giftCertificates = Objects.isNull(tags)
-//                ? giftCertificateService.getAll(sortingParams, max, offset)
-//                : giftCertificateService.getCertificatesByTags(sortingParams, max, tags, offset);
-//
-//        if (giftCertificates.isEmpty()) {
-//            LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
-//                    "No Satisfying Gift Certificates exists");
-//            throw new NoEntitiesFoundException("No Satisfying Gift Certificates exist");
-//        }
-//        giftCertificates.forEach(giftCertificate -> {
-//
-//            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-//                    .getCertificateById(giftCertificate.getId()))
-//                    .withSelfRel());
-//
-//            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-//                    .update(giftCertificate, giftCertificate.getId()))
-//                    .withRel("update"));
-//
-//            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-//                    .deleteGiftCertificate(giftCertificate.getId()))
-//                    .withRel("delete"));
-//
-//            giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-//                    .getGiftCertificateTags(giftCertificate.getId()))
-//                    .withRel("tags"));
-//
-//
-//        });
-////        LOGGER.debug("Exiting GiftCertificateController.getCertificates()");
-//        return giftCertificates;
-//    }
-
     @GetMapping("/")
     public Page<GiftCertificate> getCertificates(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
@@ -120,7 +71,8 @@ public class GiftCertificateController {
         LOGGER.debug("Entering GiftCertificateController.getCertificates()");
 
         Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
-        Page<GiftCertificate> giftCertificates = giftCertificateService.getGiftCertificates(tags, sortingParams, max, offset);
+        Page<GiftCertificate> giftCertificates =
+                giftCertificateService.getGiftCertificates(tags, sortingParams, max, offset);
         giftCertificates.forEach(giftCertificate -> {
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -189,7 +141,6 @@ public class GiftCertificateController {
     }
 
 
-
     @PutMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> update(@RequestBody GiftCertificate giftCertificate, @PathVariable Long id) {
@@ -206,9 +157,10 @@ public class GiftCertificateController {
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateController.getGiftCertificateTags()");
 
-        GiftCertificate giftCertificate = giftCertificateService.findById(giftCertificateId).orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
-//        Set<Tag> giftCertificateTags = giftCertificate.getTags();
+         giftCertificateService.findById(giftCertificateId)
+                .orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
         Set<Tag> giftCertificateTags = giftCertificateService.getCertificateTags(giftCertificateId);
+
 
         giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
                 .getTagById(tag.getId()))

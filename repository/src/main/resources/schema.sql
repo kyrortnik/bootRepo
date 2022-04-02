@@ -18,7 +18,10 @@ PRIMARY KEY (id), UNIQUE (name));
 CREATE TABLE  IF NOT EXISTS users (
 id SERIAL NOT NULL,
 first_name CHARACTER VARYING(255),
-second_name CHARACTER VARYING(255), PRIMARY KEY (id));
+second_name CHARACTER VARYING(255),
+username CHARACTER VARYING(255),
+password CHARACTER VARYING(255),
+ PRIMARY KEY (id), UNIQUE (username));
 
 
 CREATE TABLE  IF NOT EXISTS orders (
@@ -39,61 +42,80 @@ PRIMARY KEY (certificate_id, tag_id),
 CONSTRAINT fk_certificates FOREIGN KEY (certificate_id) REFERENCES certificates(id),
 CONSTRAINT fk_tags FOREIGN KEY (tag_id) REFERENCES tags(id));
 
+CREATE TABLE IF NOT EXISTS auth_user_group (
+auth_user_group_id  SERIAL NOT NULL,
+username CHARACTER VARYING (128) NOT NULL UNIQUE,
+auth_group CHARACTER VARYING (128) NOT NULL UNIQUE,
+CONSTRAINT users_auth_user_group_fk FOREIGN KEY(username) REFERENCES users(username),
+PRIMARY KEY (auth_user_group_id)
+);
 
-CREATE TABLE IF NOT EXISTS revinfo (
-rev SERIAL NOT NULL,
-revtstmp BIGINT,
-PRIMARY KEY (rev));
-
-
-CREATE TABLE  IF NOT EXISTS orders_aud (
-id INTEGER NOT NULL,
-rev INTEGER NOT NULL,
-revtype SMALLINT,
-order_cost DOUBLE PRECISION,
-order_date TIMESTAMP(6) WITHOUT TIME ZONE,
-gift_certificate_id BIGINT,
-user_id BIGINT,
-PRIMARY KEY (id, rev),
-CONSTRAINT fke27yw2ep0cm2h5hin5fipu55h FOREIGN KEY (rev) REFERENCES revinfo(rev));
-
-
-CREATE TABLE  IF NOT EXISTS tags_aud (
-id INTEGER NOT NULL,
-rev INTEGER NOT NULL,
-revtype SMALLINT,
-name CHARACTER VARYING(255),
-PRIMARY KEY (id, rev),
-CONSTRAINT fk80n0rnnao71nirkhxe2dqowkp FOREIGN KEY (rev) REFERENCES revinfo(rev));
-
-
-CREATE TABLE  IF NOT EXISTS users_aud (
-id INTEGER NOT NULL,
-rev INTEGER NOT NULL,
-revtype SMALLINT,
-first_name CHARACTER VARYING(255),
-second_name CHARACTER VARYING(255),
-PRIMARY KEY (id, rev),
-CONSTRAINT fkl1mf0jaesfny93lglupp17d9u FOREIGN KEY (rev) REFERENCES revinfo(rev));
-
-
-CREATE TABLE  IF NOT EXISTS certificates_aud (
-id INTEGER NOT NULL,
-rev INTEGER NOT NULL,
-revtype SMALLINT,
-create_date TIMESTAMP(6) WITHOUT TIME ZONE,
-description CHARACTER VARYING(255),
-duration BIGINT,
-last_update_date TIMESTAMP(6) WITHOUT TIME ZONE,
-name CHARACTER VARYING(255), price BIGINT,
-PRIMARY KEY (id, rev),
-CONSTRAINT fkhkf1i50y3qmebf0u9a78nvjhv FOREIGN KEY (rev) REFERENCES revinfo(rev));
-
-
-CREATE TABLE  IF NOT EXISTS certificates_tags_aud (
-rev INTEGER NOT NULL,
-certificate_id BIGINT NOT NULL,
-tag_id BIGINT NOT NULL, revtype SMALLINT,
-PRIMARY KEY (rev, certificate_id, tag_id),
-CONSTRAINT fkcn55lojfj1opraxg1kaet6qv8 FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--CREATE TABLE IF NOT EXISTS revinfo (
+--rev SERIAL NOT NULL,
+--revtstmp BIGINT,
+--PRIMARY KEY (rev));
+--
+--
+--CREATE TABLE  IF NOT EXISTS orders_aud (
+--id INTEGER NOT NULL,
+--rev INTEGER NOT NULL,
+--revtype SMALLINT,
+--order_cost DOUBLE PRECISION,
+--order_date TIMESTAMP(6) WITHOUT TIME ZONE,
+--gift_certificate_id BIGINT,
+--user_id BIGINT,
+--PRIMARY KEY (id, rev),
+--CONSTRAINT fke27yw2ep0cm2h5hin5fipu55h FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--
+--CREATE TABLE  IF NOT EXISTS tags_aud (
+--id INTEGER NOT NULL,
+--rev INTEGER NOT NULL,
+--revtype SMALLINT,
+--name CHARACTER VARYING(255),
+--PRIMARY KEY (id, rev),
+--CONSTRAINT fk80n0rnnao71nirkhxe2dqowkp FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--
+--CREATE TABLE  IF NOT EXISTS users_aud (
+--id INTEGER NOT NULL,
+--rev INTEGER NOT NULL,
+--revtype SMALLINT,
+--first_name CHARACTER VARYING(255),
+--second_name CHARACTER VARYING(255),
+--password CHARACTER VARYING(255),
+--username CHARACTER VARYING(255),
+--PRIMARY KEY (id, rev),
+--CONSTRAINT fkl1mf0jaesfny93lglupp17d9u FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--
+--CREATE TABLE  IF NOT EXISTS certificates_aud (
+--id INTEGER NOT NULL,
+--rev INTEGER NOT NULL,
+--revtype SMALLINT,
+--create_date TIMESTAMP(6) WITHOUT TIME ZONE,
+--description CHARACTER VARYING(255),
+--duration BIGINT,
+--last_update_date TIMESTAMP(6) WITHOUT TIME ZONE,
+--name CHARACTER VARYING(255), price BIGINT,
+--PRIMARY KEY (id, rev),
+--CONSTRAINT fkhkf1i50y3qmebf0u9a78nvjhv FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--
+--CREATE TABLE  IF NOT EXISTS certificates_tags_aud (
+--rev INTEGER NOT NULL,
+--certificate_id BIGINT NOT NULL,
+--tag_id BIGINT NOT NULL, revtype SMALLINT,
+--PRIMARY KEY (rev, certificate_id, tag_id),
+--CONSTRAINT fkcn55lojfj1opraxg1kaet6qv8 FOREIGN KEY (rev) REFERENCES revinfo(rev));
+--
+--CREATE TABLE IF NOT EXISTS auth_user_group_audit_log (
+--auth_user_group_id BIGINT NOT NULL,
+--rev INTEGER NOT NULL,
+--revtype SMALLINT,
+--auth_group CHARACTER VARYING(255),
+--username CHARACTER VARYING(255),
+--PRIMARY KEY (auth_user_group_id, rev),
+--CONSTRAINT fk4rsak3otyfamm2leqmm7kilrs FOREIGN KEY (rev) REFERENCES revinfo(rev));
 

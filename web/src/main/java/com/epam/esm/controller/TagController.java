@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Tag getTagById(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.getTag()");
 
@@ -56,6 +58,7 @@ public class TagController {
 
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Page<Tag> getTags(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
@@ -83,6 +86,7 @@ public class TagController {
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Tag create(@RequestBody Tag tag) {
         LOGGER.debug("Entering TagController.create()");
 
@@ -105,6 +109,7 @@ public class TagController {
 
 
     @DeleteMapping("/{tagId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteTag(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.delete()");
 
@@ -117,6 +122,7 @@ public class TagController {
     }
 
     @GetMapping("/mostUsedTagForRichestUser")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Tag getMostUsedTagForRichestUser() {
         LOGGER.debug("Entering TagController.getMostUsedTagForRichestUser()");
         Tag tag = tagService.getMostUsedTagForRichestUser()

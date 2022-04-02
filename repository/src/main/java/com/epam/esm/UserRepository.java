@@ -16,4 +16,5 @@ public interface UserRepository  extends PagingAndSortingRepository<User, Long> 
     @Override
     @NonNull Page<User> findAll(@NonNull Pageable pageable);
 
+    Optional<User> findByUsername(String username);
 }

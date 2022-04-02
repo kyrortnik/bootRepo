@@ -32,6 +32,9 @@ public class User extends RepresentationModel<User> {
     @Column(name = "second_name")
     private String secondName;
 
+    private String username;
+
+    private String password;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore

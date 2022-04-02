@@ -23,7 +23,9 @@ INSERT INTO certificates_tags VALUES (2,3);
 INSERT INTO certificates_tags VALUES (3,4);
 INSERT INTO certificates_tags VALUES (3,5);
 
-INSERT INTO users VALUES (DEFAULT,'John','Lennon');
-INSERT INTO users VALUES (DEFAULT,'Paul','McCartney');
-INSERT INTO users VALUES (DEFAULT,'Geogre','Harrison');
-INSERT INTO users VALUES (DEFAULT,'Ringo','Star');
+INSERT INTO users VALUES (DEFAULT,'John','Lennon','login1','password1');
+INSERT INTO users VALUES (DEFAULT,'Paul','McCartney','login2','password2');
+INSERT INTO users VALUES (DEFAULT,'Geogre','Harrison','login3','password3');
+INSERT INTO users VALUES (DEFAULT,'Ringo','Star','login4','password4');
+
+

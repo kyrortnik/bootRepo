@@ -1,38 +1,41 @@
-//package com.epam.esm.impl;
-//
-//import com.epam.esm.User;
-//import com.epam.esm.UserRepository;
-//import org.junit.jupiter.api.*;
-//import org.mockito.Mockito;
-//
-//import java.util.*;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//
-//class UserServiceTest {
-//
-//    //mock
-//    private final UserRepository userRepository = Mockito.mock(UserRepository.class, withSettings().verboseLogging());
-//
-//    // class under test
-//    private final UserService userService = new UserService(userRepository);
-//
-//    private final long userId = 1;
-//
-//    private User firstUser;
-//    private User secondUser;
-//    private User thirdUser;
-//
-//    private final List<User> noUsers = new ArrayList<>();
-//
-//    private List<User> users;
-//
-//    private HashMap<String, Boolean> sortParams;
-//    private final int max = 20;
-//    private final int offset = 0;
-//
+//TODO --refactor tests
+package com.epam.esm.impl;
+
+import com.epam.esm.AuthGroupRepository;
+import com.epam.esm.User;
+import com.epam.esm.UserRepository;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+
+class UserServiceTest {
+
+    //mock
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class, withSettings().verboseLogging());
+    private final AuthGroupRepository authGroupRepository = Mockito.mock(AuthGroupRepository.class,withSettings().verboseLogging());
+
+    // class under test
+//    private final UserService userService = new UserService(userRepository,authGroupRepository);
+
+    private final long userId = 1;
+
+    private User firstUser;
+    private User secondUser;
+    private User thirdUser;
+
+    private final List<User> noUsers = new ArrayList<>();
+
+    private List<User> users;
+
+    private HashMap<String, Boolean> sortParams;
+    private final int max = 20;
+    private final int offset = 0;
+
 //    @BeforeEach
 //    void setUp() {
 //
@@ -102,4 +105,4 @@
 //        verify(userRepository).getUsers(sortParams, max, offset);
 //        assertEquals(noUsers, returnUsers);
 //    }
-//}
+}

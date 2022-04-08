@@ -2,6 +2,7 @@ package com.epam.esm;
 
 import lombok.Data;
 import org.hibernate.envers.Audited;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "auth_user_group")
-public class AuthGroup {
+public class AuthGroup /*implements GrantedAuthority*/ {
 
     @Id
     @Column(name = "auth_user_group_id")

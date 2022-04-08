@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.LoginDto;
 import com.epam.esm.Order;
 import com.epam.esm.User;
 import com.epam.esm.exception.NoEntitiesFoundException;
@@ -11,10 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -58,7 +64,6 @@ public class UserController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.debug("Entering UserController.getUsers()");
 
-//        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
         Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
         Page<User> users = userService.getUsers(sortingParams, max, offset);
         if (users.isEmpty()) {
@@ -111,5 +116,18 @@ public class UserController {
 
         LOGGER.debug("Exiting UserController.getUserOrders()");
         return userOrders;
+    }
+
+    //TODO -- returns JWT token. Is it final way of implementation?
+    @PostMapping("/signin")
+    public String login(@RequestBody LoginDto loginDto) {
+        return userService.signin(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(()->
+                new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+    }
+
+    @PostMapping("/signup")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public User signup(@RequestBody LoginDto loginDto){
+        return userService.signup(loginDto).orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST,"User already exists"));
     }
 }

@@ -1,214 +1,216 @@
-//package com.epam.esm.impl;
-//
-//import com.epam.esm.GiftCertificate;
-//import com.epam.esm.GiftCertificateRepository;
-//import com.epam.esm.Tag;
-//import org.hibernate.exception.ConstraintViolationException;
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.Mockito;
-//
-//import java.time.LocalDateTime;
-//import java.util.*;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class GiftCertificateServiceTest {
-//
-//    // mocks
-//    private final GiftCertificateRepository giftCertificateRepository = Mockito.mock(GiftCertificateRepository.class, withSettings().verboseLogging());
-//
-//    private final TagService tagService = Mockito.mock(TagService.class, withSettings().verboseLogging());
-//
-//    // class under test
-//    private final GiftCertificateService giftCertificateService = new GiftCertificateService(giftCertificateRepository, tagService);
-//
-//    //params
-//
-//    private final long giftCertificateId = 1;
-//    private final long nonExistingGiftCertificateId = 11111;
-//    private final String giftCertificateName = "certificate name";
-//    private final String description = "certificate description";
-//    private final Long price = 100L;
-//    private final long duration = 120;
-//    private final LocalDateTime createDate = LocalDateTime.now();
-//    private final LocalDateTime lastUpdateDate = LocalDateTime.now();
-//    private final LocalDateTime dataChangedAfterUpdate = LocalDateTime.of(2022, 3, 25, 15, 55);
-//
-//    private final int max = 20;
-//    private final int offset = 0;
-//
-//    private final Tag firstTag = new Tag(1L, "first tag");
-//    private final Tag secondTag = new Tag(2L, "second tag");
-//    private final Tag thirdTag = new Tag(3L, "third tag");
-//
-//    private final String firstTagName = "first tag";
-//    private final String secondTagName = "second tag";
-//    private final String thirdTagName = "third tag";
-//    private final String nonExistingGiftCertificateName = "non-existing name";
-//
-//    private final Set<Tag> noTags = new HashSet<>();
-//
-//    private final Set<Tag> tags = new HashSet<>(
-//            Arrays.asList(
-//                    firstTag,
-//                    secondTag,
-//                    thirdTag
-//            ));
-//
-//    private final Set<String> noTagNames = new HashSet<>();
-//
-//    private final Set<String> tagNames = new HashSet<>(
-//            Arrays.asList(
-//                    firstTagName,
-//                    secondTagName,
-//                    thirdTagName
-//            ));
-//
-//    private GiftCertificate firstGiftCertificate;
-//    private GiftCertificate secondGiftCertificate;
-//    private GiftCertificate thirdGiftCertificate;
-//    private GiftCertificate firstGiftCertificateWithTags;
-//    private GiftCertificate secondGiftCertificateWithTags;
-//    private GiftCertificate thirdGiftCertificateWithTags;
-//
-//    private GiftCertificate changedGiftCertificate;
-//    private GiftCertificate existingGiftCertificate;
-//    private GiftCertificate updatedGiftCertificate;
-//    private GiftCertificate nonExistingGiftCertificate;
-//
-//    private final List<GiftCertificate> noGiftCertificates = new ArrayList<>();
-//
-//    private final List<GiftCertificate> giftCertificates = Arrays.asList(
-//            firstGiftCertificate,
-//            secondGiftCertificate,
-//            thirdGiftCertificate
-//    );
-//
-//    private final List<GiftCertificate> giftCertificatesWithTags = Arrays.asList(
-//            firstGiftCertificateWithTags,
-//            secondGiftCertificateWithTags,
-//            thirdGiftCertificateWithTags
-//    );
-//
-//    private final HashMap<String, Boolean> sortParams = new HashMap<>();
-//
-//    @BeforeEach
-//    void setUp() {
-//        sortParams.put("name", true);
-//
-//        String changedName = "changedName";
-//        String changedDescription = "changedDescription";
-//        long changedPrice = 1500;
-//        long changedDuration = 300;
-//
-//
-//        firstGiftCertificate = new GiftCertificate.GiftCertificateBuilder("first certificate")
-//                .id(1L)
-//                .description("first description")
-//                .price(100L)
-//                .duration(120L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .build();
-//
-//        secondGiftCertificate = new GiftCertificate.GiftCertificateBuilder("second certificate")
-//                .id(2L)
-//                .description("second description")
-//                .price(300L)
-//                .duration(30L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .build();
-//
-//        thirdGiftCertificate = new GiftCertificate.GiftCertificateBuilder("third certificate")
-//                .id(3L)
-//                .description("third description")
-//                .price(500L)
-//                .duration(90L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .build();
-//
-//        firstGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("first certificate")
-//                .id(1L)
-//                .description("first description")
-//                .price(100L)
-//                .duration(120L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .tags(tags)
-//                .build();
-//
-//        secondGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("second certificate")
-//                .id(2L)
-//                .description("second description")
-//                .price(300L)
-//                .duration(30L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .tags(tags)
-//                .build();
-//
-//        thirdGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("third certificate")
-//                .id(3L)
-//                .description("third description")
-//                .price(500L)
-//                .duration(90L)
-//                .createDate(LocalDateTime.now())
-//                .lastUpdateDate(LocalDateTime.now())
-//                .tags(tags)
-//                .build();
-//
-//        changedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(changedName)
-//                .description(changedDescription)
-//                .price(changedPrice)
-//                .duration(changedDuration)
-//                .tags(tags)
-//                .build();
-//
-//        existingGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
-//                .id(giftCertificateId)
-//                .description(description)
-//                .price(price)
-//                .duration(duration)
-//                .createDate(createDate)
-//                .lastUpdateDate(lastUpdateDate)
-//                .tags(tags)
-//                .build();
-//
-//        updatedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(changedName)
-//                .id(giftCertificateId)
-//                .description(changedDescription)
-//                .price(changedPrice)
-//                .duration(changedDuration)
-//                .createDate(createDate)
-//                .lastUpdateDate(dataChangedAfterUpdate)
-//                .tags(tags)
-//                .build();
-//
-//        nonExistingGiftCertificate = new GiftCertificate.GiftCertificateBuilder(nonExistingGiftCertificateName)
-//                .id(nonExistingGiftCertificateId)
-//                .build();
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//        sortParams.clear();
-//        firstGiftCertificate = null;
-//        secondGiftCertificate = null;
-//        thirdGiftCertificate = null;
-//        firstGiftCertificateWithTags = null;
-//        secondGiftCertificateWithTags = null;
-//        thirdGiftCertificateWithTags = null;
-//        changedGiftCertificate = null;
-//        existingGiftCertificate = null;
-//        updatedGiftCertificate = null;
-//        nonExistingGiftCertificate = null;
-//    }
-//
+
+//TODO -- refactor tests
+package com.epam.esm.impl;
+
+import com.epam.esm.GiftCertificate;
+import com.epam.esm.GiftCertificateRepository;
+import com.epam.esm.Tag;
+import org.hibernate.exception.ConstraintViolationException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class GiftCertificateServiceTest {
+
+    // mocks
+    private final GiftCertificateRepository giftCertificateRepository = Mockito.mock(GiftCertificateRepository.class, withSettings().verboseLogging());
+
+    private final TagService tagService = Mockito.mock(TagService.class, withSettings().verboseLogging());
+
+    // class under test
+    private final GiftCertificateService giftCertificateService = new GiftCertificateService(giftCertificateRepository, tagService);
+
+    //params
+
+    private final long giftCertificateId = 1;
+    private final long nonExistingGiftCertificateId = 11111;
+    private final String giftCertificateName = "certificate name";
+    private final String description = "certificate description";
+    private final Long price = 100L;
+    private final long duration = 120;
+    private final LocalDateTime createDate = LocalDateTime.now();
+    private final LocalDateTime lastUpdateDate = LocalDateTime.now();
+    private final LocalDateTime dataChangedAfterUpdate = LocalDateTime.of(2022, 3, 25, 15, 55);
+
+    private final int max = 20;
+    private final int offset = 0;
+
+    private final Tag firstTag = new Tag(1L, "first tag");
+    private final Tag secondTag = new Tag(2L, "second tag");
+    private final Tag thirdTag = new Tag(3L, "third tag");
+
+    private final String firstTagName = "first tag";
+    private final String secondTagName = "second tag";
+    private final String thirdTagName = "third tag";
+    private final String nonExistingGiftCertificateName = "non-existing name";
+
+    private final Set<Tag> noTags = new HashSet<>();
+
+    private final Set<Tag> tags = new HashSet<>(
+            Arrays.asList(
+                    firstTag,
+                    secondTag,
+                    thirdTag
+            ));
+
+    private final Set<String> noTagNames = new HashSet<>();
+
+    private final Set<String> tagNames = new HashSet<>(
+            Arrays.asList(
+                    firstTagName,
+                    secondTagName,
+                    thirdTagName
+            ));
+
+    private GiftCertificate firstGiftCertificate;
+    private GiftCertificate secondGiftCertificate;
+    private GiftCertificate thirdGiftCertificate;
+    private GiftCertificate firstGiftCertificateWithTags;
+    private GiftCertificate secondGiftCertificateWithTags;
+    private GiftCertificate thirdGiftCertificateWithTags;
+
+    private GiftCertificate changedGiftCertificate;
+    private GiftCertificate existingGiftCertificate;
+    private GiftCertificate updatedGiftCertificate;
+    private GiftCertificate nonExistingGiftCertificate;
+
+    private final List<GiftCertificate> noGiftCertificates = new ArrayList<>();
+
+    private final List<GiftCertificate> giftCertificates = Arrays.asList(
+            firstGiftCertificate,
+            secondGiftCertificate,
+            thirdGiftCertificate
+    );
+
+    private final List<GiftCertificate> giftCertificatesWithTags = Arrays.asList(
+            firstGiftCertificateWithTags,
+            secondGiftCertificateWithTags,
+            thirdGiftCertificateWithTags
+    );
+
+    private final HashMap<String, Boolean> sortParams = new HashMap<>();
+
+    @BeforeEach
+    void setUp() {
+        sortParams.put("name", true);
+
+        String changedName = "changedName";
+        String changedDescription = "changedDescription";
+        long changedPrice = 1500;
+        long changedDuration = 300;
+
+
+        firstGiftCertificate = new GiftCertificate.GiftCertificateBuilder("first certificate")
+                .id(1L)
+                .description("first description")
+                .price(100L)
+                .duration(120L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .build();
+
+        secondGiftCertificate = new GiftCertificate.GiftCertificateBuilder("second certificate")
+                .id(2L)
+                .description("second description")
+                .price(300L)
+                .duration(30L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .build();
+
+        thirdGiftCertificate = new GiftCertificate.GiftCertificateBuilder("third certificate")
+                .id(3L)
+                .description("third description")
+                .price(500L)
+                .duration(90L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .build();
+
+        firstGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("first certificate")
+                .id(1L)
+                .description("first description")
+                .price(100L)
+                .duration(120L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .tags(tags)
+                .build();
+
+        secondGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("second certificate")
+                .id(2L)
+                .description("second description")
+                .price(300L)
+                .duration(30L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .tags(tags)
+                .build();
+
+        thirdGiftCertificateWithTags = new GiftCertificate.GiftCertificateBuilder("third certificate")
+                .id(3L)
+                .description("third description")
+                .price(500L)
+                .duration(90L)
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
+                .tags(tags)
+                .build();
+
+        changedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(changedName)
+                .description(changedDescription)
+                .price(changedPrice)
+                .duration(changedDuration)
+                .tags(tags)
+                .build();
+
+        existingGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
+                .id(giftCertificateId)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .tags(tags)
+                .build();
+
+        updatedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(changedName)
+                .id(giftCertificateId)
+                .description(changedDescription)
+                .price(changedPrice)
+                .duration(changedDuration)
+                .createDate(createDate)
+                .lastUpdateDate(dataChangedAfterUpdate)
+                .tags(tags)
+                .build();
+
+        nonExistingGiftCertificate = new GiftCertificate.GiftCertificateBuilder(nonExistingGiftCertificateName)
+                .id(nonExistingGiftCertificateId)
+                .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        sortParams.clear();
+        firstGiftCertificate = null;
+        secondGiftCertificate = null;
+        thirdGiftCertificate = null;
+        firstGiftCertificateWithTags = null;
+        secondGiftCertificateWithTags = null;
+        thirdGiftCertificateWithTags = null;
+        changedGiftCertificate = null;
+        existingGiftCertificate = null;
+        updatedGiftCertificate = null;
+        nonExistingGiftCertificate = null;
+    }
+
 //    @Test
 //    void testGetById_idExists() {
 //        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
@@ -394,5 +396,5 @@
 //        verify(giftCertificateRepository, never()).updateGiftCertificate(changedGiftCertificate, nonExistingGiftCertificate);
 //        assertEquals(expectedMessage, actualMessage);
 //    }
-//
-//}
+
+}

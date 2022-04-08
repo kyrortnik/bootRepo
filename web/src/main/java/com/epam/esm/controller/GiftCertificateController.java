@@ -152,7 +152,6 @@ public class GiftCertificateController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //TODO --can be refactored to return Page
     @GetMapping("/{giftCertificateId}/tags")
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateController.getGiftCertificateTags()");

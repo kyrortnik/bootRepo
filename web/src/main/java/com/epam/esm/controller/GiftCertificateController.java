@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -36,6 +37,7 @@ public class GiftCertificateController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
     public GiftCertificate getCertificateById(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.getCertificatedById()");
 
@@ -63,6 +65,7 @@ public class GiftCertificateController {
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
     public Page<GiftCertificate> getCertificates(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
@@ -102,6 +105,7 @@ public class GiftCertificateController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
         LOGGER.debug("Entering GiftCertificateController.createGiftCertificate()");
 
@@ -129,6 +133,7 @@ public class GiftCertificateController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteGiftCertificate(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.deleteGiftCertificate()");
 
@@ -143,6 +148,7 @@ public class GiftCertificateController {
 
     @PutMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> update(@RequestBody GiftCertificate giftCertificate, @PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.update()");
 
@@ -153,6 +159,7 @@ public class GiftCertificateController {
     }
 
     @GetMapping("/{giftCertificateId}/tags")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateController.getGiftCertificateTags()");
 

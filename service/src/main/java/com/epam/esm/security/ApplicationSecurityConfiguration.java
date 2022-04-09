@@ -61,7 +61,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
                .authorizeRequests()
                .antMatchers("/api/v1/users/signin").permitAll()
                .antMatchers("/api/v1/users/signup").permitAll()
-//               .antMatchers(HttpMethod.GET).permitAll()
+               .antMatchers(HttpMethod.GET).permitAll()
 //               .antMatchers(HttpMethod.POST).permitAll()
 //               .antMatchers(HttpMethod.PUT).permitAll()
 //               .antMatchers(HttpMethod.DELETE).permitAll()
@@ -70,14 +70,12 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                .and()
                .httpBasic();
+
        http.addFilterBefore(new JwtTokenFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
+
+        http.headers().frameOptions().disable();
     }
 
-//    @Bean
-//    @Override
-//    public UserDetailsService userDetailsService() {
-//        return super.userDetailsService();
-//    }
 
     @Bean
     @Override

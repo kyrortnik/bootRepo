@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.persistence.NoResultException;
 import java.sql.SQLException;
@@ -100,6 +101,19 @@ public class ApplicationExceptionHandler {
     ExceptionEntity incorrectSortByPattern(ArrayIndexOutOfBoundsException e) {
         ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
         LOGGER.error("ArrayIndexOutOfBoundsException caught in ApplicationExceptionHandler\n" +
+                "message: " + exceptionEntity.getMessage() +
+                "\nerror code:" + exceptionEntity.getCode());
+
+        return exceptionEntity;
+    }
+
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public @ResponseBody
+    ExceptionEntity httpServerErrorException(HttpServerErrorException e) {
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.FORBIDDEN.value()) + errorCodeCounter++), e.getMessage());
+        LOGGER.error("HttpServerErrorException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());
 

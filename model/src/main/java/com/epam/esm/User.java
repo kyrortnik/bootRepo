@@ -1,8 +1,10 @@
 package com.epam.esm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -13,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @Data
@@ -71,12 +72,12 @@ public class User extends RepresentationModel<User> {
         private String secondName;
         private List<Role> roles;
 
-        public UserBuilder(String username, String password){
+        public UserBuilder(String username, String password) {
             this.username = username;
             this.password = password;
         }
 
-        public UserBuilder id (long id){
+        public UserBuilder id(long id) {
             this.id = id;
             return this;
         }
@@ -90,7 +91,8 @@ public class User extends RepresentationModel<User> {
             this.secondName = secondName;
             return this;
         }
-        public UserBuilder role(Role role){
+
+        public UserBuilder role(Role role) {
             roles = Arrays.asList(role);
             return this;
         }

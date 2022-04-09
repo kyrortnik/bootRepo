@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-
 @SpringBootApplication(exclude = {
 		HibernateJpaAutoConfiguration.class
 },scanBasePackages = {"com.epam.esm"})

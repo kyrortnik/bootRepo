@@ -37,7 +37,7 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Tag getTagById(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.getTag()");
 
@@ -58,7 +58,7 @@ public class TagController {
 
 
     @GetMapping("/")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Page<Tag> getTags(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
@@ -122,7 +122,7 @@ public class TagController {
     }
 
     @GetMapping("/mostUsedTagForRichestUser")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Tag getMostUsedTagForRichestUser() {
         LOGGER.debug("Entering TagController.getMostUsedTagForRichestUser()");
         Tag tag = tagService.getMostUsedTagForRichestUser()

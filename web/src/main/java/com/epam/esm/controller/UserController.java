@@ -40,6 +40,7 @@ public class UserController {
 
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
@@ -58,6 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Page<User> getUsers(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
@@ -88,6 +90,7 @@ public class UserController {
 
 
     @GetMapping("/{userId}/orders")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Set<Order> getUserOrders(@PathVariable long userId) {
         LOGGER.debug("Entering UserController.getUserOrders()");
 
@@ -118,7 +121,6 @@ public class UserController {
         return userOrders;
     }
 
-    //TODO -- returns JWT token. Is it final way of implementation?
     @PostMapping("/signin")
     public String login(@RequestBody LoginDto loginDto) {
         return userService.signin(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(()->
@@ -126,7 +128,6 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public User signup(@RequestBody LoginDto loginDto){
         return userService.signup(loginDto).orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST,"User already exists"));
     }

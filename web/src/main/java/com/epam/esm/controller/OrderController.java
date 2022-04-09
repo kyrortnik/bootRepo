@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Order getOrder(@PathVariable Long orderId) {
 //        LOGGER.debug("Entering OrderController.getOrder()");
 
@@ -62,7 +64,7 @@ public class OrderController {
         return order;
     }
 
-
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     @GetMapping("/")
     public Page<Order> getOrders(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
@@ -100,6 +102,7 @@ public class OrderController {
 
     @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public @ResponseBody
     Order createOrder(@RequestBody Order order) {
         LOGGER.debug("Entering OrderController.createOrder()");
@@ -124,6 +127,7 @@ public class OrderController {
 
 
     @DeleteMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
         LOGGER.debug("Entering OrderController.deleteOrder()");
 
@@ -137,6 +141,7 @@ public class OrderController {
 
 
     @GetMapping("/{orderId}/giftCertificate")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         LOGGER.debug("Entering OrderController.getOrderGiftCertificate()");
         Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));

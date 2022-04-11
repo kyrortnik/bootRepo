@@ -15,6 +15,7 @@ import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.util.*;
 
+@Transactional
 @Service
 public class TagService implements CRUDService<Tag> {
 
@@ -85,7 +86,10 @@ public class TagService implements CRUDService<Tag> {
             }
             Tag createdTag;
 
+
             createdTag = tagRepository.save(tag);
+
+
 
             LOGGER.debug("Exiting TagService.create()");
             return createdTag;
@@ -96,6 +100,7 @@ public class TagService implements CRUDService<Tag> {
         }
     }
 
+    //TODO -- doesnt delete
     @Override
     public boolean delete(Long id) {
         LOGGER.debug("Entering TagService.delete()");
@@ -121,7 +126,7 @@ public class TagService implements CRUDService<Tag> {
         LOGGER.debug("Exiting TagService.getTagByName()");
         return foundTag;
     }
-
+//TODO -- fix
     public Optional<Tag> getMostUsedTagForRichestUser() {
         try {
             LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");

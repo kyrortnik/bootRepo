@@ -1,10 +1,12 @@
 package com.epam.esm;
 
+import lombok.Data;
 import org.hibernate.envers.Audited;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
+@Data
 @Audited
 @Entity
 @Table(name = "roles")

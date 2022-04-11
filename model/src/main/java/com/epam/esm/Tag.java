@@ -3,6 +3,7 @@ package com.epam.esm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +20,11 @@ import java.util.Set;
 @Table(name = "tags")
 public class Tag extends RepresentationModel<Tag> {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+    /*@NonNull*/
     private String name;
 
     @ManyToMany(mappedBy = "tags")
@@ -34,12 +34,12 @@ public class Tag extends RepresentationModel<Tag> {
     private Set<GiftCertificate> certificates = new HashSet<>();
 
 
-    public Tag(Long id, @NonNull String name) {
+    public Tag(Long id, /*@NonNull*/ String name) {
         this.id = id;
         this.name = name;
     }
 
-    public Tag(@NonNull String name) {
+    public Tag(/*@NonNull*/ String name) {
         this.name = name;
     }
 

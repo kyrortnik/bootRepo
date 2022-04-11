@@ -20,7 +20,7 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 
 @EqualsAndHashCode(callSuper = false)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @Data
@@ -41,11 +41,9 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     private Long duration;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 

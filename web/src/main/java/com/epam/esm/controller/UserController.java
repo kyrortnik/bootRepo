@@ -1,6 +1,6 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.LoginDto;
+import com.epam.esm.dto.LoginDto;
 import com.epam.esm.Order;
 import com.epam.esm.User;
 import com.epam.esm.exception.NoEntitiesFoundException;

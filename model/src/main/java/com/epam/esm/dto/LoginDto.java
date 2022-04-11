@@ -1,12 +1,12 @@
-package com.epam.esm;
+package com.epam.esm.dto;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 
-@Component
 @Data
+@Component
 public class LoginDto {
 
     @NotNull

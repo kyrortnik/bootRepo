@@ -10,13 +10,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackages = "com.epam.esm")
+//@ComponentScan(basePackages = "com.epam.esm")
 @EnableJpaRepositories("com.epam.esm")
+@EnableTransactionManagement
 public class PersistenceConfig {
 
     @Profile("prod")
@@ -69,5 +73,16 @@ public class PersistenceConfig {
         properties.setProperty("org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
         return properties;
     }
+
+    @Bean
+    @Autowired
+    public PlatformTransactionManager transactionManager(LocalSessionFactoryBean localSessionFactoryBean) {
+        JpaTransactionManager transactionManager
+                = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(
+                localSessionFactoryBean.getObject());
+        return transactionManager;
+    }
+
 
 }

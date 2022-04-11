@@ -1,6 +1,7 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.*;
+import com.epam.esm.dto.LoginDto;
 import com.epam.esm.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

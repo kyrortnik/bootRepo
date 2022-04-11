@@ -9,12 +9,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication(exclude = {
 		HibernateJpaAutoConfiguration.class
 },scanBasePackages = {"com.epam.esm"})
-@EnableTransactionManagement
+//@EnableTransactionManagement
 public class Application {
 	public static void main(String[] args) {
 
 		System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, "dev");
-
 		SpringApplication.run(Application.class, args);
 	}
 

@@ -1,7 +1,7 @@
 //TODO --refactor tests
 package com.epam.esm.impl;
 
-import com.epam.esm.AuthGroupRepository;
+
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
 import org.junit.jupiter.api.*;
@@ -17,7 +17,7 @@ class UserServiceTest {
 
     //mock
     private final UserRepository userRepository = Mockito.mock(UserRepository.class, withSettings().verboseLogging());
-    private final AuthGroupRepository authGroupRepository = Mockito.mock(AuthGroupRepository.class,withSettings().verboseLogging());
+//    private final AuthGroupRepository authGroupRepository = Mockito.mock(AuthGroupRepository.class,withSettings().verboseLogging());
 
     // class under test
 //    private final UserService userService = new UserService(userRepository,authGroupRepository);

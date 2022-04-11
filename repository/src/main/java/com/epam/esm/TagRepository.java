@@ -32,8 +32,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
              "ORDER BY COUNT(t.name) DESC)";
 
 
-    @Override
-    @NonNull Optional<Tag> findById(@NonNull Long tagId);
+//    @Override
+//    @NonNull Optional<Tag> findById(@NonNull Long tagId);
 
     @Override
     @NonNull Page<Tag> findAll(@NonNull Pageable pageable);

@@ -77,8 +77,7 @@ public class PersistenceConfig {
     @Bean
     @Autowired
     public PlatformTransactionManager transactionManager(LocalSessionFactoryBean localSessionFactoryBean) {
-        JpaTransactionManager transactionManager
-                = new JpaTransactionManager();
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(
                 localSessionFactoryBean.getObject());
         return transactionManager;

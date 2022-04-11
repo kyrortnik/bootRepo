@@ -124,7 +124,7 @@ public class GiftCertificateService implements CRUDService<GiftCertificate> {
     }
 
 
-    //TODO -- creates with empty id
+    //TODO -- no new tag created
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) {
 

@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -22,10 +21,9 @@ import java.time.LocalDateTime;
 public class Order extends RepresentationModel<Order> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
@@ -38,6 +36,7 @@ public class Order extends RepresentationModel<Order> {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private GiftCertificate giftCertificate;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

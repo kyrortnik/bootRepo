@@ -1,13 +1,10 @@
 package com.epam.esm;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.stereotype.Component;
@@ -20,7 +17,6 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 
 @EqualsAndHashCode(callSuper = false)
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @Data
@@ -53,7 +49,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @JsonProperty(access =  JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 
     //TODO -- add HATEOAS to certificates getters
@@ -61,7 +57,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 
-    public GiftCertificate(GiftCertificateBuilder builder){
+    public GiftCertificate(GiftCertificateBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
@@ -73,6 +69,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.orders = builder.orders;
 
     }
+
     //TODO -- investigate why can't add commented line - HibernateException
     //Hibernate - A collection with cascade=”all-delete-orphan” was no longer referenced by the owning entity instance
     public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
@@ -90,15 +87,15 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     public static class GiftCertificateBuilder {
 
-        private  long id;
+        private long id;
         private final String name;
-        private  String description;
-        private  long price;
-        private  long duration;
-        private  LocalDateTime createDate;
-        private  LocalDateTime lastUpdateDate;
-        private  Set<Tag> tags;
-        private  Set<Order> orders;
+        private String description;
+        private long price;
+        private long duration;
+        private LocalDateTime createDate;
+        private LocalDateTime lastUpdateDate;
+        private Set<Tag> tags;
+        private Set<Order> orders;
 
         public GiftCertificateBuilder(String name) {
             this.name = name;
@@ -114,14 +111,17 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             this.description = description;
             return this;
         }
+
         public GiftCertificateBuilder price(long price) {
             this.price = price;
             return this;
         }
+
         public GiftCertificateBuilder duration(long duration) {
             this.duration = duration;
             return this;
         }
+
         public GiftCertificateBuilder createDate(LocalDateTime createDate) {
             this.createDate = createDate;
             return this;

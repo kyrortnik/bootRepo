@@ -1,12 +1,14 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.CRUDService;
+import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,7 @@ public class TagService implements CRUDService<Tag> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
 
-//    private final TagRepository tagRepository;
+    //    private final TagRepository tagRepository;
     private final TagRepository tagRepository;
 
 //    @Autowired
@@ -62,7 +64,7 @@ public class TagService implements CRUDService<Tag> {
         LOGGER.debug("Entering tagService.getAll()");
 
 
-        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset,max,sortParams));
+        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset, max, sortParams));
         if (foundTags.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
                     "No Tags exist");
@@ -90,7 +92,6 @@ public class TagService implements CRUDService<Tag> {
             createdTag = tagRepository.save(tag);
 
 
-
             LOGGER.debug("Exiting TagService.create()");
             return createdTag;
         } catch (ConstraintViolationException e) {
@@ -100,15 +101,24 @@ public class TagService implements CRUDService<Tag> {
         }
     }
 
-    //TODO -- doesnt delete
     @Override
     public boolean delete(Long id) {
         LOGGER.debug("Entering TagService.delete()");
+        try {
 
-        tagRepository.deleteById(id);
+            Optional<Tag> tagToDelete = tagRepository.findById(id);
+            tagToDelete.ifPresent(tagRepository::delete);
+            for (GiftCertificate giftCertificate : tagToDelete.get().getCertificates()) {
+                giftCertificate.getTags().remove(tagToDelete.get());
+            }
 
-        LOGGER.debug("Exiting TagService.delete()");
-        return !tagRepository.findById(id).isPresent();
+            LOGGER.debug("Exiting TagService.delete()");
+            return !findById(id).isPresent();
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+
+
     }
 
     @Override
@@ -126,7 +136,8 @@ public class TagService implements CRUDService<Tag> {
         LOGGER.debug("Exiting TagService.getTagByName()");
         return foundTag;
     }
-//TODO -- fix
+
+    //TODO -- fix
     public Optional<Tag> getMostUsedTagForRichestUser() {
         try {
             LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");

@@ -3,21 +3,19 @@ package com.epam.esm.controller;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.impl.GiftCertificateService;
-import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-
+import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -26,9 +24,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "api/v1/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificateController {
 
-    private final GiftCertificateService giftCertificateService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
+
+    private final GiftCertificateService giftCertificateService;
 
     @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService) {
@@ -41,8 +39,7 @@ public class GiftCertificateController {
     public GiftCertificate getCertificateById(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.getCertificatedById()");
 
-        GiftCertificate giftCertificate = giftCertificateService.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Certificate with id [" + id + "] not found"));
+        GiftCertificate giftCertificate = giftCertificateService.findById(id);
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(id))
@@ -73,9 +70,9 @@ public class GiftCertificateController {
             @RequestParam(value = "tag", required = false) Set<String> tags) {
         LOGGER.debug("Entering GiftCertificateController.getCertificates()");
 
-        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
         Page<GiftCertificate> giftCertificates =
-                giftCertificateService.getGiftCertificates(tags, sortingParams, max, offset);
+                giftCertificateService.getGiftCertificates(tags, sortBy, max, offset);
+
         giftCertificates.forEach(giftCertificate -> {
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -93,8 +90,6 @@ public class GiftCertificateController {
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                     .getGiftCertificateTags(giftCertificate.getId()))
                     .withRel("tags"));
-
-
         });
         LOGGER.debug("Exiting GiftCertificateController.getCertificates()");
         return giftCertificates;
@@ -139,7 +134,7 @@ public class GiftCertificateController {
 
         ResponseEntity<String> response = giftCertificateService.delete(id)
                 ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>("No Gift Certificate with id [\" + id + \"] exists", HttpStatus.OK);
+                : new ResponseEntity<>(String.format("No Gift Certificate with id [%s] exists", id), HttpStatus.OK);
 
         LOGGER.debug("Exiting GiftCertificateController.deleteGiftCertificate()");
         return response;
@@ -163,10 +158,8 @@ public class GiftCertificateController {
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateController.getGiftCertificateTags()");
 
-         giftCertificateService.findById(giftCertificateId)
-                .orElseThrow(() -> new NoSuchElementException("no such Gift Certificate exists"));
+        giftCertificateService.findById(giftCertificateId);
         Set<Tag> giftCertificateTags = giftCertificateService.getCertificateTags(giftCertificateId);
-
 
         giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)
                 .getTagById(tag.getId()))

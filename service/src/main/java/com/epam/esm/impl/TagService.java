@@ -4,6 +4,7 @@ import com.epam.esm.CRUDService;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
+import com.epam.esm.mapper.RequestParamsMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,51 +20,36 @@ import java.util.*;
 
 @Transactional
 @Service
-public class TagService implements CRUDService<Tag> {
+public class TagService /*implements CRUDService<Tag>*/ {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
 
-    //    private final TagRepository tagRepository;
     private final TagRepository tagRepository;
 
-//    @Autowired
-//    public TagService(TagRepository tagRepository) {
-//        this.tagRepository = tagRepository;
-//    }
+    private final RequestParamsMapper requestParamsMapper;
+
 
     @Autowired
-    public TagService(TagRepository tagRepository) {
+    public TagService(TagRepository tagRepository, RequestParamsMapper requestParamsMapper) {
         this.tagRepository = tagRepository;
+        this.requestParamsMapper = requestParamsMapper;
     }
 
-    @Override
-    public Optional<Tag> findById(Long id) {
-        LOGGER.debug("Entering tagService.getById()");
+    public Tag findById(Long tagId) {
+        LOGGER.debug("Entering tagService.getById");
 
-        Optional<Tag> foundTag = tagRepository.findById(id);
+        Tag foundTag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new NoSuchElementException(String.format("Tag with tagId [%s] not found", tagId)));
 
-        LOGGER.debug("Exiting tagService.getById()");
+        LOGGER.debug("Exiting tagService.getById");
         return foundTag;
     }
 
 
-//    @Override
-//    public List<Tag> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
-//        LOGGER.debug("Entering tagService.getAll()");
-//
-//        PageRequest pageRequest = PageRequest.of(offset,max, Sort.by().and(Sort.by("id").ascending()));
-//
-//        List<Tag> foundTags = tagRepository.findAll(sortParams, max, offset);
-//
-//        LOGGER.debug("Exiting tagService.getAll()");
-//        return foundTags;
-//    }
+    public Page<Tag> getAll(List<String> sortBy, int max, int offset) {
+        LOGGER.debug("Entering tagService.getAll");
 
-    @Override
-    public Page<Tag> getAll(Sort sortParams, int max, int offset) {
-        LOGGER.debug("Entering tagService.getAll()");
-
-
+        Sort sortParams = requestParamsMapper.mapParams(sortBy);
         Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset, max, sortParams));
         if (foundTags.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
@@ -71,80 +57,71 @@ public class TagService implements CRUDService<Tag> {
             throw new NoSuchElementException("No Tags exist");
         }
 
-        LOGGER.debug("Exiting tagService.getAll()");
+        LOGGER.debug("Exiting tagService.getAll");
         return foundTags;
     }
 
-    @Transactional
-    @Override
     public Tag create(Tag tag) {
-        try {
-            LOGGER.debug("Entering TagService.create()");
+        LOGGER.debug("Entering TagService.create");
 
-            if ((tag.getName().isEmpty())) {
-                LOGGER.error("NullPointerException in TagController.create()\n" +
-                        "Tag name can not be empty");
-                throw new NullPointerException("Tag name can not be empty");
-            }
-            Tag createdTag;
-
-
-            createdTag = tagRepository.save(tag);
-
-
-            LOGGER.debug("Exiting TagService.create()");
-            return createdTag;
-        } catch (ConstraintViolationException e) {
-            LOGGER.error("ConstraintViolationException in TagService.create()\n" +
-                    e.getMessage());
-            throw new ConstraintViolationException("Tag with name [" + tag.getName() + "] already exists", new SQLException(), "tag name");
+        String tagName = tag.getName();
+        if (findTagByName(tagName).getName().equals(tag.getName())) {
+            throw new ConstraintViolationException(String.format("Tag with name [%s] already exists", tagName),
+                    new SQLException(), "gift certificate name");
         }
+        Tag createdTag = tagRepository.save(tag);
+
+        LOGGER.debug("Exiting TagService.create");
+        return createdTag;
     }
 
-    @Override
+    //TODO -- check that works without try/catch
     public boolean delete(Long id) {
         LOGGER.debug("Entering TagService.delete()");
-        try {
-
-            Optional<Tag> tagToDelete = tagRepository.findById(id);
-            tagToDelete.ifPresent(tagRepository::delete);
+        boolean tagIsDeleted;
+//        try {
+        Optional<Tag> tagToDelete = tagRepository.findById(id);
+        if (tagToDelete.isPresent()) {
+            tagRepository.delete(tagToDelete.get());
             for (GiftCertificate giftCertificate : tagToDelete.get().getCertificates()) {
                 giftCertificate.getTags().remove(tagToDelete.get());
             }
-
-            LOGGER.debug("Exiting TagService.delete()");
-            return !findById(id).isPresent();
-        } catch (EmptyResultDataAccessException e) {
-            return false;
+            tagIsDeleted = true;
+        } else {
+            tagIsDeleted = false;
         }
-
+        LOGGER.debug("Exiting TagService.delete()");
+        return tagIsDeleted;
+//        } catch (EmptyResultDataAccessException e) {
+//            return false;
+//        }
 
     }
 
-    @Override
-    public void update(Tag element, Long id) {
+    public void update(Tag tag, Long id) {
         LOGGER.debug("Entering TagService.update()");
         LOGGER.error("UnsupportedOperationException in TagService.update()");
         throw new UnsupportedOperationException();
     }
 
-    public Optional<Tag> findTagByName(String tagName) {
+    public Tag findTagByName(String tagName) {
         LOGGER.debug("Entering TagService.getTagByName()");
 
-        Optional<Tag> foundTag = tagRepository.findByName(tagName);
+        Tag foundTag = tagRepository.findByName(tagName).orElseThrow(() -> new NoSuchElementException(String
+                .format("Tag with name [%s] does not exist", tagName)));
 
         LOGGER.debug("Exiting TagService.getTagByName()");
         return foundTag;
     }
 
     //TODO -- fix
-    public Optional<Tag> getMostUsedTagForRichestUser() {
+    public Tag getMostUsedTagForRichestUser() {
         try {
             LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");
 
             long richestUserId = tagRepository.getRichestUserId();
-
-            Optional<Tag> tag = tagRepository.getMostUsedTagForRichestUser(richestUserId);
+            Tag tag = tagRepository.getMostUsedTagForRichestUser(richestUserId)
+                    .orElseThrow(() -> new NoSuchElementException("No certificates with tags exist in orders"));
 
             LOGGER.debug("Exiting TagService.getMostUsedTagForRichestUser()");
             return tag;
@@ -158,20 +135,25 @@ public class TagService implements CRUDService<Tag> {
 
 
     public Set<Tag> getTagsByNames(Set<String> tagNames) {
-        LOGGER.debug("Entering TagService.getTagsByNames()");
+        LOGGER.debug("Entering TagService.getTagsByNames");
         Set<Tag> tags = new HashSet<>();
         if (!tagNames.isEmpty()) {
-            tagNames.forEach(tagName -> findTagByName(tagName).ifPresent(tags::add));
+            tagNames.forEach(tagName -> tags.add(findTagByName(tagName)));
         }
-        LOGGER.debug("Exiting TagService.getTagsByNames()");
+        LOGGER.debug("Exiting TagService.getTagsByNames");
         return tags;
     }
 
     public Set<Tag> getTagsForCertificate(Long giftCertificateId) {
+        LOGGER.debug("Entering TagService.getTagsForCertificate");
 
-        return tagRepository.findByCertificatesId(giftCertificateId);
+        Set<Tag> tagsForGiftCertificate = tagRepository.findByCertificatesId(giftCertificateId);
+
+        LOGGER.debug("Exiting TagService.getTagsForCertificate");
+        return tagsForGiftCertificate;
     }
 
+    //TODO -- do I need this?
     public boolean tagExists(Tag tag) {
         LOGGER.debug("start ");
 
@@ -188,8 +170,19 @@ public class TagService implements CRUDService<Tag> {
 
     public Tag getById(Long tagId) {
         LOGGER.debug("start");
+
         Tag proxyTag = tagRepository.getById(tagId);
         LOGGER.debug("end");
         return proxyTag;
+    }
+
+    //TODO -- tests that works
+    public boolean tagExists(String tagName) {
+        LOGGER.debug("start ");
+
+        boolean tagExists = tagRepository.existsByName(tagName);
+
+        LOGGER.debug("finish ");
+        return tagExists;
     }
 }

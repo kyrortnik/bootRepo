@@ -1,6 +1,9 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.*;
+import com.epam.esm.Role;
+import com.epam.esm.RoleRepository;
+import com.epam.esm.User;
+import com.epam.esm.UserRepository;
 import com.epam.esm.dto.LoginDto;
 import com.epam.esm.security.JwtProvider;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Transactional
@@ -28,21 +32,17 @@ public class UserService {
 
     private final RoleRepository roleRepository;
 
-//    private final AuthGroupRepository authGroupRepository;
-
     private final AuthenticationManager authenticationManager;
-
-    private final PasswordEncoder passwordEncoder;
 
     private final JwtProvider jwtProvider;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserService(UserRepository userRepository
-            /*AuthGroupRepository authGroupRepository*/,
+    public UserService(UserRepository userRepository,
                        AuthenticationManager authenticationManager, RoleRepository roleRepository,
                        JwtProvider jwtProvider, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-//        this.authGroupRepository = authGroupRepository;
         this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
         this.jwtProvider = jwtProvider;
@@ -50,9 +50,11 @@ public class UserService {
     }
 
 
-    public Optional<User> getById(Long userId) {
+    public User getById(Long userId) {
         LOGGER.debug("Entering UserService.getById()");
-        Optional<User> foundUser = userRepository.findById(userId);
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException(String
+                        .format("User with id [%s] does not exist", userId)));
 
         LOGGER.debug("Exiting UserService.getById()");
         return foundUser;
@@ -77,7 +79,7 @@ public class UserService {
      * @return Optional of the Java Web Token, empty otherwise
      */
     public Optional<String> signin(String username, String password) {
-        LOGGER.info("New user attempting to sign in");
+        LOGGER.debug("New user attempting to sign in");
         Optional<String> token = Optional.empty();
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
@@ -85,12 +87,20 @@ public class UserService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
                 token = Optional.of(jwtProvider.createToken(username, user.get().getRoles()));
             } catch (AuthenticationException e) {
-                LOGGER.info("Log in failed for user {}", username);
+                LOGGER.debug("Log in failed for user {}", username);
             }
         }
         return token;
     }
 
+    //TODO -- encrypt password
+
+    /**
+     * Signups a new user
+     *
+     * @param loginDto
+     * @return
+     */
     public Optional<User> signup(LoginDto loginDto) {
         Optional<User> sighedUpUser = Optional.empty();
         String username = loginDto.getUsername();
@@ -100,7 +110,7 @@ public class UserService {
 
         if (!userRepository.findByUsername(username).isPresent()) {
             Optional<Role> role = roleRepository.findByName("ROLE_GUEST");
-            User newUser = new User.UserBuilder(username, password)
+            User newUser = new User.UserBuilder(username, passwordEncoder.encode(password))
                     .firstName(firstName)
                     .secondName(lastname)
                     .role(role.orElseThrow(() -> new RuntimeException("User without a role")))

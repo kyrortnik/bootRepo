@@ -1,6 +1,5 @@
 package com.epam.esm.security;
 
-
 import com.epam.esm.Role;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +11,17 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 /**
  * Utility Class for common Java Web Token operations
  */
 @Component
 public class JwtProvider {
 
-    private final String ROLES_KEY = "roles";
+    private static final String ROLES_KEY = "roles";
+    private static final String AUTHORITY = "authority";
 
-    private JwtParser parser;
-
-    private final String secretKey;
+    private  final String secretKey;
     private final long validityInMilliseconds;
 
     @Autowired
@@ -84,7 +83,6 @@ public class JwtProvider {
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
-    //TODO -- investigate
     /**
      * Get the roles from the token string
      *
@@ -95,7 +93,7 @@ public class JwtProvider {
         List<Map<String, String>> roleClaims = (List<Map<String, String>>) Jwts.parser().setSigningKey(secretKey)
                 .parseClaimsJws(token).getBody().get(ROLES_KEY);
         return roleClaims.stream().map(roleClaim ->
-                new SimpleGrantedAuthority(roleClaim.get("authority")))
+                new SimpleGrantedAuthority(roleClaim.get(AUTHORITY)))
                 .collect(Collectors.toList());
     }
 }

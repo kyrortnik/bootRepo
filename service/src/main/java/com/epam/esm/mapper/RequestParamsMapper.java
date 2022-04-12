@@ -1,26 +1,25 @@
 package com.epam.esm.mapper;
 
-import com.epam.esm.controller.GiftCertificateController;
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class RequestParamsMapper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestParamsMapper.class);
 
     private static final String  SPLIT = "\\.";
 
 
-    public static Sort mapParams(List<String> sortingParams) {
+    public  Sort mapParams(List<String> sortingParams) {
         try{
             String parameter;
             Direction direction;
@@ -44,7 +43,7 @@ public class RequestParamsMapper {
 
     }
 
-    private static Direction getSortDirection(String direction) {
+    private  Direction getSortDirection(String direction) {
 
         return direction.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
     }

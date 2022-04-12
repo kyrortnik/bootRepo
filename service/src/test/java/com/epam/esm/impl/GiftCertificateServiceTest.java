@@ -1,10 +1,10 @@
-
 //TODO -- refactor tests
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
+import com.epam.esm.mapper.RequestParamsMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,12 +20,18 @@ import static org.mockito.Mockito.*;
 class GiftCertificateServiceTest {
 
     // mocks
-    private final GiftCertificateRepository giftCertificateRepository = Mockito.mock(GiftCertificateRepository.class, withSettings().verboseLogging());
+    private final GiftCertificateRepository giftCertificateRepository = Mockito
+            .mock(GiftCertificateRepository.class, withSettings().verboseLogging());
 
-    private final TagService tagService = Mockito.mock(TagService.class, withSettings().verboseLogging());
+    private final TagService tagService = Mockito
+            .mock(TagService.class, withSettings().verboseLogging());
+
+    private final RequestParamsMapper requestParamsMapper = Mockito
+            .mock(RequestParamsMapper.class, withSettings().verboseLogging());
 
     // class under test
-    private final GiftCertificateService giftCertificateService = new GiftCertificateService(giftCertificateRepository, tagService);
+    private final GiftCertificateService giftCertificateService =
+            new GiftCertificateService(giftCertificateRepository, tagService, requestParamsMapper);
 
     //params
 

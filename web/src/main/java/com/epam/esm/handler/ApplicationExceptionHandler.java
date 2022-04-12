@@ -2,6 +2,7 @@ package com.epam.esm.handler;
 
 import com.epam.esm.exception.ExceptionEntity;
 import com.epam.esm.exception.NoEntitiesFoundException;
+import io.jsonwebtoken.JwtException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,30 @@ public class ApplicationExceptionHandler {
     ExceptionEntity httpServerErrorException(HttpServerErrorException e) {
         ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.FORBIDDEN.value()) + errorCodeCounter++), e.getMessage());
         LOGGER.error("HttpServerErrorException caught in ApplicationExceptionHandler\n" +
+                "message: " + exceptionEntity.getMessage() +
+                "\nerror code:" + exceptionEntity.getCode());
+
+        return exceptionEntity;
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody
+    ExceptionEntity jwtException(JwtException e) {
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        LOGGER.error("JwtException caught in ApplicationExceptionHandler\n" +
+                "message: " + exceptionEntity.getMessage() +
+                "\nerror code:" + exceptionEntity.getCode());
+
+        return exceptionEntity;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody
+    ExceptionEntity illegalArgumentException(IllegalArgumentException e) {
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+        LOGGER.error("IllegalArgumentException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());
 

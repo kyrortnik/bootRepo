@@ -28,12 +28,6 @@ public class Tag extends RepresentationModel<Tag> {
 
 
     @ManyToMany(mappedBy = "tags")
-//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "certificates_tags",
-//            joinColumns = {@JoinColumn(name = "tag_id")},
-//            inverseJoinColumns = {@JoinColumn(name = "certificate_id")}
-//    )
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

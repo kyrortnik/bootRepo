@@ -44,7 +44,9 @@ public class UserController {
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
-        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+//        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+
+        User user = userService.getById(userId);
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -94,7 +96,11 @@ public class UserController {
     public Set<Order> getUserOrders(@PathVariable long userId) {
         LOGGER.debug("Entering UserController.getUserOrders()");
 
-        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+//        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+
+        User user = userService.getById(userId);
+
+
 
         Set<Order> userOrders = user.getOrders();
         if (userOrders.isEmpty()) {

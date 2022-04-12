@@ -41,7 +41,7 @@ public class TagController {
     public Tag getTagById(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.getTag()");
 
-        Tag tag = tagService.findById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with tagId [" + tagId + "] not found"));
+        Tag tag = tagService.findById(tagId);
 
         tag.add(linkTo(methodOn(TagController.class)
                 .getTagById(tagId))
@@ -65,8 +65,7 @@ public class TagController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.debug("Entering TagController.getTags()");
 
-        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
-        Page<Tag> tags = tagService.getAll(sortingParams, max, offset);
+        Page<Tag> tags = tagService.getAll(sortBy, max, offset);
 
         tags.forEach(tag -> {
                     tag.add(linkTo(methodOn(TagController.class)
@@ -89,7 +88,6 @@ public class TagController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Tag create(@RequestBody Tag tag) {
         LOGGER.debug("Entering TagController.create()");
-
 
         Tag createdTag = tagService.create(tag);
 
@@ -115,7 +113,7 @@ public class TagController {
 
         ResponseEntity<String> response = tagService.delete(tagId)
                 ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>("No tag with tagId [" + tagId + "] was found", HttpStatus.OK);
+                : new ResponseEntity<>(String.format("No tag with tagId [%s] was found", tagId), HttpStatus.OK);
 
         LOGGER.debug("Exiting TagController.delete()");
         return response;
@@ -125,8 +123,8 @@ public class TagController {
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Tag getMostUsedTagForRichestUser() {
         LOGGER.debug("Entering TagController.getMostUsedTagForRichestUser()");
-        Tag tag = tagService.getMostUsedTagForRichestUser()
-                .orElseThrow(() -> new NoEntitiesFoundException("No certificates with tags exist in orders"));
+
+        Tag tag = tagService.getMostUsedTagForRichestUser();
 
         LOGGER.debug("Exiting TagController.getMostUsedTagForRichestUser()");
         return tag;

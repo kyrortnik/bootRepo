@@ -18,11 +18,12 @@ import java.util.Optional;
 
 /**
  * Filter for Java Web Token Authentication and Authorization
- *
  */
 public class JwtTokenFilter extends GenericFilterBean {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
     private static final String BEARER = "Bearer";
+    private static final String AUTHORIZATION  = "Authorization";
 
     private final ApplicationUserDetailsService applicationUserDetailsService;
 
@@ -34,8 +35,8 @@ public class JwtTokenFilter extends GenericFilterBean {
      * Determine if there is a JWT as part of the HTTP Request Header.
      * If it is valid then set the current context With the Authentication(user and roles) found in the token
      *
-     * @param req Servlet Request
-     * @param res Servlet Response
+     * @param req         Servlet Request
+     * @param res         Servlet Response
      * @param filterChain Filter Chain
      * @throws IOException
      * @throws ServletException
@@ -43,10 +44,10 @@ public class JwtTokenFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
-        LOGGER.info("Process request to check for a JSON Web Token ");
+        LOGGER.debug("Process request to check for a JSON Web Token ");
         //Check for Authorization:Bearer JWT
-        String headerValue = ((HttpServletRequest)req).getHeader("Authorization");
-        getBearerToken(headerValue).ifPresent(token-> {
+        String headerValue = ((HttpServletRequest) req).getHeader(AUTHORIZATION);
+        getBearerToken(headerValue).ifPresent(token -> {
             //Pull the Username and Roles from the JWT to construct the user details
             applicationUserDetailsService.loadUserByJwtToken(token).ifPresent(userDetails -> {
                 //Add the user details (Permissions) to the Context for just this API invocation

@@ -2,7 +2,6 @@ package com.epam.esm.security;
 
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
-import com.epam.esm.security.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,18 +13,22 @@ import java.util.Optional;
 import static org.springframework.security.core.userdetails.User.withUsername;
 
 @Component
-public class ApplicationUserDetailsService implements UserDetailsService{
+public class ApplicationUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    JwtProvider jwtProvider;
+    public ApplicationUserDetailsService(UserRepository userRepository, JwtProvider jwtProvider) {
+        this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
+    }
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(s).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("User with name %s does not exist", s)));
+    public UserDetails loadUserByUsername(String userLogin) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(userLogin).orElseThrow(() ->
+                new UsernameNotFoundException(String.format("User with name %s does not exist", userLogin)));
 
         return withUsername(user.getUsername())
                 .password(user.getPassword())
@@ -44,8 +47,9 @@ public class ApplicationUserDetailsService implements UserDetailsService{
      * @return UserDetails if valid, Empty otherwise
      */
     public Optional<UserDetails> loadUserByJwtToken(String jwtToken) {
+        Optional<UserDetails> user = Optional.empty();
         if (jwtProvider.isValidToken(jwtToken)) {
-            return Optional.of(
+            user =  Optional.of(
                     withUsername(jwtProvider.getUsername(jwtToken))
                             .authorities(jwtProvider.getRoles(jwtToken))
                             .password("") //token does not have password but field may not be empty
@@ -55,21 +59,6 @@ public class ApplicationUserDetailsService implements UserDetailsService{
                             .disabled(false)
                             .build());
         }
-        return Optional.empty();
+        return user;
     }
-
-    /**
-     * Extract the username from the JWT then lookup the user in the database.
-     *
-     * @param jwtToken
-     * @return
-     */
-    public Optional<UserDetails> loadUserByJwtTokenAndDatabase(String jwtToken) {
-        if (jwtProvider.isValidToken(jwtToken)) {
-            return Optional.of(loadUserByUsername(jwtProvider.getUsername(jwtToken)));
-        } else {
-            return Optional.empty();
-        }
-    }
-
 }

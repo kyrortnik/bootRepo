@@ -32,8 +32,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
              "ORDER BY COUNT(t.name) DESC)";
 
 
-//    @Override
-//    @NonNull Optional<Tag> findById(@NonNull Long tagId);
 
     @Override
     @NonNull Page<Tag> findAll(@NonNull Pageable pageable);
@@ -41,7 +39,9 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     @Query(value = MOST_USED_TAG, nativeQuery = true)
     Optional<Tag> getMostUsedTagForRichestUser(@Param("userId") long userId);
 
-    Optional<Tag> findByName(String name);
+    Optional<Tag> findByName(String tagName);
+
+    boolean existsByName(String tagName);
 
     @Query(value = THE_RICHEST_USER_QUERY, nativeQuery = true)
      long getRichestUserId();

@@ -52,7 +52,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 
-    //TODO -- add HATEOAS to certificates getters
+    //TODO -- add HATEOAS to certificates getters -- TBD
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
@@ -70,7 +70,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     }
 
-    //TODO -- investigate why can't add commented line - HibernateException
+    //TODO -- investigate why can't add commented line - HibernateException -- TBD
     //Hibernate - A collection with cascade=”all-delete-orphan” was no longer referenced by the owning entity instance
     public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
 

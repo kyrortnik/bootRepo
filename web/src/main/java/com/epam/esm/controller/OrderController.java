@@ -2,31 +2,23 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
-import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.OrderService;
-import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-
-import static com.epam.esm.util.GetMethodProperty.*;
 
 @RestController
 @RequestMapping(value = "api/v1/orders", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,9 +36,9 @@ public class OrderController {
     @GetMapping("/{orderId}")
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Order getOrder(@PathVariable Long orderId) {
-//        LOGGER.debug("Entering OrderController.getOrder()");
+        LOGGER.debug("Entering OrderController.getOrder()");
 
-        Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("Order with id [" + orderId + "] not found"));
+        Order order = orderService.getOrderById(orderId);
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrder(order.getId()))
@@ -60,7 +52,7 @@ public class OrderController {
                 .getUser(order.getUser().getId()))
                 .withRel("user"));
 
-//        LOGGER.debug("Exiting OrderController.getOrder()");
+        LOGGER.debug("Exiting OrderController.getOrder()");
         return order;
     }
 
@@ -70,17 +62,9 @@ public class OrderController {
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-//        LOGGER.debug("Entering OrderController.getOrders()");
-        LocalDateTime start = LocalDateTime.now();
+        LOGGER.debug("Entering OrderController.getOrders()");
 
-        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
-        Page<Order> orders = orderService.getOrders(sortingParams, max, offset);
-        if (orders.isEmpty()) {
-            LOGGER.error("NoEntitiesFoundException in OrderController.getOrders()\n" +
-                    "No Orders exist");
-            throw new NoEntitiesFoundException("No Orders exist");
-        }
-
+        Page<Order> orders = orderService.getOrders(sortBy, max, offset);
         orders.forEach(foundOrder -> {
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrder(foundOrder.getId()))
@@ -95,7 +79,7 @@ public class OrderController {
                             .withRel("user"));
                 }
         );
-//        LOGGER.debug("Exiting OrderController.getOrders()");
+        LOGGER.debug("Exiting OrderController.getOrders()");
         return orders;
     }
 
@@ -107,7 +91,7 @@ public class OrderController {
     Order createOrder(@RequestBody Order order) {
         LOGGER.debug("Entering OrderController.createOrder()");
 
-        Order createdOrder = orderService.create(order).orElseThrow(() -> new DuplicateKeyException("Such order already exists"));
+        Order createdOrder = orderService.create(order);
 
         createdOrder.add(linkTo(methodOn(OrderController.class)
                 .getOrder(createdOrder.getId()))
@@ -133,7 +117,7 @@ public class OrderController {
 
         ResponseEntity<String> response = orderService.deleteOrder(orderId)
                 ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>("No order with id [" + orderId + "] was found", HttpStatus.OK);
+                : new ResponseEntity<>(String.format("No order with id [%s] was found", orderId), HttpStatus.OK);
 
         LOGGER.debug("Exiting OrderController.deleteOrder()");
         return response;
@@ -144,7 +128,7 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         LOGGER.debug("Entering OrderController.getOrderGiftCertificate()");
-        Order order = orderService.getOrderById(orderId).orElseThrow(() -> new NoSuchElementException("No such order exists"));
+        Order order = orderService.getOrderById(orderId);
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
 

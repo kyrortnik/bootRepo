@@ -3,6 +3,7 @@ package com.epam.esm.impl;
 
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
+import com.epam.esm.mapper.RequestParamsMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +21,10 @@ class TagServiceTest {
     //mock
     private final TagRepository tagRepository = Mockito.mock(TagRepository.class, withSettings().verboseLogging());
 
+    private final RequestParamsMapper requestParamsMapper = Mockito.mock(RequestParamsMapper.class, withSettings().verboseLogging());
+
     // class under test
-    private final TagService tagService = new TagService(tagRepository);
+    private final TagService tagService = new TagService(tagRepository, requestParamsMapper);
 
 
     //params

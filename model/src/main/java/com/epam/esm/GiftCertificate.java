@@ -52,7 +52,6 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 
-    //TODO -- add HATEOAS to certificates getters -- TBD
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
@@ -70,10 +69,8 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     }
 
-    //TODO -- investigate why can't add commented line - HibernateException -- TBD
-    //Hibernate - A collection with cascade=”all-delete-orphan” was no longer referenced by the owning entity instance
-    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
 
+    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
         this.setName(nonNull(changedGiftCertificate.getName()) ? changedGiftCertificate.getName() : this.getName());
         this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
         this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
@@ -81,8 +78,6 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
         this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
         this.setTags(nonNull(changedGiftCertificate.getTags()) ? changedGiftCertificate.getTags() : this.getTags());
-//        this.setOrders(nonNull(changedGiftCertificate.getOrders()) ? changedGiftCertificate.getOrders() : this.getOrders());
-
     }
 
     public static class GiftCertificateBuilder {

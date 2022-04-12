@@ -153,10 +153,16 @@ public class GiftCertificateService {
     public Set<Tag> getCertificateTags(Long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateService.getCertificateTags");
 
-        Set<Tag> giftCertificateTag = tagService.getTagsForCertificate(giftCertificateId);
+        Set<Tag> giftCertificateTags = tagService.getTagsForCertificate(giftCertificateId);
+
+        if (giftCertificateTags.isEmpty()){
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateService.getCertificateTags\n" +
+                    "No order tags for this gift certificate");
+            throw new NoSuchElementException("No order tags for this gift certificate");
+        }
 
         LOGGER.debug("Exiting GiftCertificateService.getCertificateTags");
-        return giftCertificateTag;
+        return giftCertificateTags;
     }
 
     private Set<Tag> replaceExistingTagWithProxy(Set<Tag> tags) {

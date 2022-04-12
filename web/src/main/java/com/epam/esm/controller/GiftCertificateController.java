@@ -57,6 +57,7 @@ public class GiftCertificateController {
                 .getGiftCertificateTags(id))
                 .withRel("tags"));
 
+
         LOGGER.debug("Exiting GiftCertificateController.getCertificatedById()");
         return giftCertificate;
     }
@@ -158,7 +159,6 @@ public class GiftCertificateController {
     public Set<Tag> getGiftCertificateTags(@PathVariable long giftCertificateId) {
         LOGGER.debug("Entering GiftCertificateController.getGiftCertificateTags()");
 
-        giftCertificateService.findById(giftCertificateId);
         Set<Tag> giftCertificateTags = giftCertificateService.getCertificateTags(giftCertificateId);
 
         giftCertificateTags.forEach(tag -> tag.add(linkTo(methodOn(TagController.class)

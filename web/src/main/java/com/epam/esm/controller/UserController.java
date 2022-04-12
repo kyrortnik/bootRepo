@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.Tag;
 import com.epam.esm.dto.LoginDto;
 import com.epam.esm.Order;
 import com.epam.esm.User;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.List;
@@ -44,8 +46,6 @@ public class UserController {
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
-//        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
-
         User user = userService.getById(userId);
 
         user.add(linkTo(methodOn(UserController.class)
@@ -68,8 +68,7 @@ public class UserController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.debug("Entering UserController.getUsers()");
 
-        Sort sortingParams = RequestParamsMapper.mapParams(sortBy);
-        Page<User> users = userService.getUsers(sortingParams, max, offset);
+        Page<User> users = userService.getUsers(sortBy, max, offset);
         if (users.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +
                     "No Orders exist");
@@ -96,18 +95,8 @@ public class UserController {
     public Set<Order> getUserOrders(@PathVariable long userId) {
         LOGGER.debug("Entering UserController.getUserOrders()");
 
-//        User user = userService.getById(userId).orElseThrow(() -> new NoSuchElementException("No user with id [" + userId + "] exists"));
+        Set<Order> userOrders = userService.getUserOrders(userId);
 
-        User user = userService.getById(userId);
-
-
-
-        Set<Order> userOrders = user.getOrders();
-        if (userOrders.isEmpty()) {
-            LOGGER.error("NoEntitiesFoundException in UserController.getUserOrders()\n" +
-                    "No order exists for this user");
-            throw new NoEntitiesFoundException("No order exists for this user");
-        }
         userOrders.forEach(order -> {
                     order.add(linkTo(methodOn(OrderController.class)
                             .getOrder(order.getId()))
@@ -127,14 +116,27 @@ public class UserController {
         return userOrders;
     }
 
+    /**
+     * Signs in an existing user
+     *
+     * @param loginDto Dto class containing User parameters
+     * @return String representing JWT
+     */
     @PostMapping("/signin")
-    public String login(@RequestBody LoginDto loginDto) {
-        return userService.signin(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(()->
-                new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+    public String signin(@RequestBody LoginDto loginDto) {
+        return userService.signin(loginDto.getUsername(), loginDto.getPassword());
     }
 
+    /**
+     * Creates new user with GUEST_ROLE
+     *
+     * @param loginDto Dto class containing User parameters
+     * @return created User
+     */
     @PostMapping("/signup")
-    public User signup(@RequestBody LoginDto loginDto){
-        return userService.signup(loginDto).orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST,"User already exists"));
+    public User signup(@RequestBody LoginDto loginDto) {
+        return userService.signup(loginDto);
     }
+
+
 }

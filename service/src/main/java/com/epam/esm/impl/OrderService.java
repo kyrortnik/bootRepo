@@ -1,9 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.GiftCertificate;
-import com.epam.esm.Order;
-import com.epam.esm.OrderRepository;
-import com.epam.esm.User;
+import com.epam.esm.*;
 import com.epam.esm.mapper.RequestParamsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +110,15 @@ public class OrderService {
         LOGGER.debug("Exiting OrderService.deleteOrder()");
 
         return orderIsDeleted;
+    }
+
+    public Set<Order> getOrdersForUser(Long userId){
+        LOGGER.debug("Entering OrderService.getOrdersForUser");
+
+        Set<Order> ordersForUser = orderRepository.findByUserId(userId);
+
+        LOGGER.debug("Exiting OrderService.getOrdersForUser");
+        return ordersForUser;
     }
 
     private void initiateOrder(Order order) {

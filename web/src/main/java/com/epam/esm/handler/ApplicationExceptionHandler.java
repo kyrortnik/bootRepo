@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import javax.persistence.NoResultException;
@@ -109,11 +110,23 @@ public class ApplicationExceptionHandler {
     }
 
 
-    @ExceptionHandler(HttpServerErrorException.class)
+    @ExceptionHandler(HttpClientErrorException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public @ResponseBody
-    ExceptionEntity httpServerErrorException(HttpServerErrorException e) {
+    ExceptionEntity httpServerErrorException(HttpClientErrorException e) {
         ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.FORBIDDEN.value()) + errorCodeCounter++), e.getMessage());
+        LOGGER.error("HttpClientErrorException caught in ApplicationExceptionHandler\n" +
+                "message: " + exceptionEntity.getMessage() +
+                "\nerror code:" + exceptionEntity.getCode());
+
+        return exceptionEntity;
+    }
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public @ResponseBody
+    ExceptionEntity httpServerErrorException(HttpServerErrorException e) {
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
         LOGGER.error("HttpServerErrorException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());

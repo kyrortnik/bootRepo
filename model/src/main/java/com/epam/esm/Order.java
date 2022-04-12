@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.hateoas.RepresentationModel;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Audited
 @Entity
 @EqualsAndHashCode(callSuper = false)
@@ -43,12 +41,5 @@ public class Order extends RepresentationModel<Order> {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private User user;
-
-
-    public Order(GiftCertificate giftCertificate, User user) {
-        this.giftCertificate = giftCertificate;
-        this.user = user;
-    }
-
 
 }

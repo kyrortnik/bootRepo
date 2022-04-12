@@ -27,7 +27,7 @@ public class Tag extends RepresentationModel<Tag> {
     private String name;
 
 
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags",fetch = FetchType.LAZY)
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

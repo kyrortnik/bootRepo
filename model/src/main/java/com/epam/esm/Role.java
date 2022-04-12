@@ -1,6 +1,7 @@
 package com.epam.esm;
 
 import lombok.Data;
+import lombok.NonNull;
 import org.hibernate.envers.Audited;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -16,6 +17,7 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String name;
 
     private String description;

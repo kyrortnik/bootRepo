@@ -26,9 +26,9 @@ public class ApplicationUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String userLogin) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(userLogin).orElseThrow(() ->
-                new UsernameNotFoundException(String.format("User with name %s does not exist", userLogin)));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException(String.format("User with name %s does not exist", username)));
 
         return withUsername(user.getUsername())
                 .password(user.getPassword())

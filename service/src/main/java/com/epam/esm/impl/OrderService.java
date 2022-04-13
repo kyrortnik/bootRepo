@@ -5,11 +5,11 @@ import com.epam.esm.mapper.RequestParamsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,7 +33,7 @@ public class OrderService {
 
     @Autowired
     public OrderService(OrderRepository orderRepository, GiftCertificateService giftCertificateService,
-                        UserService userService, RequestParamsMapper requestParamsMapper) {
+                        @Lazy UserService userService, RequestParamsMapper requestParamsMapper) {
         this.orderRepository = orderRepository;
         this.giftCertificateService = giftCertificateService;
         this.userService = userService;
@@ -41,7 +41,7 @@ public class OrderService {
     }
 
 
-    public Order getOrderById(Long orderId) {
+    public Order getOrderById(Long orderId) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrderById()");
 
         Order foundOrder = orderRepository.findById(orderId)
@@ -54,11 +54,10 @@ public class OrderService {
     }
 
 
-    public Page<Order> getOrders(List<String> sortBy, int max, int offset) {
+    public Page<Order> getOrders(List<String> sortBy, int max, int offset) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrders()");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
-
         Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(offset, max, sortParams));
 
         if (foundOrders.isEmpty()) {
@@ -86,7 +85,7 @@ public class OrderService {
     }
 
 
-    public Order create(Order order) {
+    public Order create(Order order) throws DuplicateKeyException{
         LOGGER.debug("Entering OrderService.create()");
         initiateOrder(order);
 
@@ -112,7 +111,7 @@ public class OrderService {
         return orderIsDeleted;
     }
 
-    public Set<Order> getOrdersForUser(Long userId){
+    public Set<Order> getOrdersForUser(Long userId) {
         LOGGER.debug("Entering OrderService.getOrdersForUser");
 
         Set<Order> ordersForUser = orderRepository.findByUserId(userId);
@@ -126,7 +125,7 @@ public class OrderService {
         String giftCertificateName = order.getGiftCertificate().getName();
         GiftCertificate giftCertificateFromOrder = giftCertificateService
                 .findGiftCertificateByName(giftCertificateName);
-        User user = userService.getById(userId);
+        User user = userService.getUserById(userId);
 
         order.setUser(user);
         order.setGiftCertificate(giftCertificateFromOrder);

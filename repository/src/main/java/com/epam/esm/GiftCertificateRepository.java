@@ -11,7 +11,6 @@ public interface GiftCertificateRepository extends JpaRepository<GiftCertificate
 
     Optional<GiftCertificate> findByName(String name);
 
-    //TODO -- make sure that works -- TBD
     Page<GiftCertificate> findByTagsIn(Set<Tag> tags, Pageable pageable);
 
 }

@@ -3,6 +3,7 @@ package com.epam.esm.security.filter;
 import com.epam.esm.security.ApplicationUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -23,9 +24,10 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
     private static final String BEARER = "Bearer";
-    private static final String AUTHORIZATION  = "Authorization";
+    private static final String AUTHORIZATION = "Authorization";
 
     private final ApplicationUserDetailsService applicationUserDetailsService;
+
 
     public JwtTokenFilter(ApplicationUserDetailsService applicationUserDetailsService) {
         this.applicationUserDetailsService = applicationUserDetailsService;
@@ -67,9 +69,10 @@ public class JwtTokenFilter extends GenericFilterBean {
      * @return jwt if present, empty otherwise
      */
     private Optional<String> getBearerToken(String headerVal) {
+        Optional<String> token = Optional.empty();
         if (headerVal != null && headerVal.startsWith(BEARER)) {
-            return Optional.of(headerVal.replace(BEARER, "").trim());
+            token = Optional.of(headerVal.replace(BEARER, "").trim());
         }
-        return Optional.empty();
+        return token;
     }
 }

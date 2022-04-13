@@ -1,7 +1,6 @@
 package com.epam.esm.handler;
 
 import com.epam.esm.exception.ExceptionEntity;
-import com.epam.esm.exception.NoEntitiesFoundException;
 import io.jsonwebtoken.JwtException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -37,17 +36,6 @@ public class ApplicationExceptionHandler {
         return exceptionEntity;
     }
 
-    @ExceptionHandler(NoEntitiesFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody
-    ExceptionEntity entitiesNotFound(NoEntitiesFoundException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
-        LOGGER.error("NoEntitiesFoundException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
-
-        return exceptionEntity;
-    }
 
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

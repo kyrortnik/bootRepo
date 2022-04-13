@@ -7,6 +7,7 @@ import com.epam.esm.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,16 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Transactional
 @Service
 public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
+    private static final String ROLE_GUEST = "ROLE_GUEST";
 
     private final UserRepository userRepository;
 
@@ -49,7 +49,7 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        AuthenticationManager authenticationManager, RoleRepository roleRepository,
                        JwtProvider jwtProvider, PasswordEncoder passwordEncoder,
-                       RequestParamsMapper requestParamsMapper, OrderService orderService) {
+                       RequestParamsMapper requestParamsMapper, @Lazy OrderService orderService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
@@ -60,7 +60,7 @@ public class UserService {
     }
 
 
-    public User getById(Long userId) {
+    public User getUserById(Long userId) throws NoSuchElementException {
         LOGGER.debug("Entering UserService.getById");
         User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException(String
@@ -71,6 +71,7 @@ public class UserService {
 
     }
 
+    //TODO -- exception on empty result list
     public Page<User> getUsers(List<String> sortBy, int max, int offset) {
         LOGGER.debug("Entering UserService.getUsers()");
 
@@ -118,8 +119,12 @@ public class UserService {
         String firstName = loginDto.getFirstName();
         String lastname = loginDto.getLastName();
 
+        if (Objects.isNull(username) || Objects.isNull(password)){
+            throw new NullPointerException("username and password can not be null");
+        }
+
         if (!userRepository.findByUsername(username).isPresent()) {
-            Optional<Role> role = roleRepository.findByName("ROLE_GUEST");
+            Optional<Role> role = roleRepository.findByName(ROLE_GUEST);
             User newUser = new User.UserBuilder(username, passwordEncoder.encode(password))
                     .firstName(firstName)
                     .secondName(lastname)
@@ -131,7 +136,7 @@ public class UserService {
 
     }
 
-    public Set<Order> getUserOrders(Long userId) {
+    public Set<Order> getUserOrders(Long userId) throws NoSuchElementException{
         LOGGER.debug("Entering UserService.getUserOrders");
 
         Set<Order> userOrders = orderService.getOrdersForUser(userId);

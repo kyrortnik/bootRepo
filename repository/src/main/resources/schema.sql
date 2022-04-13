@@ -42,13 +42,6 @@ PRIMARY KEY (certificate_id, tag_id),
 CONSTRAINT fk_certificates FOREIGN KEY (certificate_id) REFERENCES certificates(id),
 CONSTRAINT fk_tags FOREIGN KEY (tag_id) REFERENCES tags(id));
 
---CREATE TABLE IF NOT EXISTS auth_user_group (
---auth_user_group_id  SERIAL NOT NULL,
---username CHARACTER VARYING (128) NOT NULL UNIQUE,
---auth_group CHARACTER VARYING (128) NOT NULL UNIQUE,
---CONSTRAINT users_auth_user_group_fk FOREIGN KEY(username) REFERENCES users(username),
---PRIMARY KEY (auth_user_group_id)
---);
 
 CREATE TABLE IF NOT EXISTS roles (
 id SERIAL PRIMARY KEY,

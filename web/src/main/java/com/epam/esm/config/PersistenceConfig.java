@@ -66,7 +66,7 @@ public class PersistenceConfig {
     @Profile("prod")
     final Properties hibernateProperties() {
         final Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "none");
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         properties.setProperty("org.hibernate.envers.audit_table_suffix", "_AUDIT_LOG");
         return properties;

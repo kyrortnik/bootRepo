@@ -1,24 +1,17 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.Tag;
-import com.epam.esm.dto.LoginDto;
 import com.epam.esm.Order;
 import com.epam.esm.User;
-import com.epam.esm.exception.NoEntitiesFoundException;
+import com.epam.esm.dto.LoginDto;
 import com.epam.esm.impl.UserService;
-import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -46,7 +39,7 @@ public class UserController {
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
-        User user = userService.getById(userId);
+        User user = userService.getUserById(userId);
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -72,7 +65,7 @@ public class UserController {
         if (users.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +
                     "No Orders exist");
-            throw new NoEntitiesFoundException("No Orders exist");
+            throw new NoSuchElementException("No Orders exist");
         }
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)

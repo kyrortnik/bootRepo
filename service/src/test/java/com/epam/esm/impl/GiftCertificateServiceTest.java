@@ -1,19 +1,23 @@
-//TODO -- refactor tests
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
 import com.epam.esm.mapper.RequestParamsMapper;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -47,6 +51,9 @@ class GiftCertificateServiceTest {
 
     private final int max = 20;
     private final int offset = 0;
+    private final Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
+    private final Sort sort = Sort.by(order);
+
 
     private final Tag firstTag = new Tag(1L, "first tag");
     private final Tag secondTag = new Tag(2L, "second tag");
@@ -101,11 +108,15 @@ class GiftCertificateServiceTest {
             thirdGiftCertificateWithTags
     );
 
-    private final HashMap<String, Boolean> sortParams = new HashMap<>();
+    Page<GiftCertificate> giftCertificatesPage = new PageImpl<>(giftCertificates);
+    Page<GiftCertificate> giftCertificatesWithTagsPage = new PageImpl<>(giftCertificatesWithTags);
+    Page<GiftCertificate> emptyGiftCertificatePage = new PageImpl<>(new ArrayList<>());
+    private final List<String> sortParams = new ArrayList<>();
+
 
     @BeforeEach
     void setUp() {
-        sortParams.put("name", true);
+        sortParams.add("id.asc");
 
         String changedName = "changedName";
         String changedDescription = "changedDescription";
@@ -217,177 +228,198 @@ class GiftCertificateServiceTest {
         nonExistingGiftCertificate = null;
     }
 
-//    @Test
-//    void testGetById_idExists() {
-//        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
-//
-//        Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getById(giftCertificateId);
-//
-//        verify(giftCertificateRepository).getCertificateById(giftCertificateId);
-//        assertTrue(returnGiftCertificate.isPresent());
-//        assertEquals(existingGiftCertificate, returnGiftCertificate.get());
-//    }
-//
-//    @Test
-//    void testGetById_idDoesNotExist() {
-//        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.empty());
-//
-//        Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getById(giftCertificateId);
-//
-//        verify(giftCertificateRepository).getCertificateById(giftCertificateId);
-//        assertFalse(returnGiftCertificate.isPresent());
-//        assertEquals(Optional.empty(), returnGiftCertificate);
-//    }
-//
-//    @Test
-//    void testGetGiftCertificateByName_nameExists() {
-//        when(giftCertificateRepository.getGiftCertificateByName(giftCertificateName)).thenReturn(Optional.of(existingGiftCertificate));
-//
-//        Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getGiftCertificateByName(giftCertificateName);
-//
-//        verify(giftCertificateRepository).getGiftCertificateByName(giftCertificateName);
-//        assertTrue(returnGiftCertificate.isPresent());
-//        assertEquals(existingGiftCertificate, returnGiftCertificate.get());
-//    }
-//
-//    @Test
-//    void testGetGiftCertificateByName_nameDoesNotExists() {
-//
-//        when(giftCertificateRepository.getGiftCertificateByName(nonExistingGiftCertificateName)).thenReturn(Optional.empty());
-//
-//        Optional<GiftCertificate> returnGiftCertificate = giftCertificateService.getGiftCertificateByName(nonExistingGiftCertificateName);
-//
-//        verify(giftCertificateRepository).getGiftCertificateByName(nonExistingGiftCertificateName);
-//        assertEquals(Optional.empty(), returnGiftCertificate);
-//    }
-//
-//
-//    @Test
-//    void testGetAll_giftCertificatesExist() {
-//        when(giftCertificateRepository.getGiftCertificates(sortParams, max, offset)).thenReturn(giftCertificates);
-//
-//        List<GiftCertificate> returnGiftCertificates = giftCertificateService.getAll(sortParams, max, offset);
-//
-//        verify(giftCertificateRepository).getGiftCertificates(sortParams, max, offset);
-//        assertEquals(giftCertificates, returnGiftCertificates);
-//    }
-//
-//    @Test
-//    void testGetAll_noGiftCertificates() {
-//        when(giftCertificateRepository.getGiftCertificates(sortParams, max, offset)).thenReturn(noGiftCertificates);
-//
-//        List<GiftCertificate> returnGiftCertificates = giftCertificateService.getAll(sortParams, max, offset);
-//
-//        verify(giftCertificateRepository).getGiftCertificates(sortParams, max, offset);
-//        assertEquals(noGiftCertificates, returnGiftCertificates);
-//
-//    }
-//
-//    @Test
-//    void testGetCertificatesByTags_giftCertificatesWithTagsExist() {
-//        when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
-//        when(giftCertificateRepository.getGiftCertificatesByTags(sortParams, max, tags, offset)).thenReturn(giftCertificatesWithTags);
-//
-//        List<GiftCertificate> returnGiftCertificates = giftCertificateService.getCertificatesByTags(sortParams, max, tagNames, offset);
-//
-//        verify(tagService).getTagsByNames(tagNames);
-//        verify(giftCertificateRepository).getGiftCertificatesByTags(sortParams, max, tags, offset);
-//        assertEquals(giftCertificatesWithTags, returnGiftCertificates);
-//    }
-//
+    @Test
+    void testGetById_idExists() {
+        when(giftCertificateRepository.findById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
+
+        GiftCertificate returnGiftCertificate = giftCertificateService.findById(giftCertificateId);
+
+        verify(giftCertificateRepository).findById(giftCertificateId);
+        assertTrue(nonNull(returnGiftCertificate));
+        assertEquals(existingGiftCertificate, returnGiftCertificate);
+    }
+
+    @Test
+    void testGetById_idDoesNotExist() {
+        when(giftCertificateRepository.findById(nonExistingGiftCertificateId)).thenReturn(Optional.empty());
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService
+                .findById(nonExistingGiftCertificateId));
+        String expectedMessage = String.format("Certificate with id [%s] not found", nonExistingGiftCertificateId);
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(giftCertificateRepository).findById(nonExistingGiftCertificateId);
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void testGetGiftCertificateByName_nameExists() {
+        when(giftCertificateRepository.findByName(giftCertificateName)).thenReturn(Optional.of(existingGiftCertificate));
+
+        GiftCertificate returnGiftCertificate = giftCertificateService.findGiftCertificateByName(giftCertificateName);
+
+        verify(giftCertificateRepository).findByName(giftCertificateName);
+        assertTrue(nonNull(returnGiftCertificate));
+        assertEquals(existingGiftCertificate, returnGiftCertificate);
+    }
+
+    @Test
+    void testGetGiftCertificateByName_nameDoesNotExists() {
+        when(giftCertificateRepository.findByName(nonExistingGiftCertificateName)).thenReturn(Optional.empty());
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService
+                .findGiftCertificateByName(nonExistingGiftCertificateName));
+        String expectedMessage = String.format("Gift Certificate with name [%s] does not exist", nonExistingGiftCertificateName);
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(giftCertificateRepository).findByName(nonExistingGiftCertificateName);
+        assertEquals(expectedMessage, actualMessage);
+
+    }
+
+
+    @Test
+    void testGetAll_giftCertificatesExist() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(giftCertificateRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(giftCertificatesPage);
+
+        Page<GiftCertificate> returnGiftCertificates = giftCertificateService.getAllGiftCertificates(sortParams, max, offset);
+
+        verify(giftCertificateRepository).findAll(PageRequest.of(offset, max, sort));
+        assertEquals(giftCertificatesPage, returnGiftCertificates);
+    }
+
+    @Test
+    void testGetAll_noGiftCertificates() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(giftCertificateRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(emptyGiftCertificatePage);
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService
+                .getAllGiftCertificates(sortParams, max, offset));
+        String expectedMessage = "No Satisfying Gift Certificates exist";
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(giftCertificateRepository).findAll(PageRequest.of(offset, max, sort));
+        assertEquals(expectedMessage, actualMessage);
+
+    }
+
+    //TODO -- test manually
+    @Test
+    void testGetCertificatesByTags_giftCertificatesWithTagsExist() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
+        when(giftCertificateRepository.findByTagsIn(tags, PageRequest.of(offset, max, sort)))
+                .thenReturn(giftCertificatesWithTagsPage);
+
+        Page<GiftCertificate> giftCertificateWithTags = giftCertificateService
+                .getGiftCertificatesByTags(sortParams, max, offset, tagNames);
+
+        verify(tagService).getTagsByNames(tagNames);
+        verify(giftCertificateRepository).findByTagsIn(tags, PageRequest.of(offset, max, sort));
+        assertEquals(giftCertificatesWithTagsPage, giftCertificateWithTags);
+    }
+
+    //TODO -- test manually
 //    @Test
 //    void testGetCertificatesByTags_noGiftCertificatesWithTags() {
-//        when(tagService.getTagsByNames(noTagNames)).thenReturn(noTags);
-//        when(giftCertificateRepository.getGiftCertificatesByTags(sortParams, max, noTags, offset)).thenReturn(noGiftCertificates);
+//        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+//        when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
+//        when(giftCertificateRepository.findByTagsIn(tags,PageRequest.of(offset, max, sort)))
+//                .thenReturn(emptyGiftCertificatePage);
 //
-//        List<GiftCertificate> returnGiftCertificates = giftCertificateService.getCertificatesByTags(sortParams, max, noTagNames, offset);
+//        Page<GiftCertificate> giftCertificatesWithoutTags = giftCertificateService
+//                .getGiftCertificatesByTags(sortParams, max, offset, tagNames);
 //
 //        verify(tagService).getTagsByNames(noTagNames);
-//        verify(giftCertificateRepository).getGiftCertificatesByTags(sortParams, max, noTags, offset);
-//        assertEquals(noGiftCertificates, returnGiftCertificates);
+//        verify(giftCertificateRepository).findByTagsIn(tags,PageRequest.of(offset, max, sort));
+//        assertEquals(emptyGiftCertificatePage, giftCertificatesWithoutTags);
 //
 //    }
 //
-//    @Test
-//    void testDelete_idExists() {
-//        when(giftCertificateRepository.deleteGiftCertificate(giftCertificateId)).thenReturn(true);
-//
-//        boolean result = giftCertificateService.delete(giftCertificateId);
-//
-//        assertTrue(result);
-//    }
-//
-//    @Test
-//    void testDelete_idDoesNotExist() {
-//        when(giftCertificateRepository.deleteGiftCertificate(giftCertificateId)).thenReturn(false);
-//
-//        boolean result = giftCertificateService.delete(giftCertificateId);
-//
-//        assertFalse(result);
-//
-//    }
-//
-//    @Test
-//    void testCreateGiftCertificate_withName() {
-//
-//        GiftCertificate inputGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
-//                .description(description)
-//                .price(price)
-//                .duration(duration)
-//                .tags(tags)
-//                .build();
-//
-//        GiftCertificate expectedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
-//                .id(giftCertificateId)
-//                .description(description)
-//                .price(price)
-//                .duration(duration)
-//                .createDate(createDate)
-//                .lastUpdateDate(lastUpdateDate)
-//                .tags(tags)
-//                .build();
-//
-//        inputGiftCertificate.setCreateDate(createDate);
-//        inputGiftCertificate.setLastUpdateDate(lastUpdateDate);
-//        when(giftCertificateRepository.createGiftCertificate(inputGiftCertificate)).thenReturn(giftCertificateId);
-//        when(giftCertificateRepository.getCertificateById(giftCertificateId)).thenReturn(Optional.of(expectedGiftCertificate));
-//
-//        Optional<GiftCertificate> createdGiftCertificate = giftCertificateService.create(inputGiftCertificate);
-//
-//        verify(giftCertificateRepository).createGiftCertificate(inputGiftCertificate);
-//        verify(giftCertificateRepository).getCertificateById(giftCertificateId);
-//        assertTrue(createdGiftCertificate.isPresent());
-//        assertEquals(expectedGiftCertificate, createdGiftCertificate.get());
-//    }
-//
-//    @Test
-//    void testCreateGiftCertificate_nameAlreadyExists() {
-//        GiftCertificate giftCertificate = new GiftCertificate();
-//        when(giftCertificateRepository.createGiftCertificate(giftCertificate)).thenThrow(ConstraintViolationException.class);
-//
-//        Exception constraintViolationException = assertThrows(ConstraintViolationException.class, () -> giftCertificateService.create(giftCertificate));
-//        String expectedMessage = "Gift Certificate with name [" + giftCertificate.getName() + "] already exists";
-//        String actualMessage = constraintViolationException.getMessage();
-//
-//        verify(giftCertificateRepository).createGiftCertificate(giftCertificate);
-//        verify(giftCertificateRepository, never()).getCertificateById(giftCertificateId);
-//        assertEquals(expectedMessage, actualMessage);
-//    }
-//
-//
+    @Test
+    void testDelete_idExists() {
+        when(giftCertificateRepository.findById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
+
+        boolean result = giftCertificateService.delete(giftCertificateId);
+
+        verify(giftCertificateRepository).findById(giftCertificateId);
+        assertTrue(result);
+    }
+
+    @Test
+    void testDelete_idDoesNotExist() {
+        when(giftCertificateRepository.findById(giftCertificateId)).thenReturn(Optional.empty());
+
+        boolean result = giftCertificateService.delete(giftCertificateId);
+
+        verify(giftCertificateRepository).findById(giftCertificateId);
+        assertFalse(result);
+
+    }
+
+    @Test
+    void testCreateGiftCertificate_withName() {
+        GiftCertificate inputGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .tags(tags)
+                .build();
+
+        GiftCertificate expectedGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
+                .id(giftCertificateId)
+                .description(description)
+                .price(price)
+                .duration(duration)
+                .createDate(createDate)
+                .lastUpdateDate(lastUpdateDate)
+                .tags(tags)
+                .build();
+
+        inputGiftCertificate.setCreateDate(createDate);
+        inputGiftCertificate.setLastUpdateDate(lastUpdateDate);
+        when(giftCertificateRepository.save(inputGiftCertificate)).thenReturn(expectedGiftCertificate);
+
+        GiftCertificate createdGiftCertificate = giftCertificateService.create(inputGiftCertificate);
+
+        verify(giftCertificateRepository).save(inputGiftCertificate);
+        assertTrue(nonNull(createdGiftCertificate));
+        assertEquals(expectedGiftCertificate, createdGiftCertificate);
+    }
+
+    @Test
+    void testCreateGiftCertificate_nameAlreadyExists() {
+        GiftCertificate giftCertificate = new GiftCertificate
+                .GiftCertificateBuilder(nonExistingGiftCertificateName)
+                .build();
+        when(giftCertificateService.giftCertificateAlreadyExists(giftCertificate)).thenReturn(true);
+
+        Exception constraintViolationException = assertThrows(DuplicateKeyException.class,
+                () -> giftCertificateService.create(giftCertificate));
+        String expectedMessage = String
+                .format("Gift certificate with name %s already exists", giftCertificate.getName());
+        String actualMessage = constraintViolationException.getMessage();
+
+        verify(giftCertificateRepository, never()).save(giftCertificate);
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+
+    //TODO -- finish
 //    @Test
 //    void testUpdateGiftCertificate_giftCertificateExists() {
+//        when(giftCertificateService.findById(giftCertificateId)).thenReturn(existingGiftCertificate);
+//        changedGiftCertificate.setId(giftCertificateId);
+//        when(giftCertificateRepository.save(changedGiftCertificate)).thenReturn(changedGiftCertificate);
 //
-//        when(giftCertificateService.getById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
-//        when(giftCertificateRepository.updateGiftCertificate(changedGiftCertificate, existingGiftCertificate)).thenReturn(Optional.of(updatedGiftCertificate));
+//        GiftCertificate firstGiftCertificate = giftCertificateService.findById(giftCertificateId);
+//        firstGiftCertificate.setLastUpdateDate(LocalDateTime.now());
+//        giftCertificateService.update(changedGiftCertificate, giftCertificateId);
+//        GiftCertificate secondGiftCertificate = giftCertificateService.findById(giftCertificateId);
 //
-//        Optional<GiftCertificate> resultGiftCertificate = giftCertificateService.getById(giftCertificateId);
-//        resultGiftCertificate.ifPresent(giftCertificate -> giftCertificate.setLastUpdateDate(LocalDateTime.now()));
-//        boolean giftCertificateIsUpdated = giftCertificateService.update(changedGiftCertificate, giftCertificateId);
-//
-//        verify(giftCertificateRepository).updateGiftCertificate(changedGiftCertificate, existingGiftCertificate);
-//        assertEquals(resultGiftCertificate, Optional.of(existingGiftCertificate));
-//        assertTrue(giftCertificateIsUpdated);
+//        verify(giftCertificateRepository).save(existingGiftCertificate);
+//        assertEquals(secondGiftCertificate, changedGiftCertificate);
 //
 //    }
 //

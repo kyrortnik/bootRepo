@@ -1,6 +1,5 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.CRUDService;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.TagRepository;
@@ -9,8 +8,10 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ import java.util.*;
 
 @Transactional
 @Service
-public class TagService /*implements CRUDService<Tag>*/ {
+public class TagService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
 
@@ -35,7 +36,7 @@ public class TagService /*implements CRUDService<Tag>*/ {
         this.requestParamsMapper = requestParamsMapper;
     }
 
-    public Tag findById(Long tagId) {
+    public Tag findById(Long tagId) throws NoSuchElementException {
         LOGGER.debug("Entering tagService.getById");
 
         Tag foundTag = tagRepository.findById(tagId)
@@ -46,13 +47,13 @@ public class TagService /*implements CRUDService<Tag>*/ {
     }
 
 
-    public Page<Tag> getAll(List<String> sortBy, int max, int offset) {
+    public Page<Tag> getAll(List<String> sortBy, int max, int offset) throws NoSuchElementException {
         LOGGER.debug("Entering tagService.getAll");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
         Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset, max, sortParams));
         if (foundTags.isEmpty()) {
-            LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
+            LOGGER.error("NoSuchElementException in TagController.getTags()\n" +
                     "No Tags exist");
             throw new NoSuchElementException("No Tags exist");
         }
@@ -61,11 +62,13 @@ public class TagService /*implements CRUDService<Tag>*/ {
         return foundTags;
     }
 
+    //TODO -- is(tagAlreadyExists(tag)) -- DuplicateKeyException
     public Tag create(Tag tag) {
         LOGGER.debug("Entering TagService.create");
 
         String tagName = tag.getName();
-        if (findTagByName(tagName).getName().equals(tag.getName())) {
+        Optional<Tag> existingTag = tagRepository.findByName(tagName);
+        if (existingTag.isPresent()) {
             throw new ConstraintViolationException(String.format("Tag with name [%s] already exists", tagName),
                     new SQLException(), "gift certificate name");
         }
@@ -98,13 +101,7 @@ public class TagService /*implements CRUDService<Tag>*/ {
 
     }
 
-    public void update(Tag tag, Long id) {
-        LOGGER.debug("Entering TagService.update()");
-        LOGGER.error("UnsupportedOperationException in TagService.update()");
-        throw new UnsupportedOperationException();
-    }
-
-    public Tag findTagByName(String tagName) {
+    public Tag findTagByName(String tagName) throws NoSuchElementException{
         LOGGER.debug("Entering TagService.getTagByName()");
 
         Tag foundTag = tagRepository.findByName(tagName).orElseThrow(() -> new NoSuchElementException(String
@@ -153,20 +150,6 @@ public class TagService /*implements CRUDService<Tag>*/ {
         return tagsForGiftCertificate;
     }
 
-    //TODO -- do I need this?
-    public boolean tagExists(Tag tag) {
-        LOGGER.debug("start ");
-
-        boolean tagExists;
-        Example<Tag> tagExample = Example.of(tag);
-
-        tagExists = tagRepository.exists(tagExample);
-
-        LOGGER.debug("exit");
-        return tagExists;
-
-
-    }
 
     public Tag getById(Long tagId) {
         LOGGER.debug("start");
@@ -176,8 +159,7 @@ public class TagService /*implements CRUDService<Tag>*/ {
         return proxyTag;
     }
 
-    //TODO -- tests that works
-    public boolean tagExists(String tagName) {
+    public boolean tagAlreadyExists(String tagName) {
         LOGGER.debug("start ");
 
         boolean tagExists = tagRepository.existsByName(tagName);

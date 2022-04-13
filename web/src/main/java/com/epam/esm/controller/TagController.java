@@ -1,15 +1,12 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.Tag;
-import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.TagService;
-import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;

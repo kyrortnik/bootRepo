@@ -21,7 +21,7 @@ public class JwtProvider {
     private static final String ROLES_KEY = "roles";
     private static final String AUTHORITY = "authority";
 
-    private  final String secretKey;
+    private final String secretKey;
     private final long validityInMilliseconds;
 
     @Autowired
@@ -61,12 +61,15 @@ public class JwtProvider {
      * Validate the JWT String
      *
      * @param token JWT string
-     * @return true if valid, false otherwise
+     * @return true if valid and not expired, false otherwise
      */
     public boolean isValidToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Date expirationTime = claimsJws.getBody().getExpiration();
+            Date currentTime = new Date();
+
+            return currentTime.before(expirationTime);
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

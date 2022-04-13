@@ -1,176 +1,204 @@
-////TODO -- refactor tests
-//package com.epam.esm.impl;
-//
-//import com.epam.esm.*;
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.Mockito;
-//
-//import java.time.LocalDateTime;
-//import java.util.*;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class OrderServiceTest {
-//
-//    //mocks
-//    private final OrderRepository orderRepository = Mockito.mock(OrderRepository.class, withSettings().verboseLogging());
-//
-//    private final GiftCertificateService giftCertificateService = Mockito.mock(GiftCertificateService.class, withSettings().verboseLogging());
-//
-//    private final UserService userService = Mockito.mock(UserService.class, withSettings().verboseLogging());
-//
-//    //class under test
-//    private final OrderService orderService = new OrderService(orderRepository, giftCertificateService, userService);
-//
-//
-//    private final long orderId = 1L;
-//    private final LocalDateTime orderDate = LocalDateTime.now();
-//    private final double orderCost = 99.9;
-//
-//    private final List<Order> noOrders = new ArrayList<>();
-//    private List<Order> orders;
-//
-//    private final long userId = 1L;
-//    private final String firstName = "first name";
-//    private final String secondName = "second name";
-//    private final User user = new User();
-////    private final User user = new User(userId, firstName, secondName, new HashSet<>(noOrders));
-//
-//    private GiftCertificate giftCertificateForOrder;
-//    private User userForOrder;
-//
-//    private Order order;
-//
-//    private GiftCertificate giftCertificate;
-//
-//    private Set<Tag> tags;
-//
-//    private final HashMap<String, Boolean> sortParams = new HashMap<>();
-//    private final int max = 20;
-//    private final int offset = 0;
-//
-//
-//    @BeforeEach
-//    void setUp() {
-//
-//        order = new Order(1L, orderDate, orderCost, giftCertificate, user);
-//        Order secondOrder = new Order(2L, orderDate, orderCost, giftCertificate, user);
-//        Order thirdOrder = new Order(3L, orderDate, orderCost, giftCertificate, user);
-//
-//        String giftCertificateName = "gift certificate name";
-//        giftCertificateForOrder = new GiftCertificate.GiftCertificateBuilder((giftCertificateName)).build();
-//        userForOrder = new User(userId);
-//
-//        long giftCertificateId = 1L;
-//        String giftCertificateDescription = "description";
-//        long giftCertificatePrice = 200L;
-//        long giftCertificateDuration = 360L;
-//
-//        giftCertificate = new GiftCertificate();
-//        giftCertificate.setId(giftCertificateId);
-//        giftCertificate.setName(giftCertificateName);
-//        giftCertificate.setDescription(giftCertificateDescription);
-//        giftCertificate.setPrice(giftCertificatePrice);
-//        giftCertificate.setDuration(giftCertificateDuration);
-//        giftCertificate.setCreateDate(LocalDateTime.now());
-//        giftCertificate.setLastUpdateDate(LocalDateTime.now());
-//        giftCertificate.setTags(tags);
-//
-//        orders = Arrays.asList(
-//                order,
-//                secondOrder,
-//                thirdOrder
-//        );
-//
-//        tags = new HashSet<>(Arrays.asList(
-//                new Tag(1L, "first tag"),
-//                new Tag(2L, "second tag"),
-//                new Tag(3L, "third tag")
-//        ));
-//
-//        sortParams.put("id", true);
-//
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//        order = new Order();
-//        giftCertificateForOrder = new GiftCertificate();
-//        userForOrder = new User();
-//        orders = new ArrayList<>();
-//        tags = new HashSet<>();
-//        giftCertificate = new GiftCertificate();
-//        sortParams.clear();
-//    }
-//
-//
-////    @Test
-////    void testGetOrderById_idExists() {
-////        Order order = new Order(orderId, orderDate, orderCost, giftCertificate, user);
-////
-////        when(orderRepository.getOrderById(orderId)).thenReturn(Optional.of(order));
-////
-////        Optional<Order> returnOrder = orderService.getOrderById(orderId);
-////
-////        verify(orderRepository).getOrderById(orderId);
-////        assertTrue(returnOrder.isPresent());
-////        assertEquals(order, returnOrder.get());
-////    }
-////
-////    @Test
-////    void testGetOrderById_idDoesNotExist() {
-////        when(orderRepository.getOrderById(orderId)).thenReturn(Optional.empty());
-////
-////        Optional<Order> returnOrder = orderService.getOrderById(orderId);
-////
-////        verify(orderRepository).getOrderById(orderId);
-////        assertFalse(returnOrder.isPresent());
-////        assertEquals(Optional.empty(), returnOrder);
-////    }
-////
-////    @Test
-////    void testGetOrders_ordersExist() {
-////
-////        when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(orders);
-////
-////        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
-////
-////        verify(orderRepository).getOrders(sortParams, max, offset);
-////        assertEquals(orders, returnOrders);
-////    }
-////
-////    @Test
-////    void testGetOrders_noOrdersExist() {
-////
-////        when(orderRepository.getOrders(sortParams, max, offset)).thenReturn(noOrders);
-////
-////        List<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
-////
-////        verify(orderRepository).getOrders(sortParams, max, offset);
-////        assertEquals(noOrders, returnOrders);
-////    }
-////
-////    @Test
-////    void testOrderAlreadyExists_true() {
-////        when(orderRepository.orderAlreadyExists(order)).thenReturn(true);
-////
-////        boolean result = orderService.orderAlreadyExists(order);
-////
-////        assertTrue(result);
-////    }
-////
-////    @Test
-////    void testOrderAlreadyExists_false() {
-////        when(orderRepository.orderAlreadyExists(order)).thenReturn(false);
-////
-////        boolean result = orderService.orderAlreadyExists(order);
-////
-////        verify(orderRepository).orderAlreadyExists(order);
-////        assertFalse(result);
-////    }
+//TODO -- refactor tests
+package com.epam.esm.impl;
+
+import com.epam.esm.*;
+import com.epam.esm.mapper.RequestParamsMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.data.domain.*;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.mockito.Mockito.withSettings;
+
+import static java.util.Objects.nonNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+
+class OrderServiceTest {
+
+    //mocks
+    private final OrderRepository orderRepository = Mockito.mock(OrderRepository.class, withSettings().verboseLogging());
+
+    private final GiftCertificateService giftCertificateService = Mockito.mock(GiftCertificateService.class, withSettings().verboseLogging());
+
+    private final UserService userService = Mockito.mock(UserService.class, withSettings().verboseLogging());
+
+    private final RequestParamsMapper requestParamsMapper = Mockito.mock(RequestParamsMapper.class, withSettings().verboseLogging());
+
+    //class under test
+    private final OrderService orderService = new OrderService(orderRepository, giftCertificateService, userService, requestParamsMapper);
+
+    private Order order;
+
+    private final long orderId = 1L;
+    private final LocalDateTime orderDate = LocalDateTime.now();
+    private final double orderCost = 99.9;
+
+    private final List<Order> noOrders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>(Arrays.asList(order));
+
+    private final long userId = 1L;
+    private final String firstName = "first name";
+    private final String secondName = "second name";
+    private final User user = new User();
+//    private final User user = new User(userId, firstName, secondName, new HashSet<>(noOrders));
+
+    private GiftCertificate giftCertificateForOrder;
+    private User userForOrder;
+
+
+    private GiftCertificate giftCertificate;
+
+    private Set<Tag> tags;
+
+
+    private final int max = 20;
+    private final int offset = 0;
+    private final Sort.Order sortOrder = new Sort.Order(Sort.Direction.ASC, "id");
+    private final Sort sort = Sort.by(sortOrder);
+
+    Page<Order> orderPage = new PageImpl<>(orders);
+
+    private final List<String> sortParams = new ArrayList<>();
+
+    @BeforeEach
+    void setUp() {
+
+        sortParams.add("id.desc");
+        order = new Order(1L, orderDate, orderCost, giftCertificate, user);
+        Order secondOrder = new Order(2L, orderDate, orderCost, giftCertificate, user);
+        Order thirdOrder = new Order(3L, orderDate, orderCost, giftCertificate, user);
+
+        String giftCertificateName = "gift certificate name";
+        giftCertificateForOrder = new GiftCertificate.GiftCertificateBuilder((giftCertificateName)).build();
+        userForOrder = new User.UserBuilder("username", "password").build();
+
+        long giftCertificateId = 1L;
+        String giftCertificateDescription = "description";
+        long giftCertificatePrice = 200L;
+        long giftCertificateDuration = 360L;
+
+        giftCertificate = new GiftCertificate();
+        giftCertificate.setId(giftCertificateId);
+        giftCertificate.setName(giftCertificateName);
+        giftCertificate.setDescription(giftCertificateDescription);
+        giftCertificate.setPrice(giftCertificatePrice);
+        giftCertificate.setDuration(giftCertificateDuration);
+        giftCertificate.setCreateDate(LocalDateTime.now());
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
+        giftCertificate.setTags(tags);
+
+        orders = Arrays.asList(
+                order,
+                secondOrder,
+                thirdOrder
+        );
+
+        tags = new HashSet<>(Arrays.asList(
+                new Tag(1L, "first tag"),
+                new Tag(2L, "second tag"),
+                new Tag(3L, "third tag")
+        ));
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        order = new Order();
+        giftCertificateForOrder = new GiftCertificate();
+        userForOrder = new User();
+        orders = new ArrayList<>();
+        tags = new HashSet<>();
+        giftCertificate = new GiftCertificate();
+        sortParams.clear();
+    }
+
+
+    @Test
+    void testGetOrderById_idExists() {
+        Order order = new Order(orderId, orderDate, orderCost, giftCertificate, user);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        Order returnOrder = orderService.getOrderById(orderId);
+
+        verify(orderRepository).findById(orderId);
+        assertTrue(nonNull(returnOrder));
+        assertEquals(order, returnOrder);
+    }
+
+    @Test
+    void testGetOrderById_idDoesNotExist() {
+        long nonExistingOrderId = 1111L;
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> orderService.getOrderById(nonExistingOrderId));
+        String expectedMessage = String.format("No order with id %s exists", nonExistingOrderId);
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(orderRepository).findById(nonExistingOrderId);
+        assertEquals(expectedMessage, actualMessage);
+
+    }
+
+    @Test
+    void testGetOrders_ordersExist() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(orderRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(orderPage);
+
+        Page<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+
+        verify(orderRepository).findAll(PageRequest.of(offset, max, sort));
+        assertEquals(orderPage, returnOrders);
+    }
+
+    @Test
+    void testGetOrders_noOrdersExist() {
+
+        Page<Order> emptyOrderPage = new PageImpl<>(new ArrayList<>());
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(orderRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(emptyOrderPage);
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class,
+                () -> orderService.getOrders(sortParams, max, offset));
+
+        String expectedMessage = "No Orders exist";
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(requestParamsMapper).mapParams(sortParams);
+        verify(orderRepository).findAll(PageRequest.of(offset, max, sort));
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void testOrderAlreadyExists_true() {
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
+                .withMatcher("giftCertificate", ExampleMatcher.GenericPropertyMatchers.exact())
+                .withMatcher("user", ExampleMatcher.GenericPropertyMatchers.exact());
+        Example<Order> orderExample = Example.of(order, customExampleMatcher);
+        when(orderRepository.exists(orderExample)).thenReturn(true);
+
+        boolean result = orderService.orderAlreadyExists(order);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testOrderAlreadyExists_false() {
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
+                .withMatcher("giftCertificate", ExampleMatcher.GenericPropertyMatchers.exact())
+                .withMatcher("user", ExampleMatcher.GenericPropertyMatchers.exact());
+        Example<Order> orderExample = Example.of(order, customExampleMatcher);
+        when(orderRepository.exists(orderExample)).thenReturn(false);
+
+        boolean result = orderService.orderAlreadyExists(order);
+
+        assertFalse(result);
+    }
 ////
 ////
 ////    @Test
@@ -268,4 +296,4 @@
 ////        assertFalse(result);
 ////    }
 //
-//}
+}

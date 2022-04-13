@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -62,11 +61,7 @@ public class UserController {
         LOGGER.debug("Entering UserController.getUsers()");
 
         Page<User> users = userService.getUsers(sortBy, max, offset);
-        if (users.isEmpty()) {
-            LOGGER.error("NoEntitiesFoundException in UserController.getUsers()\n" +
-                    "No Orders exist");
-            throw new NoSuchElementException("No Orders exist");
-        }
+
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)
                             .getUser(user.getId()))

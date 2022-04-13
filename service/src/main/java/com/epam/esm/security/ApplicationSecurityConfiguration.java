@@ -28,8 +28,8 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         http.
                 csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/v1/users/signin").permitAll()
-                .antMatchers(HttpMethod.POST,"/api/v1/users/signup").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/users/signin").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/users/signup").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

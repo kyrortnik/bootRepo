@@ -71,16 +71,20 @@ public class UserService {
 
     }
 
-    //TODO -- exception on empty result list
+
     public Page<User> getUsers(List<String> sortBy, int max, int offset) {
         LOGGER.debug("Entering UserService.getUsers()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
-
-        Page<User> foundUsers = userRepository.findAll(PageRequest.of(offset, max, sortingParams));
+        Page<User> users = userRepository.findAll(PageRequest.of(offset, max, sortingParams));
+        if (users.isEmpty()) {
+            LOGGER.error("NoSuchElementException in UserController.getUsers()\n" +
+                    "No Orders exist");
+            throw new NoSuchElementException("No Orders exist");
+        }
 
         LOGGER.debug("Exiting UserService.getUsers()");
-        return foundUsers;
+        return users;
     }
 
 
@@ -103,7 +107,7 @@ public class UserService {
                 LOGGER.debug("Log in failed for user {}", username);
             }
         }
-        return token.orElseThrow(() -> new HttpClientErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+        return token.orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Login Failed"));
     }
 
     /**

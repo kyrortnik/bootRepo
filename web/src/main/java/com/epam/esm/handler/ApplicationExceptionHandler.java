@@ -99,10 +99,10 @@ public class ApplicationExceptionHandler {
 
 
     @ExceptionHandler(HttpClientErrorException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
     ExceptionEntity httpServerErrorException(HttpClientErrorException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.FORBIDDEN.value()) + errorCodeCounter++), e.getMessage());
+        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
         LOGGER.error("HttpClientErrorException caught in ApplicationExceptionHandler\n" +
                 "message: " + exceptionEntity.getMessage() +
                 "\nerror code:" + exceptionEntity.getCode());

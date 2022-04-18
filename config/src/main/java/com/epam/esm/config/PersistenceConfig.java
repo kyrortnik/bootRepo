@@ -64,6 +64,18 @@ public class PersistenceConfig {
         return sessionFactory;
     }
 
+<<<<<<< Updated upstream:config/src/main/java/com/epam/esm/config/PersistenceConfig.java
+=======
+    @Profile("test")
+    @Bean(name = "entityManagerFactory")
+    @Autowired
+    public LocalSessionFactoryBean entityManagerFactoryTest(DataSource dataSource) {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setPackagesToScan("com.epam.esm");
+        return sessionFactory;
+    }
+>>>>>>> Stashed changes:web/src/main/java/com/epam/esm/config/PersistenceConfig.java
 
     @Profile("prod")
     final Properties hibernateProperties() {

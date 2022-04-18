@@ -19,7 +19,6 @@ import java.util.Set;
 @Table(name = "tags")
 public class Tag extends RepresentationModel<Tag> {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +26,8 @@ public class Tag extends RepresentationModel<Tag> {
     @NonNull
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
+
+    @ManyToMany(mappedBy = "tags",fetch = FetchType.LAZY)
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

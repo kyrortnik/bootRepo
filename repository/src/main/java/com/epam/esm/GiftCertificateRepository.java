@@ -1,25 +1,16 @@
 package com.epam.esm;
 
-import java.util.HashMap;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 import java.util.Set;
 
-public interface GiftCertificateRepository {
+public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long> {
 
-    Optional<GiftCertificate> getCertificateById(Long giftCertificateId);
+    Optional<GiftCertificate> findByName(String name);
 
-    Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName);
-
-    List<GiftCertificate> getGiftCertificates(HashMap<String, Boolean> sortParams, int max, int offset);
-
-    List<GiftCertificate> getGiftCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<Tag> tags, int offset);
-
-    boolean deleteGiftCertificate(Long giftCertificateId);
-
-    Optional<GiftCertificate> updateGiftCertificate(GiftCertificate giftCertificate, GiftCertificate existingGiftCertificate);
-
-    Long createGiftCertificate(GiftCertificate giftCertificate);
-
+    Page<GiftCertificate> findByTagsIn(Set<Tag> tags, Pageable pageable);
 
 }

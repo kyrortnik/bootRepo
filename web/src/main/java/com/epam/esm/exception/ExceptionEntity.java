@@ -1,5 +1,6 @@
 package com.epam.esm.exception;
 
+//TODO -- linkedIn security lesson shows build-in entity like this
 public class ExceptionEntity {
 
     private final String message;

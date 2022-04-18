@@ -1,123 +1,217 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.CRUDService;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.Tag;
-import org.hibernate.exception.ConstraintViolationException;
+import com.epam.esm.mapper.RequestParamsMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import static java.util.Objects.isNull;
 
+@Transactional
 @Service
-public class GiftCertificateService implements CRUDService<GiftCertificate> {
+public class GiftCertificateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GiftCertificateService.class);
+
+    private static final String NAME_PROPERTY = "name";
 
     private final GiftCertificateRepository giftCertificateRepository;
 
     private final TagService tagService;
 
+    private final RequestParamsMapper requestParamsMapper;
+
     @Autowired
-    public GiftCertificateService(GiftCertificateRepository giftCertificateRepository, TagService tagService) {
+    public GiftCertificateService(GiftCertificateRepository giftCertificateRepository, TagService tagService
+            , RequestParamsMapper requestParamsMapper) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagService = tagService;
+        this.requestParamsMapper = requestParamsMapper;
     }
 
 
-    @Transactional
-    @Override
-    public Optional<GiftCertificate> getById(Long id) {
-        LOGGER.info("Entering GiftCertificateService.getById()");
+    public GiftCertificate findById(Long id) throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.getById()");
 
-        Optional<GiftCertificate> foundGiftCertificate = giftCertificateRepository.getCertificateById(id);
+        GiftCertificate foundGiftCertificate = giftCertificateRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(String.format("Certificate with id [%s] not found", id)));
 
-        LOGGER.info("Exiting GiftCertificateService.getById()");
+        LOGGER.debug("Exiting GiftCertificateService.getById()");
         return foundGiftCertificate;
     }
 
-    public Optional<GiftCertificate> getGiftCertificateByName(String giftCertificateName) {
-        LOGGER.info("Entering GiftCertificateService.getGiftCertificateByName()");
 
-        Optional<GiftCertificate> foundGiftCertificate = giftCertificateRepository.getGiftCertificateByName(giftCertificateName);
+    public GiftCertificate findGiftCertificateByName(String giftCertificateName) throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.getGiftCertificateByName()");
 
-        LOGGER.info("Exiting GiftCertificateService.getGiftCertificateByName()");
+        GiftCertificate foundGiftCertificate = giftCertificateRepository.findByName(giftCertificateName)
+                .orElseThrow(() -> new NoSuchElementException(String
+                        .format("Gift Certificate with name [%s] does not exist", giftCertificateName)));
+
+        LOGGER.debug("Exiting GiftCertificateService.getGiftCertificateByName()");
         return foundGiftCertificate;
 
     }
 
+    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int offset)
+            throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.getGiftCertificates");
 
-    @Override
-    public List<GiftCertificate> getAll(HashMap<String, Boolean> sortParams, int max, int offset) {
-        LOGGER.info("Entering GiftCertificateService.getAll()");
-        List<GiftCertificate> foundGiftCertificates = giftCertificateRepository.getGiftCertificates(sortParams, max, offset);
-
-        LOGGER.info("Exiting GiftCertificateService.getAll()");
-        return foundGiftCertificates;
+        Page<GiftCertificate> giftCertificates = isNull(tagNames)
+                ? getAllGiftCertificates(sortBy, max, offset)
+                : getGiftCertificatesByTags(sortBy, max, offset, tagNames);
+        if (giftCertificates.getContent().isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
+                    "No Satisfying Gift Certificates exists");
+            throw new NoSuchElementException("No Satisfying Gift Certificates exist");
+        }
+        LOGGER.debug("Exiting GiftCertificateService.getGiftCertificates");
+        return giftCertificates;
     }
 
 
-    public List<GiftCertificate> getCertificatesByTags(HashMap<String, Boolean> sortParams, int max, Set<String> tagNames, int offset) {
-        LOGGER.info("Entering GiftCertificateService.getCertificatesByTags()");
+    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int offset)
+            throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.getAll");
 
+        Sort sortingParams = requestParamsMapper.mapParams(sortBy);
+        Page<GiftCertificate> giftCertificates = giftCertificateRepository
+                .findAll(PageRequest.of(offset, max, sortingParams));
+
+        if (giftCertificates.getContent().isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
+                    "No Satisfying Gift Certificates exists");
+            throw new NoSuchElementException("No Satisfying Gift Certificates exist");
+        }
+
+        LOGGER.debug("Exiting GiftCertificateService.getAll");
+        return giftCertificates;
+    }
+
+
+    public Page<GiftCertificate>
+    getGiftCertificatesByTags(List<String> sortBy, int max, int offset, Set<String> tagNames) {
+        LOGGER.debug("Entering GiftCertificateService.getCertificatesByTags()");
+
+        Sort sortingParams = requestParamsMapper.mapParams(sortBy);
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
-        List<GiftCertificate> foundGiftCertificates = giftCertificateRepository.getGiftCertificatesByTags(sortParams, max, tags, offset);
+        Page<GiftCertificate> foundGiftCertificates = giftCertificateRepository
+                .findByTagsIn(tags, PageRequest.of(offset, max, sortingParams));
 
-        LOGGER.info("Exiting GiftCertificateService.getCertificatesByTags()");
+        LOGGER.debug("Exiting GiftCertificateService.getCertificatesByTags()");
         return foundGiftCertificates;
     }
 
-    @Override
-    public boolean delete(Long id) {
-        LOGGER.info("Entering GiftCertificateService.delete()");
+    public boolean delete(Long giftCertificateId) {
+        LOGGER.debug("Entering GiftCertificateService.delete()");
+        boolean giftCertificateIsDeleted;
 
-        boolean giftCertificateIsDeleted = giftCertificateRepository.deleteGiftCertificate(id);
+        if (!giftCertificateRepository.findById(giftCertificateId).isPresent()) {
+            giftCertificateIsDeleted = false;
+        } else {
+            giftCertificateRepository.deleteById(giftCertificateId);
+            giftCertificateIsDeleted = true;
+        }
 
-        LOGGER.info("Exiting GiftCertificateService.delete()");
+        LOGGER.debug("Exiting GiftCertificateService.delete()");
         return giftCertificateIsDeleted;
     }
 
 
-    @Override
-    public boolean update(GiftCertificate giftCertificate, Long giftCertificateId) throws NoSuchElementException {
-        LOGGER.info("Entering GiftCertificateService.update()");
-        boolean giftCertificateIsUpdate;
+    public void update(GiftCertificate changedGiftCertificate, Long giftCertificateId) throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.update()");
 
-        GiftCertificate existingGiftCertificate = getById(giftCertificateId)
-                .orElseThrow(() -> new NoSuchElementException("No Gift Certificate with id [" + giftCertificateId + "] exists"));
-        giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        Optional<GiftCertificate> updatedGiftCertificated = giftCertificateRepository.updateGiftCertificate(giftCertificate, existingGiftCertificate);
-        giftCertificateIsUpdate = updatedGiftCertificated.isPresent();
+        GiftCertificate existingGiftCertificate = findById(giftCertificateId);
+        changedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
+        Set<Tag> updatedTags = replaceExistingTagWithProxy(changedGiftCertificate.getTags());
 
-        LOGGER.info("Exiting GiftCertificateService.update()");
-        return giftCertificateIsUpdate;
+        changedGiftCertificate.setTags(updatedTags);
+        existingGiftCertificate.mergeTwoGiftCertificate(changedGiftCertificate);
+        giftCertificateRepository.save(existingGiftCertificate);
+
+        LOGGER.debug("Exiting GiftCertificateService.update()");
     }
 
 
-    @Override
-    public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
-        try {
-            LOGGER.info("Entering GiftCertificateService.create()");
+    //TODO -- no new tag created
+    public GiftCertificate create(GiftCertificate giftCertificate) throws DuplicateKeyException {
+        LOGGER.debug("Entering GiftCertificateService.create()");
+        GiftCertificate createdGiftCertificate;
+
+        if (!giftCertificateAlreadyExists(giftCertificate)) {
             giftCertificate.setCreateDate(LocalDateTime.now());
             giftCertificate.setLastUpdateDate(LocalDateTime.now());
-            Long createdGiftCertificateId = giftCertificateRepository.createGiftCertificate(giftCertificate);
-
-            LOGGER.info("Exiting GiftCertificateService.create()");
-            return getById(createdGiftCertificateId);
-        } catch (ConstraintViolationException e) {
-            LOGGER.error("ConstraintViolationException in GiftCertificateService.create()\n" +
-                    e.getMessage());
-            throw new ConstraintViolationException("Gift Certificate with name [" + giftCertificate.getName() + "] already exists", new SQLException(), "gift certificate name");
+            Set<Tag> updatedTags = replaceExistingTagWithProxy(giftCertificate.getTags());
+            giftCertificate.setTags(updatedTags);
+            createdGiftCertificate = giftCertificateRepository.save(giftCertificate);
+        } else {
+            throw new DuplicateKeyException(String
+                    .format("Gift certificate with name %s already exists", giftCertificate.getName()));
         }
 
+        LOGGER.debug("Exiting GiftCertificateService.create()");
+        return createdGiftCertificate;
+    }
+
+
+    public Set<Tag> getCertificateTags(Long giftCertificateId) throws NoSuchElementException {
+        LOGGER.debug("Entering GiftCertificateService.getCertificateTags");
+
+        Set<Tag> giftCertificateTags = tagService.getTagsForCertificate(giftCertificateId);
+
+        if (giftCertificateTags.isEmpty()) {
+            LOGGER.error("NoEntitiesFoundException in GiftCertificateService.getCertificateTags\n" +
+                    "No order tags for this gift certificate");
+            throw new NoSuchElementException("No order tags for this gift certificate");
+        }
+
+        LOGGER.debug("Exiting GiftCertificateService.getCertificateTags");
+        return giftCertificateTags;
+    }
+
+    public boolean giftCertificateAlreadyExists(GiftCertificate giftCertificate) {
+        LOGGER.debug("Entering GiftCertificateService.orderAlreadyExists");
+
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
+                .withMatcher(NAME_PROPERTY, ExampleMatcher.GenericPropertyMatchers.exact());
+
+        Example<GiftCertificate> orderExample = Example.of(giftCertificate, customExampleMatcher);
+        boolean orderAlreadyExists = giftCertificateRepository.exists(orderExample);
+
+        LOGGER.debug("Exiting OrderService.orderAlreadyExists()");
+        return orderAlreadyExists;
+    }
+
+
+    private Set<Tag> replaceExistingTagWithProxy(Set<Tag> tags) {
+        LOGGER.debug("Entering GiftCertificateService.replaceExistingTagWithProxy");
+        Set<Tag> updatedTags = new HashSet<>();
+
+        for (Tag tag : tags) {
+            String tagName = tag.getName();
+            if (tagService.tagAlreadyExists(tagName)) {
+                Tag foundTag = tagService.findTagByName(tagName);
+                updatedTags.remove(tag);
+                Tag proxyTag = tagService.getById(foundTag.getId());
+                updatedTags.add(proxyTag);
+            }
+        }
+
+        LOGGER.debug("Exiting GiftCertificateService.replaceExistingTagWithProxy");
+        return updatedTags;
     }
 
 }

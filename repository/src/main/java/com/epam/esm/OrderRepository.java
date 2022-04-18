@@ -1,20 +1,10 @@
 package com.epam.esm;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Set;
 
-public interface OrderRepository {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    Optional<Order> getOrderById(Long orderId);
-
-    //    Set<Order> getOrders(HashMap<String,Boolean> sortParams, int max, int offset);
-    List<Order> getOrders(HashMap<String, Boolean> sortParams, int max, int offset);
-
-    Long createOrder(Order order);
-
-    boolean delete(Long orderId);
-
-    boolean orderAlreadyExists(Order order);
+    Set<Order> findByUserId(Long userId);
 }

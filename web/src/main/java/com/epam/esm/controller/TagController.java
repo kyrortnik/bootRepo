@@ -1,22 +1,19 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.Tag;
-import com.epam.esm.exception.NoEntitiesFoundException;
 import com.epam.esm.impl.TagService;
-import com.epam.esm.mapper.RequestParamsMapper;
 import com.epam.esm.util.GetMethodProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -36,10 +33,11 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Tag getTagById(@PathVariable Long tagId) {
-        LOGGER.info("Entering TagController.getTag()");
+        LOGGER.debug("Entering TagController.getTag()");
 
-        Tag tag = tagService.getById(tagId).orElseThrow(() -> new NoSuchElementException("Tag with tagId [" + tagId + "] not found"));
+        Tag tag = tagService.findById(tagId);
 
         tag.add(linkTo(methodOn(TagController.class)
                 .getTagById(tagId))
@@ -49,26 +47,22 @@ public class TagController {
                 .deleteTag(tagId))
                 .withRel("delete"));
 
-        LOGGER.info("Exiting TagController.getTag()");
+        LOGGER.debug("Exiting TagController.getTag()");
         return tag;
 
     }
 
 
     @GetMapping("/")
-    public List<Tag> getTags(
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
+    public Page<Tag> getTags(
             @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
-        LOGGER.info("Entering TagController.getTags()");
+        LOGGER.debug("Entering TagController.getTags()");
 
-        LinkedHashMap<String, Boolean> sortingParams = RequestParamsMapper.mapSortingParams(sortBy);
-        List<Tag> tags = tagService.getAll(sortingParams, max, offset);
-        if (tags.isEmpty()) {
-            LOGGER.error("NoEntitiesFoundException in TagController.getTags()\n" +
-                    "No Tags exist");
-            throw new NoEntitiesFoundException("No Tags exist");
-        }
+        Page<Tag> tags = tagService.getAll(sortBy, max, offset);
+
         tags.forEach(tag -> {
                     tag.add(linkTo(methodOn(TagController.class)
                             .getTagById(tag.getId()))
@@ -79,7 +73,7 @@ public class TagController {
                 }
         );
 
-        LOGGER.info("Exiting TagController.getTags()");
+        LOGGER.debug("Exiting TagController.getTags()");
         return tags;
     }
 
@@ -87,15 +81,11 @@ public class TagController {
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Tag create(@RequestBody Tag tag) {
-        LOGGER.info("Entering TagController.create()");
+        LOGGER.debug("Entering TagController.create()");
 
-        if ((tag.getName().isEmpty())) {
-            LOGGER.error("NullPointerException in TagController.create()\n" +
-                    "Tag name can not be empty");
-            throw new NullPointerException("Tag name can not be empty");
-        }
-        Tag createdTag = tagService.create(tag).orElseThrow(() -> new DuplicateKeyException("Tag with name [" + tag.getName() + "] already exists"));
+        Tag createdTag = tagService.create(tag);
 
         createdTag.add(linkTo(methodOn(TagController.class)
                 .getTagById(createdTag.getId()))
@@ -105,7 +95,7 @@ public class TagController {
                 .deleteTag(createdTag.getId()))
                 .withRel("delete"));
 
-        LOGGER.info("Exiting TagController.create()");
+        LOGGER.debug("Exiting TagController.create()");
         return createdTag;
 
 
@@ -113,24 +103,26 @@ public class TagController {
 
 
     @DeleteMapping("/{tagId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteTag(@PathVariable Long tagId) {
-        LOGGER.info("Entering TagController.delete()");
+        LOGGER.debug("Entering TagController.delete()");
 
         ResponseEntity<String> response = tagService.delete(tagId)
                 ? new ResponseEntity<>(HttpStatus.OK)
-                : new ResponseEntity<>("No tag with tagId [" + tagId + "] was found", HttpStatus.OK);
+                : new ResponseEntity<>(String.format("No tag with tagId [%s] was found", tagId), HttpStatus.OK);
 
-        LOGGER.info("Exiting TagController.delete()");
+        LOGGER.debug("Exiting TagController.delete()");
         return response;
     }
 
     @GetMapping("/mostUsedTagForRichestUser")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Tag getMostUsedTagForRichestUser() {
-        LOGGER.info("Entering TagController.getMostUsedTagForRichestUser()");
-        Tag tag = tagService.getMostUsedTagForRichestUser()
-                .orElseThrow(() -> new NoEntitiesFoundException("No certificates with tags exist in orders"));
+        LOGGER.debug("Entering TagController.getMostUsedTagForRichestUser()");
 
-        LOGGER.info("Exiting TagController.getMostUsedTagForRichestUser()");
+        Tag tag = tagService.getMostUsedTagForRichestUser();
+
+        LOGGER.debug("Exiting TagController.getMostUsedTagForRichestUser()");
         return tag;
     }
 

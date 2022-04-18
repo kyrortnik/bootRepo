@@ -18,11 +18,25 @@ INSERT INTO tags VALUES (DEFAULT,'abroad');
 
 INSERT INTO certificates_tags VALUES (1,1);
 INSERT INTO certificates_tags VALUES (1,2);
+INSERT INTO certificates_tags VALUES (2,1);
 INSERT INTO certificates_tags VALUES (2,3);
 INSERT INTO certificates_tags VALUES (3,4);
 INSERT INTO certificates_tags VALUES (3,5);
+--admin
+INSERT INTO users VALUES (DEFAULT,'Administrator','Head','admin','$2a$12$xs3gTm9RBIMD4bCKfWIJ7eKhfcRQHW.PYoycsGOUv2lcgSk3OEmUC');
+--userPassword
+INSERT INTO users VALUES (DEFAULT,'John','user','userLogin','$2a$12$bopJ5gJXc9ax5ZIDEI/bsuK2H2j3JbvLmMmXab5PGhsqsSIbfaRoW');
+--guestPassword
+INSERT INTO users VALUES (DEFAULT,'Jane','guest','guestLogin','$2a$12$f.dcdT4icxEFJOjakpAwL.JENNBPfvHiukM4sCzPJOXfQvYt9.3Uy');
 
-INSERT INTO users VALUES (DEFAULT,'John','Lennon');
-INSERT INTO users VALUES (DEFAULT,'Paul','McCartney');
-INSERT INTO users VALUES (DEFAULT,'Geogre','Harrison');
-INSERT INTO users VALUES (DEFAULT,'Ringo','Star');
+
+INSERT INTO roles VALUES (DEFAULT,'ROLE_ADMIN','Administrator');
+INSERT INTO roles VALUES (DEFAULT,'ROLE_USER','Application user');
+INSERT INTO roles VALUES (DEFAULT,'ROLE_GUEST','Application guest');
+
+INSERT INTO users_roles VALUES (1,1);
+INSERT INTO users_roles VALUES (2,2);
+INSERT INTO users_roles VALUES (3,3);
+
+
+

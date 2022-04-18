@@ -22,15 +22,23 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework:spring-context:5.3.14'
     implementation project(':model')
     implementation project(':repository')
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework:spring-context:5.3.14'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework:spring-tx:5.3.15'
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
     implementation 'org.hibernate:hibernate-core:5.6.5.Final'
 
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+    implementation 'org.springframework.security:spring-security-core:5.6.2'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'io.jsonwebtoken:jjwt:0.2'
 }
 
 test {

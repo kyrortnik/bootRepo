@@ -3,20 +3,11 @@ package com.epam.esm;
 import com.epam.esm.controller.UserController;
 import com.epam.esm.impl.UserService;
 import com.epam.esm.security.ApplicationUserDetailsService;
-import org.hibernate.annotations.Filter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import javax.persistence.EntityManagerFactory;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.BDDMockito.given;
 
@@ -41,7 +32,7 @@ class UserControllerTest {
         User persistenceUser = new User.UserBuilder("username", "password")
                 .id(1L)
                 .build();
-        given(userService.getUserById(1L)).willReturn(persistenceUser);
+        given(userService.findUserById(1L)).willReturn(persistenceUser);
 
         mockMvc.perform(get("api/v1/users/1"))
                 .andExpect(status().isOk());

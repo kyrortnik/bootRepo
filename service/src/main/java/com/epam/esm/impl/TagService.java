@@ -8,7 +8,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,7 +46,7 @@ public class TagService {
     }
 
 
-    public Page<Tag> getAll(List<String> sortBy, int max, int offset) throws NoSuchElementException {
+    public Page<Tag> findTags(List<String> sortBy, int max, int offset) throws NoSuchElementException {
         LOGGER.debug("Entering tagService.getAll");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
@@ -65,13 +64,13 @@ public class TagService {
     //TODO -- is(tagAlreadyExists(tag)) -- DuplicateKeyException
     public Tag create(Tag tag) {
         LOGGER.debug("Entering TagService.create");
-
         String tagName = tag.getName();
-        Optional<Tag> existingTag = tagRepository.findByName(tagName);
-        if (existingTag.isPresent()) {
+
+        if (tagAlreadyExists(tagName)) {
             throw new ConstraintViolationException(String.format("Tag with name [%s] already exists", tagName),
                     new SQLException(), "gift certificate name");
         }
+
         Tag createdTag = tagRepository.save(tag);
 
         LOGGER.debug("Exiting TagService.create");
@@ -101,7 +100,7 @@ public class TagService {
 
     }
 
-    public Tag findTagByName(String tagName) throws NoSuchElementException{
+    public Tag findTagByName(String tagName) throws NoSuchElementException {
         LOGGER.debug("Entering TagService.getTagByName()");
 
         Tag foundTag = tagRepository.findByName(tagName).orElseThrow(() -> new NoSuchElementException(String

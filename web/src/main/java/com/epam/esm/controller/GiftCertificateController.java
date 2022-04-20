@@ -39,7 +39,7 @@ public class GiftCertificateController {
     public GiftCertificate getCertificateById(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.getCertificatedById()");
 
-        GiftCertificate giftCertificate = giftCertificateService.findById(id);
+        GiftCertificate giftCertificate = giftCertificateService.findGiftCertificateById(id);
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(id))

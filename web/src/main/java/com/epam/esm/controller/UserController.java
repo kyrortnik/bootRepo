@@ -5,7 +5,6 @@ import com.epam.esm.User;
 import com.epam.esm.dto.LoginDto;
 import com.epam.esm.impl.UserService;
 import com.epam.esm.util.GetMethodProperty;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,7 @@ public class UserController {
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
-        User user = userService.getUserById(userId);
+        User user = userService.findUserById(userId);
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -62,7 +61,7 @@ public class UserController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.debug("Entering UserController.getUsers()");
 
-        Page<User> users = userService.getUsers(sortBy, max, offset);
+        Page<User> users = userService.findUsers(sortBy, max, offset);
 
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)

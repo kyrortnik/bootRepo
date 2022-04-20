@@ -5,10 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 @Repository
 public interface UserRepository  extends JpaRepository<User, Long> {
 

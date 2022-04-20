@@ -61,7 +61,7 @@ public class TagController {
             @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
         LOGGER.debug("Entering TagController.getTags()");
 
-        Page<Tag> tags = tagService.getAll(sortBy, max, offset);
+        Page<Tag> tags = tagService.findTags(sortBy, max, offset);
 
         tags.forEach(tag -> {
                     tag.add(linkTo(methodOn(TagController.class)

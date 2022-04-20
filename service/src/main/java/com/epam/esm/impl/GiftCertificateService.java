@@ -43,11 +43,11 @@ public class GiftCertificateService {
     }
 
 
-    public GiftCertificate findById(Long id) throws NoSuchElementException {
+    public GiftCertificate findGiftCertificateById(Long id) throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getById()");
 
         GiftCertificate foundGiftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(String.format("Certificate with id [%s] not found", id)));
+                .orElseThrow(() -> new NoSuchElementException(String.format("Gift Certificate with id [%s] not found", id)));
 
         LOGGER.debug("Exiting GiftCertificateService.getById()");
         return foundGiftCertificate;
@@ -134,7 +134,7 @@ public class GiftCertificateService {
     public void update(GiftCertificate changedGiftCertificate, Long giftCertificateId) throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.update()");
 
-        GiftCertificate existingGiftCertificate = findById(giftCertificateId);
+        GiftCertificate existingGiftCertificate = findGiftCertificateById(giftCertificateId);
         changedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
         Set<Tag> updatedTags = replaceExistingTagWithProxy(changedGiftCertificate.getTags());
 

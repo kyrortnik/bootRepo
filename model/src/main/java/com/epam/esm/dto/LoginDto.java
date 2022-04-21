@@ -1,26 +1,18 @@
 package com.epam.esm.dto;
 
-
-//import com.sun.istack.NotNull;
 import lombok.*;
 import org.springframework.stereotype.Component;
-
-import javax.validation.constraints.NotNull;
 
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Component
 public class LoginDto {
 
+    private String username;
 
-    @NonNull
-    private  String username;
-
-    @NonNull
-    private  String password;
+    private String password;
 
     private String firstName;
 

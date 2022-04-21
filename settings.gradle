@@ -1,4 +1,4 @@
 rootProject.name = 'application'
-include('web', 'model', 'service', 'repository', 'config')
+include('web', 'model', 'service', 'repository')
 
 

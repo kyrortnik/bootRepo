@@ -146,7 +146,6 @@ public class GiftCertificateService {
     }
 
 
-    //TODO -- no new tag created
     public GiftCertificate create(GiftCertificate giftCertificate) throws DuplicateKeyException {
         LOGGER.debug("Entering GiftCertificateService.create()");
         GiftCertificate createdGiftCertificate;
@@ -175,18 +174,20 @@ public class GiftCertificateService {
         if (giftCertificateTags.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateService.getCertificateTags\n" +
                     "No order tags for this gift certificate");
-            throw new NoSuchElementException("No order tags for this gift certificate");
+            throw new NoSuchElementException("No tags in this gift certificate");
         }
 
         LOGGER.debug("Exiting GiftCertificateService.getCertificateTags");
         return giftCertificateTags;
     }
 
+
     public boolean giftCertificateAlreadyExists(GiftCertificate giftCertificate) {
         LOGGER.debug("Entering GiftCertificateService.orderAlreadyExists");
 
-        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll()
                 .withMatcher(NAME_PROPERTY, ExampleMatcher.GenericPropertyMatchers.exact());
+
 
         Example<GiftCertificate> orderExample = Example.of(giftCertificate, customExampleMatcher);
         boolean orderAlreadyExists = giftCertificateRepository.exists(orderExample);
@@ -198,13 +199,13 @@ public class GiftCertificateService {
 
     private Set<Tag> replaceExistingTagWithProxy(Set<Tag> tags) {
         LOGGER.debug("Entering GiftCertificateService.replaceExistingTagWithProxy");
-        Set<Tag> updatedTags = new HashSet<>();
+        Set<Tag> updatedTags = new HashSet<>(tags);
 
         for (Tag tag : tags) {
             String tagName = tag.getName();
             if (tagService.tagAlreadyExists(tagName)) {
-                Tag foundTag = tagService.findTagByName(tagName);
                 updatedTags.remove(tag);
+                Tag foundTag = tagService.findTagByName(tagName);
                 Tag proxyTag = tagService.getById(foundTag.getId());
                 updatedTags.add(proxyTag);
             }

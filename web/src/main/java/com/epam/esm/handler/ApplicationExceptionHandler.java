@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -86,18 +87,14 @@ public class ApplicationExceptionHandler {
     }
 
 
-    //TODO -- may be omitted after fixing getMostUsedTagForRichestUser()
-//    @ExceptionHandler(NoResultException.class)
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public @ResponseBody
-//    ExceptionEntity noResultException(NoResultException e) {
-//        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
-//        LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
-//                MESSAGE + exceptionEntity.getMessage() +
-//                ERROR_CODE_MESSAGE + exceptionEntity.getCode());
-//
-//        return exceptionEntity;
-//    }
+    @ExceptionHandler(NoResultException.class)
+    public void noResultException(NoResultException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.NOT_FOUND.value());
+        LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND + errorCodeCounter);
+
+    }
 
     @ExceptionHandler(ArrayIndexOutOfBoundsException.class)
     public void incorrectSortByPattern(ArrayIndexOutOfBoundsException ex, HttpServletResponse res) throws IOException {

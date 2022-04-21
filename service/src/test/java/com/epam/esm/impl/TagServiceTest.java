@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.NoResultException;
 import java.util.*;
 
 import static java.util.Objects.nonNull;
@@ -223,27 +224,28 @@ class TagServiceTest {
         long richestUserId = 1;
         Tag tag = new Tag(tagId, tagName);
         when(tagRepository.getRichestUserId()).thenReturn(richestUserId);
-        when(tagRepository.getMostUsedTagForRichestUser(richestUserId)).thenReturn(Optional.of(tag));
+        when(tagRepository.getMostUsedTagForRichestUser(richestUserId)).thenReturn(tagName);
+        when(tagRepository.findByName(tagName)).thenReturn(Optional.of(tag));
 
         Tag mostUsedTagForRichestUser = tagService.getMostUsedTagForRichestUser();
 
         verify(tagRepository).getRichestUserId();
         verify(tagRepository).getMostUsedTagForRichestUser(richestUserId);
+        verify(tagRepository).findByName(tagName);
         assertTrue(nonNull(mostUsedTagForRichestUser));
     }
 
     @Test
     void testGetMostUsedTagForRichestUser_noTagsExist() {
         long richestUserId = 1;
-        when(tagRepository.getRichestUserId()).thenReturn(richestUserId);
-        when(tagRepository.getMostUsedTagForRichestUser(richestUserId)).thenReturn(Optional.empty());
+        when(tagRepository.getRichestUserId()).thenThrow(NullPointerException.class);
 
-        Exception noSuchElementException = assertThrows(NoSuchElementException.class, tagService::getMostUsedTagForRichestUser);
-        String expectedMessage = "No certificates with tags exist in orders";
-        String actualMessage = noSuchElementException.getMessage();
+        Exception noResultException = assertThrows(NoResultException.class, tagService::getMostUsedTagForRichestUser);
+        String expectedMessage = "No orders exist yet.";
+        String actualMessage = noResultException.getMessage();
 
         verify(tagRepository).getRichestUserId();
-        verify(tagRepository).getMostUsedTagForRichestUser(richestUserId);
+        verify(tagRepository,never()).getMostUsedTagForRichestUser(richestUserId);
         assertEquals(expectedMessage, actualMessage);
     }
 

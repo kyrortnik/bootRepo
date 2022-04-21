@@ -24,7 +24,6 @@ dependencyManagement {
 dependencies {
     implementation project(':model')
     implementation project(':repository')
-    implementation project(':config')
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework:spring-context:5.3.14'
     implementation 'org.springframework.boot:spring-boot-starter-web'

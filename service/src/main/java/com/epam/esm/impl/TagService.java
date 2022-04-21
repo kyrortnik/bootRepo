@@ -61,7 +61,6 @@ public class TagService {
         return foundTags;
     }
 
-    //TODO -- is(tagAlreadyExists(tag)) -- DuplicateKeyException
     public Tag create(Tag tag) {
         LOGGER.debug("Entering TagService.create");
         String tagName = tag.getName();
@@ -77,11 +76,9 @@ public class TagService {
         return createdTag;
     }
 
-    //TODO -- check that works without try/catch
     public boolean delete(Long id) {
         LOGGER.debug("Entering TagService.delete()");
         boolean tagIsDeleted;
-//        try {
         Optional<Tag> tagToDelete = tagRepository.findById(id);
         if (tagToDelete.isPresent()) {
             tagRepository.delete(tagToDelete.get());
@@ -94,10 +91,6 @@ public class TagService {
         }
         LOGGER.debug("Exiting TagService.delete()");
         return tagIsDeleted;
-//        } catch (EmptyResultDataAccessException e) {
-//            return false;
-//        }
-
     }
 
     public Tag findTagByName(String tagName) throws NoSuchElementException {
@@ -110,21 +103,23 @@ public class TagService {
         return foundTag;
     }
 
-    //TODO -- fix
+
     public Tag getMostUsedTagForRichestUser() {
         try {
             LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");
 
             long richestUserId = tagRepository.getRichestUserId();
-            Tag tag = tagRepository.getMostUsedTagForRichestUser(richestUserId)
-                    .orElseThrow(() -> new NoSuchElementException("No certificates with tags exist in orders"));
+            String tagName = tagRepository.getMostUsedTagForRichestUser(richestUserId);
+            Tag tag = tagRepository.findByName(tagName)
+                    .orElseThrow(() -> new NoSuchElementException(String
+                            .format("No tag with name [%s] exists",tagName)));
 
             LOGGER.debug("Exiting TagService.getMostUsedTagForRichestUser()");
             return tag;
-        } catch (NoResultException e) {
+        } catch (NoResultException | NullPointerException e) {
             LOGGER.error("NoResultException in TagService.getMostUsedTagForRichestUser()\n"
                     + e.getMessage());
-            throw new NoResultException("No tags exist yet.");
+            throw new NoResultException("No orders exist yet.");
         }
 
     }

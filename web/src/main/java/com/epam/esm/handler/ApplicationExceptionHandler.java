@@ -64,7 +64,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("DuplicateKeyException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 
@@ -73,16 +73,16 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("ConstraintViolationException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 
     @ExceptionHandler(NullPointerException.class)
     public void nullPointerException(NullPointerException ex, HttpServletResponse res) throws IOException {
-        res.sendError(HttpStatus.BAD_REQUEST.value());
+        res.sendError(HttpStatus.NOT_FOUND.value());
         LOGGER.error("NullPointerException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND.value() + errorCodeCounter);
 
     }
 
@@ -92,7 +92,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.NOT_FOUND.value());
         LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND.value() + errorCodeCounter);
 
     }
 
@@ -101,7 +101,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("ArrayIndexOutOfBoundsException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 
@@ -111,7 +111,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("HttpClientErrorException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 
@@ -120,7 +120,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.NOT_FOUND.value());
         LOGGER.error("HttpServerErrorException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND.value() + errorCodeCounter);
 
     }
 
@@ -129,7 +129,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("JwtException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 
@@ -138,7 +138,7 @@ public class ApplicationExceptionHandler {
         res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("IllegalArgumentException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
-                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST.value() + errorCodeCounter);
 
     }
 

@@ -37,13 +37,13 @@ public class GiftCertificateController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
-    public GiftCertificate getCertificateById(@PathVariable Long id) {
+    public GiftCertificate getGiftCertificateById(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.getCertificatedById()");
 
         GiftCertificate giftCertificate = giftCertificateService.findGiftCertificateById(id);
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificateById(id))
+                .getGiftCertificateById(id))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -65,7 +65,7 @@ public class GiftCertificateController {
 
     @GetMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
-    public Page<GiftCertificate> getCertificates(
+    public Page<GiftCertificate> getGiftCertificates(
             @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
             @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page,
@@ -73,12 +73,12 @@ public class GiftCertificateController {
         LOGGER.debug("Entering GiftCertificateController.getCertificates()");
 
         Page<GiftCertificate> giftCertificates =
-                giftCertificateService.getGiftCertificates(tags, sortBy, max, page);
+                giftCertificateService.findGiftCertificates(tags, sortBy, max, page);
 
         giftCertificates.forEach(giftCertificate -> {
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                    .getCertificateById(giftCertificate.getId()))
+                    .getGiftCertificateById(giftCertificate.getId()))
                     .withSelfRel());
 
             giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
@@ -101,15 +101,14 @@ public class GiftCertificateController {
     @PostMapping(path = "/",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
+    public GiftCertificate createGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
         LOGGER.debug("Entering GiftCertificateController.createGiftCertificate()");
 
         GiftCertificate createdGiftCertificate = giftCertificateService.create(giftCertificate);
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificateById(createdGiftCertificate.getId()))
+                .getGiftCertificateById(createdGiftCertificate.getId()))
                 .withSelfRel());
 
         createdGiftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

@@ -15,28 +15,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.persistence.NoResultException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @WebMvcTest(properties = "spring.profiles.active:dev", controllers = TagController.class)
@@ -66,7 +58,7 @@ class TagControllerTest {
     private final String roleUser = "USER";
     private final String roleGuest = "GUEST";
 
-    private final List<String> sortBy = Arrays.asList("id.asc");
+    private final List<String> sortBy = Collections.singletonList("id.asc");
     private final int max = 20;
     private final int page = 0;
 
@@ -157,7 +149,7 @@ class TagControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {roleAdmin, roleUser})
+    @WithMockUser(roles = roleAdmin)
     public void test_createTag_is201() throws Exception {
         Tag createdTag = new Tag(tagId, tagName);
         Gson gson = new Gson();
@@ -182,7 +174,7 @@ class TagControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = roleGuest)
+    @WithMockUser(roles = {roleGuest, roleUser})
     public void test_createTag_is403() throws Exception {
         Gson gson = new Gson();
         String json = gson.toJson(inputTag);
@@ -195,7 +187,7 @@ class TagControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {roleAdmin, roleUser})
+    @WithMockUser(roles = {roleAdmin})
     public void test_createTag_is400() throws Exception {
         given(tagService.create(inputTag)).willThrow(ConstraintViolationException.class);
 
@@ -209,7 +201,7 @@ class TagControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {roleAdmin, roleUser})
+    @WithMockUser(roles = {roleAdmin})
     public void test_deleteTag_is200() throws Exception {
 
         given(tagService.deleteTag(tagId)).willReturn(true);
@@ -278,13 +270,11 @@ class TagControllerTest {
     @Test
     @WithMockUser(roles = {roleAdmin, roleUser})
     public void test_getMostUsedTagForRichestUser_is404() throws Exception {
-        given(tagService.getMostUsedTagForRichestUser()).willThrow(NoResultException.class);
+        given(tagService.getMostUsedTagForRichestUser()).willThrow(NullPointerException.class);
 
         mockMvc.perform(get(URL + MOST_USED_TAG))
                 .andDo(print())
-//                .andExpect(status().isNotFound())
-                .andExpect(content().string("No orders exist yet."));
-
+                .andExpect(status().isNotFound());
     }
 
 

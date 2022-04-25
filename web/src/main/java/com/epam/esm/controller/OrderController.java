@@ -133,7 +133,7 @@ public class OrderController {
         GiftCertificate giftCertificate = order.getGiftCertificate();
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificateById(giftCertificate.getId()))
+                .getGiftCertificateById(giftCertificate.getId()))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

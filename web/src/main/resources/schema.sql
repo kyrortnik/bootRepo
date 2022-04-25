@@ -55,5 +55,3 @@ role_id BIGINT NOT NULL,
 CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id),
 CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
 )
-
-

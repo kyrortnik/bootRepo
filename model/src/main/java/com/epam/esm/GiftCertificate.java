@@ -71,13 +71,19 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
 
     public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
-        this.setName(nonNull(changedGiftCertificate.getName()) ? changedGiftCertificate.getName() : this.getName());
-        this.setDescription(nonNull(changedGiftCertificate.getDescription()) ? changedGiftCertificate.getDescription() : this.getDescription());
-        this.setPrice(nonNull(changedGiftCertificate.getPrice()) ? changedGiftCertificate.getPrice() : this.getPrice());
-        this.setDuration(nonNull(changedGiftCertificate.getDuration()) ? changedGiftCertificate.getDuration() : this.getDuration());
-        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate()) ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
+        this.setName(nonNull(changedGiftCertificate.getName())
+                ? changedGiftCertificate.getName() : this.getName());
+        this.setDescription(nonNull(changedGiftCertificate.getDescription())
+                ? changedGiftCertificate.getDescription() : this.getDescription());
+        this.setPrice(nonNull(changedGiftCertificate.getPrice())
+                ? changedGiftCertificate.getPrice() : this.getPrice());
+        this.setDuration(nonNull(changedGiftCertificate.getDuration())
+                ? changedGiftCertificate.getDuration() : this.getDuration());
+        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate())
+                ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
         this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-        this.setTags(nonNull(changedGiftCertificate.getTags()) ? changedGiftCertificate.getTags() : this.getTags());
+        this.setTags(nonNull(changedGiftCertificate.getTags())
+                ? changedGiftCertificate.getTags() : this.getTags());
     }
 
     public static class GiftCertificateBuilder {

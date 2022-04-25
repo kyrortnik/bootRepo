@@ -1,108 +1,142 @@
-//TODO --refactor tests
 package com.epam.esm.impl;
 
-
+import com.epam.esm.RoleRepository;
 import com.epam.esm.User;
 import com.epam.esm.UserRepository;
-import org.junit.jupiter.api.*;
+import com.epam.esm.mapper.RequestParamsMapper;
+import com.epam.esm.security.JwtProvider;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 
 class UserServiceTest {
 
     //mock
-    private final UserRepository userRepository = Mockito.mock(UserRepository.class, withSettings().verboseLogging());
-//    private final AuthGroupRepository authGroupRepository = Mockito.mock(AuthGroupRepository.class,withSettings().verboseLogging());
+    private final UserRepository userRepository = Mockito
+            .mock(UserRepository.class, withSettings().verboseLogging());
+
+    private final RoleRepository roleRepository = Mockito
+            .mock(RoleRepository.class, withSettings().verboseLogging());
+
+    private final AuthenticationManager authenticationManager = Mockito
+            .mock(AuthenticationManager.class, withSettings().verboseLogging());
+
+    private final JwtProvider jwtProvider = Mockito
+            .mock(JwtProvider.class, withSettings().verboseLogging());
+
+    private final PasswordEncoder passwordEncoder = Mockito
+            .mock(PasswordEncoder.class, withSettings().verboseLogging());
+
+    private final RequestParamsMapper requestParamsMapper = Mockito
+            .mock(RequestParamsMapper.class, withSettings().verboseLogging());
+
+    private final OrderService orderService = Mockito
+            .mock(OrderService.class, withSettings().verboseLogging());
+
 
     // class under test
-//    private final UserService userService = new UserService(userRepository,authGroupRepository);
+    private final UserService userService = new UserService(
+            userRepository,
+            authenticationManager,
+            roleRepository,
+            jwtProvider,
+            passwordEncoder,
+            requestParamsMapper,
+            orderService);
 
     private final long userId = 1;
+    
+    private final User firstUser = new User.UserBuilder("username", "password")
+            .firstName("John")
+            .secondName("Smith")
+            .build();
 
-    private User firstUser;
-    private User secondUser;
-    private User thirdUser;
+    private final User secondUser = new User.UserBuilder("admin", "admin")
+            .firstName("Kanye")
+            .secondName("West")
+            .build();
 
-    private final List<User> noUsers = new ArrayList<>();
+    private final User thirdUser = new User.UserBuilder("user", "user")
+            .firstName("Kid")
+            .secondName("Cudi")
+            .build();
 
-    private List<User> users;
 
-    private HashMap<String, Boolean> sortParams;
+    private final List<User> users = Arrays.asList(
+            firstUser,
+            secondUser,
+            thirdUser
+    );
+
+
     private final int max = 20;
-    private final int offset = 0;
+    private final int page = 0;
+    private final Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
+    private final Sort sort = Sort.by(order);
 
-//    @BeforeEach
-//    void setUp() {
-//
-//        firstUser = new User(1, "John", "Smith");
-//        secondUser = new User(2, "Kanye", "West");
-//        thirdUser = new User(3, "Pete", "Davidson");
-//
-//        users = new ArrayList<>(Arrays.asList(
-//                firstUser,
-//                secondUser,
-//                thirdUser
-//        ));
-//        sortParams = new HashMap<>();
-//        sortParams.put("id", true);
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//        firstUser = new User();
-//        secondUser = new User();
-//        thirdUser = new User();
-//        users.clear();
-//        sortParams.clear();
-//    }
-//
-//
-//    @Test
-//    void testGetUserById_idExists() {
-//        when(userRepository.getUserById(userId)).thenReturn(Optional.of(firstUser));
-//
-//        Optional<User> foundUser = userService.getById(userId);
-//
-//        assertTrue(foundUser.isPresent());
-//        assertEquals(firstUser, foundUser.get());
-//    }
-//
-//    @Test
-//    void testGetUserById_idDoesNotExist() {
-//
-//        when(userRepository.getUserById(userId)).thenReturn(Optional.empty());
-//
-//        Optional<User> returnUser = userService.getById(userId);
-//
-//        verify(userRepository).getUserById(userId);
-//        assertFalse(returnUser.isPresent());
-//        assertEquals(Optional.empty(), returnUser);
-//
-//    }
-//
-//    @Test
-//    void testGetUsers_usersExist() {
-//
-//        when(userRepository.getUsers(sortParams, max, offset)).thenReturn(users);
-//
-//        List<User> returnUsers = userService.getUsers(sortParams, max, offset);
-//
-//        verify(userRepository).getUsers(sortParams, max, offset);
-//        assertEquals(users, returnUsers);
-//    }
-//
-//    @Test
-//    void testGetUsers_noUsersExist() {
-//        when(userRepository.getUsers(sortParams, max, offset)).thenReturn(noUsers);
-//
-//        List<User> returnUsers = userService.getUsers(sortParams, max, offset);
-//
-//        verify(userRepository).getUsers(sortParams, max, offset);
-//        assertEquals(noUsers, returnUsers);
-//    }
+    private final List<String> sortParams = new ArrayList<>();
+
+    Page<User> usersPage = new PageImpl<>(users);
+    Page<User> noUsersPage = new PageImpl<>(new ArrayList<>());
+
+    @Test
+    void testGetUserById_idExists() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(firstUser));
+
+        User foundUser = userService.findUserById(userId);
+
+        verify(userRepository).findById(userId);
+        assertEquals(firstUser, foundUser);
+    }
+
+    @Test
+    void testGetUserById_idDoesNotExist() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class,
+                () -> userService.findUserById(userId));
+        String expectedMessage = String.format("User with id [%s] does not exist", userId);
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(userRepository).findById(userId);
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void testGetUsers_usersExist() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(userRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(usersPage);
+
+        Page<User> returnUsers = userService.findUsers(sortParams, max, page);
+
+        verify(userRepository).findAll(PageRequest.of(page, max, sort));
+        assertEquals(usersPage, returnUsers);
+    }
+
+    @Test
+    void testGetUsers_noUsersExist() {
+        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
+        when(userRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(noUsersPage);
+
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class,
+                () -> userService.findUsers(sortParams, max, page));
+        String expectedMessage = "No Users exist";
+        String actualMessage = noSuchElementException.getMessage();
+
+        verify(requestParamsMapper).mapParams(sortParams);
+        verify(userRepository).findAll(PageRequest.of(page, max, sort));
+        assertEquals(expectedMessage, actualMessage);
+    }
 }

@@ -60,7 +60,7 @@ public class UserService {
     }
 
 
-    public User getUserById(Long userId) throws NoSuchElementException {
+    public User findUserById(Long userId) throws NoSuchElementException {
         LOGGER.debug("Entering UserService.getById");
         User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException(String
@@ -72,15 +72,15 @@ public class UserService {
     }
 
 
-    public Page<User> getUsers(List<String> sortBy, int max, int offset) {
+    public Page<User> findUsers(List<String> sortBy, int max, int page) {
         LOGGER.debug("Entering UserService.getUsers()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
-        Page<User> users = userRepository.findAll(PageRequest.of(offset, max, sortingParams));
+        Page<User> users = userRepository.findAll(PageRequest.of(page, max, sortingParams));
         if (users.isEmpty()) {
             LOGGER.error("NoSuchElementException in UserController.getUsers()\n" +
                     "No Orders exist");
-            throw new NoSuchElementException("No Orders exist");
+            throw new NoSuchElementException("No Users exist");
         }
 
         LOGGER.debug("Exiting UserService.getUsers()");

@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Component
 @Table(name = "orders")
 public class Order extends RepresentationModel<Order> {
@@ -41,5 +40,54 @@ public class Order extends RepresentationModel<Order> {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private User user;
+
+    public Order(OrderBuilder builder) {
+        this.id = builder.id;
+        this.orderDate = builder.orderDate;
+        this.orderCost = builder.orderCost;
+        this.giftCertificate = builder.giftCertificate;
+        this.user = builder.user;
+    }
+
+
+    public static class OrderBuilder {
+        private long id;
+        private LocalDateTime orderDate;
+        private GiftCertificate giftCertificate;
+        private User user;
+        private double orderCost;
+
+
+
+        public OrderBuilder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public OrderBuilder orderDate(LocalDateTime orderDate) {
+            this.orderDate = orderDate;
+            return this;
+        }
+
+        public OrderBuilder orderCost(double orderCost) {
+            this.orderCost = orderCost;
+            return this;
+        }
+
+        public OrderBuilder giftCertificate(GiftCertificate giftCertificate) {
+            this.giftCertificate = giftCertificate;
+            return this;
+        }
+
+        public OrderBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Order build() {
+            return new Order(this);
+        }
+
+    }
 
 }

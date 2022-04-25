@@ -3,7 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.impl.OrderService;
-import com.epam.esm.util.GetMethodProperty;
+import com.epam.esm.util.DefaultValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,12 +59,12 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     @GetMapping("/")
     public Page<Order> getOrders(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
-            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
+            @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering OrderController.getOrders()");
 
-        Page<Order> orders = orderService.getOrders(sortBy, max, offset);
+        Page<Order> orders = orderService.getOrders(sortBy, max, page);
         orders.forEach(foundOrder -> {
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrder(foundOrder.getId()))

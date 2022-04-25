@@ -43,11 +43,11 @@ public class GiftCertificateService {
     }
 
 
-    public GiftCertificate findById(Long id) throws NoSuchElementException {
+    public GiftCertificate findGiftCertificateById(Long id) throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getById()");
 
         GiftCertificate foundGiftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(String.format("Certificate with id [%s] not found", id)));
+                .orElseThrow(() -> new NoSuchElementException(String.format("Gift Certificate with id [%s] not found", id)));
 
         LOGGER.debug("Exiting GiftCertificateService.getById()");
         return foundGiftCertificate;
@@ -66,13 +66,13 @@ public class GiftCertificateService {
 
     }
 
-    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int offset)
+    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getGiftCertificates");
 
         Page<GiftCertificate> giftCertificates = isNull(tagNames)
-                ? getAllGiftCertificates(sortBy, max, offset)
-                : getGiftCertificatesByTags(sortBy, max, offset, tagNames);
+                ? getAllGiftCertificates(sortBy, max, page)
+                : getGiftCertificatesByTags(sortBy, max, page, tagNames);
         if (giftCertificates.getContent().isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
                     "No Satisfying Gift Certificates exists");
@@ -83,13 +83,13 @@ public class GiftCertificateService {
     }
 
 
-    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int offset)
+    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getAll");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
         Page<GiftCertificate> giftCertificates = giftCertificateRepository
-                .findAll(PageRequest.of(offset, max, sortingParams));
+                .findAll(PageRequest.of(page, max, sortingParams));
 
         if (giftCertificates.getContent().isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
@@ -103,13 +103,13 @@ public class GiftCertificateService {
 
 
     public Page<GiftCertificate>
-    getGiftCertificatesByTags(List<String> sortBy, int max, int offset, Set<String> tagNames) {
+    getGiftCertificatesByTags(List<String> sortBy, int max, int page, Set<String> tagNames) {
         LOGGER.debug("Entering GiftCertificateService.getCertificatesByTags()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
         Page<GiftCertificate> foundGiftCertificates = giftCertificateRepository
-                .findByTagsIn(tags, PageRequest.of(offset, max, sortingParams));
+                .findByTagsIn(tags, PageRequest.of(page, max, sortingParams));
 
         LOGGER.debug("Exiting GiftCertificateService.getCertificatesByTags()");
         return foundGiftCertificates;
@@ -134,7 +134,7 @@ public class GiftCertificateService {
     public void update(GiftCertificate changedGiftCertificate, Long giftCertificateId) throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.update()");
 
-        GiftCertificate existingGiftCertificate = findById(giftCertificateId);
+        GiftCertificate existingGiftCertificate = findGiftCertificateById(giftCertificateId);
         changedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
         Set<Tag> updatedTags = replaceExistingTagWithProxy(changedGiftCertificate.getTags());
 
@@ -146,7 +146,6 @@ public class GiftCertificateService {
     }
 
 
-    //TODO -- no new tag created
     public GiftCertificate create(GiftCertificate giftCertificate) throws DuplicateKeyException {
         LOGGER.debug("Entering GiftCertificateService.create()");
         GiftCertificate createdGiftCertificate;
@@ -175,18 +174,20 @@ public class GiftCertificateService {
         if (giftCertificateTags.isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateService.getCertificateTags\n" +
                     "No order tags for this gift certificate");
-            throw new NoSuchElementException("No order tags for this gift certificate");
+            throw new NoSuchElementException("No tags in this gift certificate");
         }
 
         LOGGER.debug("Exiting GiftCertificateService.getCertificateTags");
         return giftCertificateTags;
     }
 
+
     public boolean giftCertificateAlreadyExists(GiftCertificate giftCertificate) {
         LOGGER.debug("Entering GiftCertificateService.orderAlreadyExists");
 
-        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll()
                 .withMatcher(NAME_PROPERTY, ExampleMatcher.GenericPropertyMatchers.exact());
+
 
         Example<GiftCertificate> orderExample = Example.of(giftCertificate, customExampleMatcher);
         boolean orderAlreadyExists = giftCertificateRepository.exists(orderExample);
@@ -198,13 +199,13 @@ public class GiftCertificateService {
 
     private Set<Tag> replaceExistingTagWithProxy(Set<Tag> tags) {
         LOGGER.debug("Entering GiftCertificateService.replaceExistingTagWithProxy");
-        Set<Tag> updatedTags = new HashSet<>();
+        Set<Tag> updatedTags = new HashSet<>(tags);
 
         for (Tag tag : tags) {
             String tagName = tag.getName();
             if (tagService.tagAlreadyExists(tagName)) {
-                Tag foundTag = tagService.findTagByName(tagName);
                 updatedTags.remove(tag);
+                Tag foundTag = tagService.findTagByName(tagName);
                 Tag proxyTag = tagService.getById(foundTag.getId());
                 updatedTags.add(proxyTag);
             }

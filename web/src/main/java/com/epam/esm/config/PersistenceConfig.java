@@ -42,6 +42,7 @@ public class PersistenceConfig {
                 .build();
     }
 
+
     @Profile("prod")
     @Bean(name = "entityManagerFactory")
     @Autowired
@@ -62,6 +63,7 @@ public class PersistenceConfig {
         sessionFactory.setPackagesToScan("com.epam.esm");
         return sessionFactory;
     }
+
 
     @Profile("prod")
     final Properties hibernateProperties() {

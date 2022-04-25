@@ -54,11 +54,11 @@ public class OrderService {
     }
 
 
-    public Page<Order> getOrders(List<String> sortBy, int max, int offset) throws NoSuchElementException {
+    public Page<Order> getOrders(List<String> sortBy, int max, int page) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrders()");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
-        Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(offset, max, sortParams));
+        Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(page, max, sortParams));
 
         if (foundOrders.isEmpty()) {
             LOGGER.error("NoSuchElementException in OrderService.getOrders()\n" +
@@ -85,7 +85,7 @@ public class OrderService {
     }
 
 
-    public Order create(Order order) throws DuplicateKeyException{
+    public Order create(Order order) throws DuplicateKeyException {
         LOGGER.debug("Entering OrderService.create()");
         initiateOrder(order);
 
@@ -99,15 +99,18 @@ public class OrderService {
     }
 
 
-    public boolean deleteOrder(Long id) {
+    public boolean deleteOrder(Long orderId) {
         LOGGER.debug("Entering OrderService.deleteOrder()");
         boolean orderIsDeleted;
 
-        orderRepository.deleteById(id);
-        orderIsDeleted = !orderRepository.findById(id).isPresent();
+        if (!orderRepository.findById(orderId).isPresent()) {
+            orderIsDeleted = false;
+        } else {
+            orderRepository.deleteById(orderId);
+            orderIsDeleted = true;
+        }
 
         LOGGER.debug("Exiting OrderService.deleteOrder()");
-
         return orderIsDeleted;
     }
 
@@ -125,7 +128,7 @@ public class OrderService {
         String giftCertificateName = order.getGiftCertificate().getName();
         GiftCertificate giftCertificateFromOrder = giftCertificateService
                 .findGiftCertificateByName(giftCertificateName);
-        User user = userService.getUserById(userId);
+        User user = userService.findUserById(userId);
 
         order.setUser(user);
         order.setGiftCertificate(giftCertificateFromOrder);

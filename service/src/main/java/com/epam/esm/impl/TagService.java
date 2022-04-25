@@ -46,11 +46,11 @@ public class TagService {
     }
 
 
-    public Page<Tag> findTags(List<String> sortBy, int max, int offset) throws NoSuchElementException {
+    public Page<Tag> findTags(List<String> sortBy, int max, int page) throws NoSuchElementException {
         LOGGER.debug("Entering tagService.getAll");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
-        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset, max, sortParams));
+        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(page, max, sortParams));
         if (foundTags.isEmpty()) {
             LOGGER.error("NoSuchElementException in TagController.getTags()\n" +
                     "No Tags exist");
@@ -76,7 +76,7 @@ public class TagService {
         return createdTag;
     }
 
-    public boolean delete(Long id) {
+    public boolean deleteTag(Long id) {
         LOGGER.debug("Entering TagService.delete()");
         boolean tagIsDeleted;
         Optional<Tag> tagToDelete = tagRepository.findById(id);

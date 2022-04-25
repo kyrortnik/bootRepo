@@ -51,7 +51,7 @@ class GiftCertificateServiceTest {
     private final LocalDateTime dataChangedAfterUpdate = LocalDateTime.of(2022, 3, 25, 15, 55);
 
     private final int max = 20;
-    private final int offset = 0;
+    private final int page = 0;
     private final Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
     private final Sort sort = Sort.by(order);
 
@@ -282,25 +282,25 @@ class GiftCertificateServiceTest {
     @Test
     void testGetAll_giftCertificatesExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(giftCertificateRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(giftCertificatesPage);
+        when(giftCertificateRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(giftCertificatesPage);
 
-        Page<GiftCertificate> returnGiftCertificates = giftCertificateService.getAllGiftCertificates(sortParams, max, offset);
+        Page<GiftCertificate> returnGiftCertificates = giftCertificateService.getAllGiftCertificates(sortParams, max, page);
 
-        verify(giftCertificateRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(giftCertificateRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(giftCertificatesPage, returnGiftCertificates);
     }
 
     @Test
     void testGetAll_noGiftCertificates() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(giftCertificateRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(emptyGiftCertificatePage);
+        when(giftCertificateRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(emptyGiftCertificatePage);
 
         Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService
-                .getAllGiftCertificates(sortParams, max, offset));
+                .getAllGiftCertificates(sortParams, max, page));
         String expectedMessage = "No Satisfying Gift Certificates exist";
         String actualMessage = noSuchElementException.getMessage();
 
-        verify(giftCertificateRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(giftCertificateRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(expectedMessage, actualMessage);
 
     }
@@ -310,14 +310,14 @@ class GiftCertificateServiceTest {
     void testGetCertificatesByTags_giftCertificatesWithTagsExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
         when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
-        when(giftCertificateRepository.findByTagsIn(tags, PageRequest.of(offset, max, sort)))
+        when(giftCertificateRepository.findByTagsIn(tags, PageRequest.of(page, max, sort)))
                 .thenReturn(giftCertificatesWithTagsPage);
 
         Page<GiftCertificate> giftCertificateWithTags = giftCertificateService
-                .getGiftCertificatesByTags(sortParams, max, offset, tagNames);
+                .getGiftCertificatesByTags(sortParams, max, page, tagNames);
 
         verify(tagService).getTagsByNames(tagNames);
-        verify(giftCertificateRepository).findByTagsIn(tags, PageRequest.of(offset, max, sort));
+        verify(giftCertificateRepository).findByTagsIn(tags, PageRequest.of(page, max, sort));
         assertEquals(giftCertificatesWithTagsPage, giftCertificateWithTags);
     }
 
@@ -326,14 +326,14 @@ class GiftCertificateServiceTest {
 //    void testGetCertificatesByTags_noGiftCertificatesWithTags() {
 //        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
 //        when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
-//        when(giftCertificateRepository.findByTagsIn(tags,PageRequest.of(offset, max, sort)))
+//        when(giftCertificateRepository.findByTagsIn(tags,PageRequest.of(page, max, sort)))
 //                .thenReturn(emptyGiftCertificatePage);
 //
 //        Page<GiftCertificate> giftCertificatesWithoutTags = giftCertificateService
-//                .getGiftCertificatesByTags(sortParams, max, offset, tagNames);
+//                .getGiftCertificatesByTags(sortParams, max, page, tagNames);
 //
 //        verify(tagService).getTagsByNames(noTagNames);
-//        verify(giftCertificateRepository).findByTagsIn(tags,PageRequest.of(offset, max, sort));
+//        verify(giftCertificateRepository).findByTagsIn(tags,PageRequest.of(page, max, sort));
 //        assertEquals(emptyGiftCertificatePage, giftCertificatesWithoutTags);
 //
 //    }

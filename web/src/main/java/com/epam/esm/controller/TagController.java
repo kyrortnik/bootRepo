@@ -58,10 +58,10 @@ public class TagController {
     public Page<Tag> getTags(
             @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = DefaultValue.DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering TagController.getTags()");
 
-        Page<Tag> tags = tagService.findTags(sortBy, max, offset);
+        Page<Tag> tags = tagService.findTags(sortBy, max, page);
 
         tags.forEach(tag -> {
                     tag.add(linkTo(methodOn(TagController.class)
@@ -107,7 +107,7 @@ public class TagController {
     public ResponseEntity<String> deleteTag(@PathVariable Long tagId) {
         LOGGER.debug("Entering TagController.delete()");
 
-        ResponseEntity<String> response = tagService.delete(tagId)
+        ResponseEntity<String> response = tagService.deleteTag(tagId)
                 ? new ResponseEntity<>(HttpStatus.OK)
                 : new ResponseEntity<>(String.format("No tag with tagId [%s] was found", tagId), HttpStatus.OK);
 

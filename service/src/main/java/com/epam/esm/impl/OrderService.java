@@ -54,11 +54,11 @@ public class OrderService {
     }
 
 
-    public Page<Order> getOrders(List<String> sortBy, int max, int offset) throws NoSuchElementException {
+    public Page<Order> getOrders(List<String> sortBy, int max, int page) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrders()");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
-        Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(offset, max, sortParams));
+        Page<Order> foundOrders = orderRepository.findAll(PageRequest.of(page, max, sortParams));
 
         if (foundOrders.isEmpty()) {
             LOGGER.error("NoSuchElementException in OrderService.getOrders()\n" +

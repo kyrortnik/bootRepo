@@ -66,13 +66,13 @@ public class GiftCertificateService {
 
     }
 
-    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int offset)
+    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getGiftCertificates");
 
         Page<GiftCertificate> giftCertificates = isNull(tagNames)
-                ? getAllGiftCertificates(sortBy, max, offset)
-                : getGiftCertificatesByTags(sortBy, max, offset, tagNames);
+                ? getAllGiftCertificates(sortBy, max, page)
+                : getGiftCertificatesByTags(sortBy, max, page, tagNames);
         if (giftCertificates.getContent().isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
                     "No Satisfying Gift Certificates exists");
@@ -83,13 +83,13 @@ public class GiftCertificateService {
     }
 
 
-    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int offset)
+    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getAll");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
         Page<GiftCertificate> giftCertificates = giftCertificateRepository
-                .findAll(PageRequest.of(offset, max, sortingParams));
+                .findAll(PageRequest.of(page, max, sortingParams));
 
         if (giftCertificates.getContent().isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
@@ -103,13 +103,13 @@ public class GiftCertificateService {
 
 
     public Page<GiftCertificate>
-    getGiftCertificatesByTags(List<String> sortBy, int max, int offset, Set<String> tagNames) {
+    getGiftCertificatesByTags(List<String> sortBy, int max, int page, Set<String> tagNames) {
         LOGGER.debug("Entering GiftCertificateService.getCertificatesByTags()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
         Set<Tag> tags = tagService.getTagsByNames(tagNames);
         Page<GiftCertificate> foundGiftCertificates = giftCertificateRepository
-                .findByTagsIn(tags, PageRequest.of(offset, max, sortingParams));
+                .findByTagsIn(tags, PageRequest.of(page, max, sortingParams));
 
         LOGGER.debug("Exiting GiftCertificateService.getCertificatesByTags()");
         return foundGiftCertificates;

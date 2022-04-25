@@ -58,10 +58,10 @@ public class UserController {
     public Page<User> getUsers(
             @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = DefaultValue.DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering UserController.getUsers()");
 
-        Page<User> users = userService.findUsers(sortBy, max, offset);
+        Page<User> users = userService.findUsers(sortBy, max, page);
 
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)

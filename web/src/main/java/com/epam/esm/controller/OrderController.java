@@ -61,10 +61,10 @@ public class OrderController {
     public Page<Order> getOrders(
             @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = DefaultValue.DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering OrderController.getOrders()");
 
-        Page<Order> orders = orderService.getOrders(sortBy, max, offset);
+        Page<Order> orders = orderService.getOrders(sortBy, max, page);
         orders.forEach(foundOrder -> {
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrder(foundOrder.getId()))

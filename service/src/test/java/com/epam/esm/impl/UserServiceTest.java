@@ -82,7 +82,7 @@ class UserServiceTest {
 
 
     private final int max = 20;
-    private final int offset = 0;
+    private final int page = 0;
     private final Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
     private final Sort sort = Sort.by(order);
 
@@ -117,26 +117,26 @@ class UserServiceTest {
     @Test
     void testGetUsers_usersExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(userRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(usersPage);
+        when(userRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(usersPage);
 
-        Page<User> returnUsers = userService.findUsers(sortParams, max, offset);
+        Page<User> returnUsers = userService.findUsers(sortParams, max, page);
 
-        verify(userRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(userRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(usersPage, returnUsers);
     }
 
     @Test
     void testGetUsers_noUsersExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(userRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(noUsersPage);
+        when(userRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(noUsersPage);
 
         Exception noSuchElementException = assertThrows(NoSuchElementException.class,
-                () -> userService.findUsers(sortParams, max, offset));
+                () -> userService.findUsers(sortParams, max, page));
         String expectedMessage = "No Users exist";
         String actualMessage = noSuchElementException.getMessage();
 
         verify(requestParamsMapper).mapParams(sortParams);
-        verify(userRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(userRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(expectedMessage, actualMessage);
     }
 }

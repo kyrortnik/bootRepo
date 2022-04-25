@@ -72,11 +72,11 @@ public class UserService {
     }
 
 
-    public Page<User> findUsers(List<String> sortBy, int max, int offset) {
+    public Page<User> findUsers(List<String> sortBy, int max, int page) {
         LOGGER.debug("Entering UserService.getUsers()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);
-        Page<User> users = userRepository.findAll(PageRequest.of(offset, max, sortingParams));
+        Page<User> users = userRepository.findAll(PageRequest.of(page, max, sortingParams));
         if (users.isEmpty()) {
             LOGGER.error("NoSuchElementException in UserController.getUsers()\n" +
                     "No Orders exist");

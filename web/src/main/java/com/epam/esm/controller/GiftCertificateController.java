@@ -68,12 +68,12 @@ public class GiftCertificateController {
     public Page<GiftCertificate> getCertificates(
             @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
             @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = DefaultValue.DEFAULT_OFFSET) int offset,
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page,
             @RequestParam(value = "tag", required = false) Set<String> tags) {
         LOGGER.debug("Entering GiftCertificateController.getCertificates()");
 
         Page<GiftCertificate> giftCertificates =
-                giftCertificateService.getGiftCertificates(tags, sortBy, max, offset);
+                giftCertificateService.getGiftCertificates(tags, sortBy, max, page);
 
         giftCertificates.forEach(giftCertificate -> {
 

@@ -68,10 +68,10 @@ public class ApplicationExceptionHandler {
 
     }
 
-    @ExceptionHandler(SQLException.class)
+    @ExceptionHandler(ConstraintViolationException.class)
     public void constraintViolationException(ConstraintViolationException ex, HttpServletResponse res) throws IOException {
         res.sendError(HttpStatus.BAD_REQUEST.value());
-        LOGGER.error("SQLException caught in ApplicationExceptionHandler\n" +
+        LOGGER.error("ConstraintViolationException caught in ApplicationExceptionHandler\n" +
                 MESSAGE + ex.getMessage() +
                 ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 

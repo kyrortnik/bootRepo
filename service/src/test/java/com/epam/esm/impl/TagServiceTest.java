@@ -63,7 +63,7 @@ class TagServiceTest {
 
 
     private final int max = 20;
-    private final int offset = 0;
+    private final int page = 0;
     private final Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
     private final Sort sort = Sort.by(order);
 
@@ -146,26 +146,26 @@ class TagServiceTest {
     @Test
     void testGetAll_tagsExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(tagRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(tagsPage);
+        when(tagRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(tagsPage);
 
-        Page<Tag> returnTags = tagService.findTags(sortParams, max, offset);
+        Page<Tag> returnTags = tagService.findTags(sortParams, max, page);
 
         verify(requestParamsMapper).mapParams(sortParams);
-        verify(tagRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(tagRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(tagsPage, returnTags);
     }
 
     @Test
     void testGetAll_noTagsExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(tagRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(noTagsPage);
+        when(tagRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(noTagsPage);
 
-        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> tagService.findTags(sortParams, max, offset));
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> tagService.findTags(sortParams, max, page));
         String expectedMessage = "No Tags exist";
         String actualMessage = noSuchElementException.getMessage();
 
         verify(requestParamsMapper).mapParams(sortParams);
-        verify(tagRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(tagRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(expectedMessage, actualMessage);
     }
 
@@ -201,7 +201,7 @@ class TagServiceTest {
     void testDelete_idExists() {
         when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag));
 
-        boolean tagWasPresentAndIsDeleted = tagService.delete(tagId);
+        boolean tagWasPresentAndIsDeleted = tagService.deleteTag(tagId);
 
         verify(tagRepository).findById(tagId);
         verify(tagRepository).delete(tag);
@@ -212,7 +212,7 @@ class TagServiceTest {
     void testDelete_idDoesNotExist() {
         when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
 
-        boolean tagWasPresentAndIsDeleted = tagService.delete(tagId);
+        boolean tagWasPresentAndIsDeleted = tagService.deleteTag(tagId);
 
         verify(tagRepository).findById(tagId);
         assertFalse(tagWasPresentAndIsDeleted);

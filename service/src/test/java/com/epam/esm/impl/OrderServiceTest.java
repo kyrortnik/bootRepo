@@ -64,7 +64,7 @@ class OrderServiceTest {
 
 
     private final int max = 20;
-    private final int offset = 0;
+    private final int page = 0;
     private final Sort.Order sortOrder = new Sort.Order(Sort.Direction.ASC, "id");
     private final Sort sort = Sort.by(sortOrder);
 
@@ -182,11 +182,11 @@ class OrderServiceTest {
     @Test
     void testGetOrders_ordersExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(orderRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(orderPage);
+        when(orderRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(orderPage);
 
-        Page<Order> returnOrders = orderService.getOrders(sortParams, max, offset);
+        Page<Order> returnOrders = orderService.getOrders(sortParams, max, page);
 
-        verify(orderRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(orderRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(orderPage, returnOrders);
     }
 
@@ -195,16 +195,16 @@ class OrderServiceTest {
 
         Page<Order> emptyOrderPage = new PageImpl<>(new ArrayList<>());
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-        when(orderRepository.findAll(PageRequest.of(offset, max, sort))).thenReturn(emptyOrderPage);
+        when(orderRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(emptyOrderPage);
 
         Exception noSuchElementException = assertThrows(NoSuchElementException.class,
-                () -> orderService.getOrders(sortParams, max, offset));
+                () -> orderService.getOrders(sortParams, max, page));
 
         String expectedMessage = "No Orders exist";
         String actualMessage = noSuchElementException.getMessage();
 
         verify(requestParamsMapper).mapParams(sortParams);
-        verify(orderRepository).findAll(PageRequest.of(offset, max, sort));
+        verify(orderRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(expectedMessage, actualMessage);
     }
 

@@ -65,16 +65,6 @@ public class PersistenceConfig {
     }
 
 
-    @Profile("test")
-    @Bean(name = "entityManagerFactory")
-    @Autowired
-    public LocalSessionFactoryBean entityManagerFactoryTest(DataSource dataSource) {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
-        sessionFactory.setPackagesToScan("com.epam.esm");
-        return sessionFactory;
-    }
-
     @Profile("prod")
     final Properties hibernateProperties() {
         final Properties properties = new Properties();

@@ -1,149 +1,145 @@
 package com.epam.esm.handler;
 
-import com.epam.esm.exception.ExceptionEntity;
 import io.jsonwebtoken.JwtException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.persistence.NoResultException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class ApplicationExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationExceptionHandler.class);
     private static int errorCodeCounter = 0;
+    private static final String ERROR_CODE = "errorCode";
+    private static final String STATUS = "status";
+    private static final String MESSAGE = "message: ";
+    private static final String ERROR_CODE_MESSAGE = "\nerror code:";
+
+
+    @Bean
+    public ErrorAttributes errorAttributes() {
+
+        return new DefaultErrorAttributes() {
+            public Map<String, Object> getErrorAttributes(WebRequest requestAttributes, ErrorAttributeOptions includeStackTrace) {
+
+                Map<String, Object> errorAttributes = super.getErrorAttributes(requestAttributes, includeStackTrace);
+                errorAttributes.put(ERROR_CODE, String.valueOf(errorAttributes.get(STATUS)) + errorCodeCounter++);
+
+                return errorAttributes;
+            }
+        };
+    }
+
 
     @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody
-    ExceptionEntity noSuchElement(NoSuchElementException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
+    public void noSuchElement(NoSuchElementException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.NOT_FOUND.value());
         LOGGER.error("NoSuchElementException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND.value() + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
 
     @ExceptionHandler(DuplicateKeyException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity duplicateKeyException(DuplicateKeyException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void duplicateKeyException(DuplicateKeyException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("DuplicateKeyException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
-    @ExceptionHandler(SQLException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity constraintViolationException(ConstraintViolationException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage().split(":")[0]);
-        LOGGER.error("SQLException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public void constraintViolationException(ConstraintViolationException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
+        LOGGER.error("ConstraintViolationException caught in ApplicationExceptionHandler\n" +
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
     @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity nullPointerException(NullPointerException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void nullPointerException(NullPointerException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("NullPointerException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
-    @ExceptionHandler(NoResultException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody
-    ExceptionEntity noResultException(NoResultException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
-        LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
 
-        return exceptionEntity;
+    @ExceptionHandler(NoResultException.class)
+    public void noResultException(NoResultException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.NOT_FOUND.value());
+        LOGGER.error("NoResultException caught in ApplicationExceptionHandler\n" +
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND + errorCodeCounter);
+
     }
 
     @ExceptionHandler(ArrayIndexOutOfBoundsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity incorrectSortByPattern(ArrayIndexOutOfBoundsException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void incorrectSortByPattern(ArrayIndexOutOfBoundsException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("ArrayIndexOutOfBoundsException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
 
     @ExceptionHandler(HttpClientErrorException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity httpServerErrorException(HttpClientErrorException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void httpServerErrorException(HttpClientErrorException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("HttpClientErrorException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
     @ExceptionHandler(HttpServerErrorException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody
-    ExceptionEntity httpServerErrorException(HttpServerErrorException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.NOT_FOUND.value()) + errorCodeCounter++), e.getMessage());
+    public void httpServerErrorException(HttpServerErrorException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.NOT_FOUND.value());
         LOGGER.error("HttpServerErrorException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.NOT_FOUND + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
     @ExceptionHandler(JwtException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity jwtException(JwtException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void jwtException(JwtException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("JwtException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody
-    ExceptionEntity illegalArgumentException(IllegalArgumentException e) {
-        ExceptionEntity exceptionEntity = new ExceptionEntity(Integer.parseInt(String.valueOf(HttpStatus.BAD_REQUEST.value()) + errorCodeCounter++), e.getMessage());
+    public void illegalArgumentException(IllegalArgumentException ex, HttpServletResponse res) throws IOException {
+        res.sendError(HttpStatus.BAD_REQUEST.value());
         LOGGER.error("IllegalArgumentException caught in ApplicationExceptionHandler\n" +
-                "message: " + exceptionEntity.getMessage() +
-                "\nerror code:" + exceptionEntity.getCode());
+                MESSAGE + ex.getMessage() +
+                ERROR_CODE_MESSAGE + HttpStatus.BAD_REQUEST + errorCodeCounter);
 
-        return exceptionEntity;
     }
 
 }

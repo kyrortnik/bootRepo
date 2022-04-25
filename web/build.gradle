@@ -15,27 +15,21 @@ repositories {
 dependencies {
     implementation project(':model')
     implementation project(':service')
-    implementation project(':repository')
-    implementation 'commons-dbcp:commons-dbcp:1.4'
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.hateoas:spring-hateoas:1.4.1'
-    implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'log4j:log4j:1.2.17'
-    implementation 'com.h2database:h2'
-
-    // https://mvnrepository.com/artifact/com.auth0/java-jwt
-    implementation 'com.auth0:java-jwt:3.19.1'
-
-
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    runtimeOnly 'org.postgresql:postgresql'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
     implementation 'io.jsonwebtoken:jjwt:0.2'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation 'com.google.code.gson:gson:2.9.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test:5.6.3'
+    testImplementation 'junit:junit:4.12'
 
 
 }

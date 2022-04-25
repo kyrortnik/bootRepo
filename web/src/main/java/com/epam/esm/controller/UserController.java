@@ -4,7 +4,7 @@ import com.epam.esm.Order;
 import com.epam.esm.User;
 import com.epam.esm.dto.LoginDto;
 import com.epam.esm.impl.UserService;
-import com.epam.esm.util.GetMethodProperty;
+import com.epam.esm.util.DefaultValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,7 +39,7 @@ public class UserController {
     public User getUser(@PathVariable Long userId) {
         LOGGER.debug("Entering UserController.getUser()");
 
-        User user = userService.getUserById(userId);
+        User user = userService.findUserById(userId);
 
         user.add(linkTo(methodOn(UserController.class)
                 .getUser(user.getId()))
@@ -55,12 +56,12 @@ public class UserController {
     @GetMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Page<User> getUsers(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
-            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset) {
+            @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
+            @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering UserController.getUsers()");
 
-        Page<User> users = userService.getUsers(sortBy, max, offset);
+        Page<User> users = userService.findUsers(sortBy, max, page);
 
         users.forEach(user -> {
                     user.add(linkTo(methodOn(UserController.class)

@@ -3,7 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.GiftCertificate;
 import com.epam.esm.Tag;
 import com.epam.esm.impl.GiftCertificateService;
-import com.epam.esm.util.GetMethodProperty;
+import com.epam.esm.util.DefaultValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,7 @@ public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
 
+
     @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService) {
         this.giftCertificateService = giftCertificateService;
@@ -39,7 +40,7 @@ public class GiftCertificateController {
     public GiftCertificate getCertificateById(@PathVariable Long id) {
         LOGGER.debug("Entering GiftCertificateController.getCertificatedById()");
 
-        GiftCertificate giftCertificate = giftCertificateService.findById(id);
+        GiftCertificate giftCertificate = giftCertificateService.findGiftCertificateById(id);
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
                 .getCertificateById(id))
@@ -65,14 +66,14 @@ public class GiftCertificateController {
     @GetMapping("/")
     @PreAuthorize("hasAnyRole('ROLE_GUEST','ROLE_USER','ROLE_ADMIN')")
     public Page<GiftCertificate> getCertificates(
-            @RequestParam(value = "sort_by", defaultValue = GetMethodProperty.DEFAULT_SORT_BY) List<String> sortBy,
-            @RequestParam(value = "max", defaultValue = GetMethodProperty.DEFAULT_MAX_VALUE) int max,
-            @RequestParam(value = "offset", defaultValue = GetMethodProperty.DEFAULT_OFFSET) int offset,
+            @RequestParam(value = "sort_by", defaultValue = DefaultValue.DEFAULT_SORT_BY) List<String> sortBy,
+            @RequestParam(value = "max", defaultValue = DefaultValue.DEFAULT_MAX_VALUE) int max,
+            @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page,
             @RequestParam(value = "tag", required = false) Set<String> tags) {
         LOGGER.debug("Entering GiftCertificateController.getCertificates()");
 
         Page<GiftCertificate> giftCertificates =
-                giftCertificateService.getGiftCertificates(tags, sortBy, max, offset);
+                giftCertificateService.getGiftCertificates(tags, sortBy, max, page);
 
         giftCertificates.forEach(giftCertificate -> {
 

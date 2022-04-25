@@ -8,7 +8,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,11 +46,11 @@ public class TagService {
     }
 
 
-    public Page<Tag> getAll(List<String> sortBy, int max, int offset) throws NoSuchElementException {
+    public Page<Tag> findTags(List<String> sortBy, int max, int page) throws NoSuchElementException {
         LOGGER.debug("Entering tagService.getAll");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);
-        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(offset, max, sortParams));
+        Page<Tag> foundTags = tagRepository.findAll(PageRequest.of(page, max, sortParams));
         if (foundTags.isEmpty()) {
             LOGGER.error("NoSuchElementException in TagController.getTags()\n" +
                     "No Tags exist");
@@ -62,27 +61,24 @@ public class TagService {
         return foundTags;
     }
 
-    //TODO -- is(tagAlreadyExists(tag)) -- DuplicateKeyException
     public Tag create(Tag tag) {
         LOGGER.debug("Entering TagService.create");
-
         String tagName = tag.getName();
-        Optional<Tag> existingTag = tagRepository.findByName(tagName);
-        if (existingTag.isPresent()) {
+
+        if (tagAlreadyExists(tagName)) {
             throw new ConstraintViolationException(String.format("Tag with name [%s] already exists", tagName),
                     new SQLException(), "gift certificate name");
         }
+
         Tag createdTag = tagRepository.save(tag);
 
         LOGGER.debug("Exiting TagService.create");
         return createdTag;
     }
 
-    //TODO -- check that works without try/catch
-    public boolean delete(Long id) {
+    public boolean deleteTag(Long id) {
         LOGGER.debug("Entering TagService.delete()");
         boolean tagIsDeleted;
-//        try {
         Optional<Tag> tagToDelete = tagRepository.findById(id);
         if (tagToDelete.isPresent()) {
             tagRepository.delete(tagToDelete.get());
@@ -95,13 +91,9 @@ public class TagService {
         }
         LOGGER.debug("Exiting TagService.delete()");
         return tagIsDeleted;
-//        } catch (EmptyResultDataAccessException e) {
-//            return false;
-//        }
-
     }
 
-    public Tag findTagByName(String tagName) throws NoSuchElementException{
+    public Tag findTagByName(String tagName) throws NoSuchElementException {
         LOGGER.debug("Entering TagService.getTagByName()");
 
         Tag foundTag = tagRepository.findByName(tagName).orElseThrow(() -> new NoSuchElementException(String
@@ -111,21 +103,23 @@ public class TagService {
         return foundTag;
     }
 
-    //TODO -- fix
+
     public Tag getMostUsedTagForRichestUser() {
         try {
             LOGGER.debug("Entering TagService.getMostUsedTagForRichestUser()");
 
             long richestUserId = tagRepository.getRichestUserId();
-            Tag tag = tagRepository.getMostUsedTagForRichestUser(richestUserId)
-                    .orElseThrow(() -> new NoSuchElementException("No certificates with tags exist in orders"));
+            String tagName = tagRepository.getMostUsedTagForRichestUser(richestUserId);
+            Tag tag = tagRepository.findByName(tagName)
+                    .orElseThrow(() -> new NoSuchElementException(String
+                            .format("No tag with name [%s] exists",tagName)));
 
             LOGGER.debug("Exiting TagService.getMostUsedTagForRichestUser()");
             return tag;
-        } catch (NoResultException e) {
+        } catch (NoResultException | NullPointerException e) {
             LOGGER.error("NoResultException in TagService.getMostUsedTagForRichestUser()\n"
                     + e.getMessage());
-            throw new NoResultException("No tags exist yet.");
+            throw new NoResultException("No orders exist yet.");
         }
 
     }

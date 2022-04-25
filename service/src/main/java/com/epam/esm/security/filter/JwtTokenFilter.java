@@ -3,9 +3,7 @@ package com.epam.esm.security.filter;
 import com.epam.esm.security.ApplicationUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -47,18 +45,14 @@ public class JwtTokenFilter extends GenericFilterBean {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
         LOGGER.debug("Process request to check for a JSON Web Token ");
-        //Check for Authorization:Bearer JWT
         String headerValue = ((HttpServletRequest) req).getHeader(AUTHORIZATION);
         getBearerToken(headerValue).ifPresent(token -> {
-            //Pull the Username and Roles from the JWT to construct the user details
             applicationUserDetailsService.loadUserByJwtToken(token).ifPresent(userDetails -> {
-                //Add the user details (Permissions) to the Context for just this API invocation
                 SecurityContextHolder.getContext().setAuthentication(
                         new PreAuthenticatedAuthenticationToken(userDetails, "", userDetails.getAuthorities()));
             });
         });
 
-        //move on to the next filter in the chains
         filterChain.doFilter(req, res);
     }
 

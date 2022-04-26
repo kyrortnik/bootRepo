@@ -8,7 +8,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.verification.VerificationMode;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -284,7 +283,7 @@ class GiftCertificateServiceTest {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
         when(giftCertificateRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(giftCertificatesPage);
 
-        Page<GiftCertificate> returnGiftCertificates = giftCertificateService.getAllGiftCertificates(sortParams, max, page);
+        Page<GiftCertificate> returnGiftCertificates = giftCertificateService.findAllGiftCertificates(sortParams, max, page);
 
         verify(giftCertificateRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(giftCertificatesPage, returnGiftCertificates);
@@ -296,7 +295,7 @@ class GiftCertificateServiceTest {
         when(giftCertificateRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(emptyGiftCertificatePage);
 
         Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> giftCertificateService
-                .getAllGiftCertificates(sortParams, max, page));
+                .findAllGiftCertificates(sortParams, max, page));
         String expectedMessage = "No Satisfying Gift Certificates exist";
         String actualMessage = noSuchElementException.getMessage();
 
@@ -314,7 +313,7 @@ class GiftCertificateServiceTest {
                 .thenReturn(giftCertificatesWithTagsPage);
 
         Page<GiftCertificate> giftCertificateWithTags = giftCertificateService
-                .getGiftCertificatesByTags(sortParams, max, page, tagNames);
+                .findGiftCertificatesByTags(sortParams, max, page, tagNames);
 
         verify(tagService).getTagsByNames(tagNames);
         verify(giftCertificateRepository).findByTagsIn(tags, PageRequest.of(page, max, sort));

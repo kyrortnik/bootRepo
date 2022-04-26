@@ -38,7 +38,7 @@ public class OrderController {
     public Order getOrder(@PathVariable Long orderId) {
         LOGGER.debug("Entering OrderController.getOrder()");
 
-        Order order = orderService.getOrderById(orderId);
+        Order order = orderService.findOrderById(orderId);
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getOrder(order.getId()))
@@ -64,7 +64,7 @@ public class OrderController {
             @RequestParam(value = "page", defaultValue = DefaultValue.DEFAULT_PAGE) int page) {
         LOGGER.debug("Entering OrderController.getOrders()");
 
-        Page<Order> orders = orderService.getOrders(sortBy, max, page);
+        Page<Order> orders = orderService.findOrders(sortBy, max, page);
         orders.forEach(foundOrder -> {
                     foundOrder.add(linkTo(methodOn(OrderController.class)
                             .getOrder(foundOrder.getId()))
@@ -128,12 +128,12 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public GiftCertificate getOrderGiftCertificate(@PathVariable long orderId) {
         LOGGER.debug("Entering OrderController.getOrderGiftCertificate()");
-        Order order = orderService.getOrderById(orderId);
+        Order order = orderService.findOrderById(orderId);
 
         GiftCertificate giftCertificate = order.getGiftCertificate();
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
-                .getCertificateById(giftCertificate.getId()))
+                .getGiftCertificateById(giftCertificate.getId()))
                 .withSelfRel());
 
         giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)

@@ -41,7 +41,7 @@ public class OrderService {
     }
 
 
-    public Order getOrderById(Long orderId) throws NoSuchElementException {
+    public Order findOrderById(Long orderId) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrderById()");
 
         Order foundOrder = orderRepository.findById(orderId)
@@ -54,7 +54,7 @@ public class OrderService {
     }
 
 
-    public Page<Order> getOrders(List<String> sortBy, int max, int page) throws NoSuchElementException {
+    public Page<Order> findOrders(List<String> sortBy, int max, int page) throws NoSuchElementException {
         LOGGER.debug("Entering OrderService.getOrders()");
 
         Sort sortParams = requestParamsMapper.mapParams(sortBy);

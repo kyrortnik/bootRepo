@@ -66,13 +66,13 @@ public class GiftCertificateService {
 
     }
 
-    public Page<GiftCertificate> getGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int page)
+    public Page<GiftCertificate> findGiftCertificates(Set<String> tagNames, List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getGiftCertificates");
 
         Page<GiftCertificate> giftCertificates = isNull(tagNames)
-                ? getAllGiftCertificates(sortBy, max, page)
-                : getGiftCertificatesByTags(sortBy, max, page, tagNames);
+                ? findAllGiftCertificates(sortBy, max, page)
+                : findGiftCertificatesByTags(sortBy, max, page, tagNames);
         if (giftCertificates.getContent().isEmpty()) {
             LOGGER.error("NoEntitiesFoundException in GiftCertificateController.getCertificates()\n" +
                     "No Satisfying Gift Certificates exists");
@@ -83,7 +83,7 @@ public class GiftCertificateService {
     }
 
 
-    public Page<GiftCertificate> getAllGiftCertificates(List<String> sortBy, int max, int page)
+    public Page<GiftCertificate> findAllGiftCertificates(List<String> sortBy, int max, int page)
             throws NoSuchElementException {
         LOGGER.debug("Entering GiftCertificateService.getAll");
 
@@ -103,7 +103,7 @@ public class GiftCertificateService {
 
 
     public Page<GiftCertificate>
-    getGiftCertificatesByTags(List<String> sortBy, int max, int page, Set<String> tagNames) {
+    findGiftCertificatesByTags(List<String> sortBy, int max, int page, Set<String> tagNames) {
         LOGGER.debug("Entering GiftCertificateService.getCertificatesByTags()");
 
         Sort sortingParams = requestParamsMapper.mapParams(sortBy);

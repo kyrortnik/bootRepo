@@ -4,12 +4,14 @@ import com.epam.esm.GiftCertificate;
 import com.epam.esm.Order;
 import com.epam.esm.Tag;
 import com.epam.esm.impl.GiftCertificateService;
+import com.epam.esm.impl.TagService;
 import com.epam.esm.security.ApplicationUserDetailsService;
 import com.google.gson.Gson;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,11 +58,11 @@ class GiftCertificateControllerTest {
     private final String URL = "/api/v1/certificates/";
     private final long giftCertificateId = 11L;
     private final String giftCertificateName = "giftCertificateName";
-    private final String giftCertificateDescription = "giftCertificateDescription";
-    private final long giftCertificateDuration = 360;
-    private final long giftCertificatePrice = 300;
-    private final LocalDateTime createDate = LocalDateTime.of(2022,4,25,15,0);
-    private final LocalDateTime lastUpdateDate = LocalDateTime.of(2022,4,25,16,16);
+//    private final String giftCertificateDescription = "giftCertificateDescription";
+//    private final long giftCertificateDuration = 360;
+//    private final long giftCertificatePrice = 300;
+//    private final LocalDateTime createDate = LocalDateTime.of(2022,4,25,15,0);
+//    private final LocalDateTime lastUpdateDate = LocalDateTime.of(2022,4,25,16,16);
     private final Set<Tag> tags = new HashSet<>(Arrays.asList(new Tag(1L,"tagName")));
     private final Set<Order> orders = new HashSet<>(Arrays.asList(new Order()));
 
@@ -139,8 +142,9 @@ class GiftCertificateControllerTest {
     @Test
     @WithMockUser(roles = {roleAdmin, roleUser, roleGuest})
     public void test_getGiftCertificates_is200() throws Exception {
-        given(giftCertificateService.findGiftCertificates(tagNames, sortBy, max, page)).willReturn(
-                giftCertificatePage);
+//        when(giftCertificateService.findGiftCertificates(tagNames,sortBy,max,page)).thenReturn(giftCertificatePage);
+        given(giftCertificateService.findGiftCertificates(tagNames, sortBy, max, page))
+                .willReturn(giftCertificatePage);
 
         mockMvc.perform(get(URL))
                 .andDo(print())
@@ -169,21 +173,15 @@ class GiftCertificateControllerTest {
     @Test
     @WithMockUser(roles = roleAdmin)
     public void test_createGiftCertificate_is201() throws Exception {
-        GiftCertificate createdGiftCertificate = new GiftCertificate.GiftCertificateBuilder(giftCertificateName)
+        GiftCertificate createdGiftCertificate = new GiftCertificate
+                .GiftCertificateBuilder(giftCertificateName)
                 .id(giftCertificateId)
-                /*.description(giftCertificateDescription)
-                .price(giftCertificatePrice)
-                .duration(giftCertificateDuration)
-                .lastUpdateDate(lastUpdateDate)
-                .createDate(createDate)
-                .tags(tags)
-                .orders(orders)*/
                 .build();
 
+        given(giftCertificateService.create(inputGiftCertificate)).willReturn(createdGiftCertificate);
         Gson gson = new Gson();
         String json = gson.toJson(inputGiftCertificate);
 
-        given(giftCertificateService.create(inputGiftCertificate)).willReturn(createdGiftCertificate);
 
         mockMvc.perform(post(URL)
                 .contentType(APPLICATION_JSON)

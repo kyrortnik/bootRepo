@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
@@ -158,7 +157,7 @@ class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        Order returnOrder = orderService.getOrderById(orderId);
+        Order returnOrder = orderService.findOrderById(orderId);
 
         verify(orderRepository).findById(orderId);
         assertTrue(nonNull(returnOrder));
@@ -170,7 +169,7 @@ class OrderServiceTest {
         long nonExistingOrderId = 1111L;
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> orderService.getOrderById(nonExistingOrderId));
+        Exception noSuchElementException = assertThrows(NoSuchElementException.class, () -> orderService.findOrderById(nonExistingOrderId));
         String expectedMessage = String.format("No order with id %s exists", nonExistingOrderId);
         String actualMessage = noSuchElementException.getMessage();
 
@@ -184,7 +183,7 @@ class OrderServiceTest {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
         when(orderRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(orderPage);
 
-        Page<Order> returnOrders = orderService.getOrders(sortParams, max, page);
+        Page<Order> returnOrders = orderService.findOrders(sortParams, max, page);
 
         verify(orderRepository).findAll(PageRequest.of(page, max, sort));
         assertEquals(orderPage, returnOrders);
@@ -198,7 +197,7 @@ class OrderServiceTest {
         when(orderRepository.findAll(PageRequest.of(page, max, sort))).thenReturn(emptyOrderPage);
 
         Exception noSuchElementException = assertThrows(NoSuchElementException.class,
-                () -> orderService.getOrders(sortParams, max, page));
+                () -> orderService.findOrders(sortParams, max, page));
 
         String expectedMessage = "No Orders exist";
         String actualMessage = noSuchElementException.getMessage();

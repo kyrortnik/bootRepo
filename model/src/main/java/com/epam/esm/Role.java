@@ -20,6 +20,7 @@ public class Role implements GrantedAuthority {
     private Long id;
 
     @NonNull
+    //TODO -- do i need this annotation?
     private String name;
 
     private String description;

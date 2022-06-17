@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan
 public class WebConfig implements WebMvcConfigurer {
 
+    //TODO -- what's this bean?
     @Bean
     WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> enableDefaultServlet() {
         return (factory) -> factory.setRegisterDefaultServlet(true);

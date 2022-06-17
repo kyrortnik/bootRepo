@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Audited
 @Entity
+//TODO -- callSuper ??
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor

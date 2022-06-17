@@ -24,6 +24,7 @@ public class Tag extends RepresentationModel<Tag> {
     private Long id;
 
     @NonNull
+    //TODO -- do i need this anno?
     private String name;
 
 

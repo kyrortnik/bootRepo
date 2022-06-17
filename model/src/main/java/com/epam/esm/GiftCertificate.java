@@ -49,42 +49,13 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
+    //TODO JsonProperty ???
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(mappedBy = "giftCertificate", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Order> orders = new HashSet<>();
-
-    public GiftCertificate(GiftCertificateBuilder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.price = builder.price;
-        this.duration = builder.duration;
-        this.createDate = builder.createDate;
-        this.lastUpdateDate = builder.lastUpdateDate;
-        this.tags = builder.tags;
-        this.orders = builder.orders;
-
-    }
-
-
-    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
-        this.setName(nonNull(changedGiftCertificate.getName())
-                ? changedGiftCertificate.getName() : this.getName());
-        this.setDescription(nonNull(changedGiftCertificate.getDescription())
-                ? changedGiftCertificate.getDescription() : this.getDescription());
-        this.setPrice(nonNull(changedGiftCertificate.getPrice())
-                ? changedGiftCertificate.getPrice() : this.getPrice());
-        this.setDuration(nonNull(changedGiftCertificate.getDuration())
-                ? changedGiftCertificate.getDuration() : this.getDuration());
-        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate())
-                ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
-        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
-        this.setTags(nonNull(changedGiftCertificate.getTags())
-                ? changedGiftCertificate.getTags() : this.getTags());
-    }
 
     public static class GiftCertificateBuilder {
 
@@ -147,5 +118,37 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             return new GiftCertificate(this);
         }
     }
+
+    public GiftCertificate(GiftCertificateBuilder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.price = builder.price;
+        this.duration = builder.duration;
+        this.createDate = builder.createDate;
+        this.lastUpdateDate = builder.lastUpdateDate;
+        this.tags = builder.tags;
+        this.orders = builder.orders;
+
+    }
+
+
+    public void mergeTwoGiftCertificate(GiftCertificate changedGiftCertificate) {
+        this.setName(nonNull(changedGiftCertificate.getName())
+                ? changedGiftCertificate.getName() : this.getName());
+        this.setDescription(nonNull(changedGiftCertificate.getDescription())
+                ? changedGiftCertificate.getDescription() : this.getDescription());
+        this.setPrice(nonNull(changedGiftCertificate.getPrice())
+                ? changedGiftCertificate.getPrice() : this.getPrice());
+        this.setDuration(nonNull(changedGiftCertificate.getDuration())
+                ? changedGiftCertificate.getDuration() : this.getDuration());
+        this.setCreateDate(nonNull(changedGiftCertificate.getCreateDate())
+                ? changedGiftCertificate.getCreateDate() : this.getCreateDate());
+        this.setLastUpdateDate(changedGiftCertificate.getLastUpdateDate());
+        this.setTags(nonNull(changedGiftCertificate.getTags())
+                ? changedGiftCertificate.getTags() : this.getTags());
+    }
+
+
 
 }

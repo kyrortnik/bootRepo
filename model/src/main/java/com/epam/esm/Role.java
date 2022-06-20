@@ -19,8 +19,7 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    //TODO -- do i need this annotation?
+
     private String name;
 
     private String description;

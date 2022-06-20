@@ -23,8 +23,7 @@ public class Tag extends RepresentationModel<Tag> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    //TODO -- do i need this anno?
+
     private String name;
 
 

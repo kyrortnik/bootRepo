@@ -138,11 +138,10 @@ class GiftCertificateControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    //TODO investigate
+
     @Test
     @WithMockUser(roles = {roleAdmin, roleUser, roleGuest})
     public void test_getGiftCertificates_is200() throws Exception {
-//        when(giftCertificateService.findGiftCertificates(tagNames,sortBy,max,page)).thenReturn(giftCertificatePage);
         given(giftCertificateService.findGiftCertificates(tagNames, sortBy, max, page))
                 .willReturn(giftCertificatePage);
 

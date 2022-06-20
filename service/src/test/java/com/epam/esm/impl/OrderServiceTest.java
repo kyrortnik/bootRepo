@@ -322,36 +322,6 @@ class OrderServiceTest {
         assertEquals(expectedMessage, actualMessage);
 
     }
-//TODO -- why returns false from repo
-//    @Test
-//    void testCreateOrder_orderAlreadyExist() {
-//
-//        Order orderFromClient = new Order.OrderBuilder()
-//                .giftCertificate(giftCertificateForOrder)
-//                .user(userForOrder)
-//                .build();
-//
-//        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny()
-//                .withMatcher("giftCertificate", ExampleMatcher.GenericPropertyMatchers.exact())
-//                .withMatcher("user", ExampleMatcher.GenericPropertyMatchers.exact());
-//
-//        Example<Order> orderExample = Example.of(order, customExampleMatcher);
-//
-//        when(giftCertificateService
-//                .findGiftCertificateByName(giftCertificateForOrder.getName())).thenReturn(giftCertificate);
-//        when(userService.findUserById(userForOrder.getId())).thenReturn(user);
-//        when(orderRepository.exists(orderExample)).thenReturn(true);
-//
-//        Exception duplicateKeyException = assertThrows(DuplicateKeyException.class,
-//                () -> orderService.create(orderFromClient));
-//        String expectedMessage = "Such order already exists";
-//        String actualMessage = duplicateKeyException.getMessage();
-//
-//        verify(orderRepository).exists(orderExample);
-//        assertEquals(expectedMessage, actualMessage);
-//
-//    }
-
 
     @Test
     void testDeleteOrder_idExists() {

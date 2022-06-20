@@ -49,7 +49,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
             joinColumns = {@JoinColumn(name = "certificate_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    //TODO JsonProperty ???
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tag> tags = new HashSet<>();
 

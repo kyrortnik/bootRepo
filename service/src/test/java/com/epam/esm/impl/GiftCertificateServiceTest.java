@@ -304,7 +304,6 @@ class GiftCertificateServiceTest {
 
     }
 
-    //TODO -- test manually
     @Test
     void testGetCertificatesByTags_giftCertificatesWithTagsExist() {
         when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
@@ -320,23 +319,6 @@ class GiftCertificateServiceTest {
         assertEquals(giftCertificatesWithTagsPage, giftCertificateWithTags);
     }
 
-    //TODO -- test manually
-//    @Test
-//    void testGetCertificatesByTags_noGiftCertificatesWithTags() {
-//        when(requestParamsMapper.mapParams(sortParams)).thenReturn(sort);
-//        when(tagService.getTagsByNames(tagNames)).thenReturn(tags);
-//        when(giftCertificateRepository.findByTagsIn(tags,PageRequest.of(page, max, sort)))
-//                .thenReturn(emptyGiftCertificatePage);
-//
-//        Page<GiftCertificate> giftCertificatesWithoutTags = giftCertificateService
-//                .getGiftCertificatesByTags(sortParams, max, page, tagNames);
-//
-//        verify(tagService).getTagsByNames(noTagNames);
-//        verify(giftCertificateRepository).findByTagsIn(tags,PageRequest.of(page, max, sort));
-//        assertEquals(emptyGiftCertificatePage, giftCertificatesWithoutTags);
-//
-//    }
-//
     @Test
     void testDelete_idExists() {
         when(giftCertificateRepository.findById(giftCertificateId)).thenReturn(Optional.of(existingGiftCertificate));
